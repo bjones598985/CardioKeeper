@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+        <!--
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/nav_header_vertical_spacing"
+            app:srcCompat="@android:drawable/sym_def_app_icon" />
+        -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:paddingTop="16dp"
+            android:text="Cardio Keeper"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        <!--
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="android.studio@android.com" />
+            -->
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/duration_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/HelloGraphNavTextView"
+        android:text="@string/duration"/>
+
+    <TextView
+        android:id="@+id/distance_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/HelloGraphNavTextView"
+        android:text="@string/distance"/>
+
+    <TextView
+        android:id="@+id/cal_burn_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/HelloGraphNavTextView"
+        android:text="@string/cal_burned"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#cccccc"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/weeks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/HelloGraphNavTextView"
+        android:text="@string/week"/>
+
+    <TextView
+        android:id="@+id/months"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/HelloGraphNavTextView"
+        android:text="@string/month"/>
+
+    <TextView
+        android:id="@+id/year"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/HelloGraphNavTextView"
+        android:text="@string/year"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#cccccc"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"/>
+
+</LinearLayout>

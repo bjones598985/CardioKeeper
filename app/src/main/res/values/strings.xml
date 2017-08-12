@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Cardio Keeper</string>
+    <string name="action_graph">About</string>
+    <string name="duration">Duration</string>
+    <string name="distance">Distance</string>
+    <string name="cal_burned">Calories Burned</string>
+
+    <string-array name="graph_array_list">
+        <item>Select\u2026</item>
+        <item>@string/duration</item>
+        <item>@string/distance</item>
+        <item>@string/cal_burned</item>
+    </string-array>
+
+    <string-array name="time_frame">
+        <item>Days</item>
+        <item>Weeks</item>
+        <item>Months</item>
+    </string-array>
+
+    <string-array name="cardio_types">
+        <item>Select\u2026</item>
+        <item>Biking</item>
+        <item>Elliptical</item>
+        <item>Exercise Bike</item>
+        <item>Hiking</item>
+        <item>Jogging</item>
+        <item>Jump Rope</item>
+        <item>Rowing</item>
+        <item>Rowing Machine</item>
+        <item>Running</item>
+        <item>Stair Stepper</item>
+        <item>Treadmill</item>
+        <item>Walking</item>
+    </string-array>
+    
+    <string name="column_num">\u0023</string>
+    <string name="column_date">Date</string>
+    <string name="column_time">Time</string>
+    <string name="column_distance">Dist.</string>
+    <string name="column_calories">Cals.</string>
+
+    <!-- HelloGraph Strings -->
+    <string name="week">Weeks</string>
+    <string name="month">Months</string>
+    <string name="year">Years</string>
+
+
+</resources>
