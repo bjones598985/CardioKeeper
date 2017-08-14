@@ -45,9 +45,9 @@ public class HelloGraph extends AppCompatActivity {
     boolean initialDataLoaded = false;
     int baseAverage = 3;
     int zoomLevel = 2;
-    int columnColor = Color.parseColor("#303F9F");
+    int columnColor = Color.parseColor("#ffffff");
     int lineColor = Color.parseColor("#00ff00");
-    int axisColor = Color.parseColor("#000000");
+    int axisColor = Color.parseColor("#ffffff");
 
     int timeFrame = MONTH;
     String query = QueryStrings.DURATION_QUERY;
