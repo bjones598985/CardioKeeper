@@ -33,12 +33,12 @@
         <item>Treadmill</item>
         <item>Walking</item>
     </string-array>
-    
-    <string name="column_num">\u0023</string>
+
     <string name="column_date">Date</string>
     <string name="column_time">Time</string>
     <string name="column_distance">Dist.</string>
     <string name="column_calories">Cals.</string>
+    <string name="cardio_icon_description">Cardio Icon</string>
 
     <!-- HelloGraph Strings -->
     <string name="week">Weeks</string>

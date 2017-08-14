@@ -20,67 +20,49 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:id="@+id/column_headers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/column_headers">
-
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/column_num"
-                android:id="@+id/textView2"
-                android:layout_weight="1"
-                android:gravity="center" />
+            android:orientation="horizontal"
+            android:theme="@style/Theme.AppCompat">
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/column_date"
                 android:id="@+id/textView3"
-                android:layout_weight="2"
-                android:gravity="center" />
-
-            <TextView
+                style="@style/MainActivityTextViews"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/column_time"
+                android:text="@string/column_date" />
+
+            <TextView
                 android:id="@+id/textView4"
-                android:layout_weight="2"
-                android:gravity="center" />
-
-            <TextView
+                style="@style/MainActivityTextViews"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/column_distance"
+                android:text="@string/column_time" />
+
+            <TextView
                 android:id="@+id/textView5"
-                android:layout_weight="2"
-                android:gravity="center" />
-
-            <TextView
+                style="@style/MainActivityTextViews"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/column_calories"
+                android:text="@string/column_distance" />
+
+            <TextView
                 android:id="@+id/textView6"
-                android:layout_weight="2"
-                android:gravity="center" />
+                style="@style/MainActivityTextViews"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/column_calories" />
+
+            <TextView
+                android:id="@+id/textView2"
+                style="@style/MainActivityTextViews"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
 
     </android.support.design.widget.AppBarLayout>
-
-    <!--<include layout="@layout/content_main" /> -->
-
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/listView"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/main_recyclerview"

@@ -3,13 +3,12 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeightSmall"
-    android:padding="2dp"
     android:background="?attr/selectableItemBackground">
 
     <TextView
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:id="@+id/column_number"
+        android:id="@+id/list_date_input"
         android:layout_weight="1"
         android:padding="4dp"
         android:gravity="center" />
@@ -17,16 +16,8 @@
     <TextView
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:id="@+id/list_date_input"
-        android:layout_weight="2"
-        android:padding="4dp"
-        android:gravity="center" />
-
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
         android:id="@+id/list_time_input"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:padding="4dp"
         android:gravity="center" />
 
@@ -34,7 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:id="@+id/list_miles_input"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:padding="4dp"
         android:gravity="center" />
 
@@ -42,8 +33,16 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:id="@+id/list_calories_input"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:padding="4dp"
         android:gravity="center" />
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:id="@+id/column_icon"
+        android:layout_weight="1"
+        android:padding="4dp"
+        android:contentDescription="@string/cardio_icon_description" />
 
 </LinearLayout>

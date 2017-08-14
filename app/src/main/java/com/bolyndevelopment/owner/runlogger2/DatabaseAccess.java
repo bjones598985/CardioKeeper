@@ -23,12 +23,11 @@ class DatabaseAccess {
 
     public SQLDatabaseHelper helper;
     private SQLiteDatabase database;
-    public String[] from = new String[]{SQLDatabaseHelper._ID, //0
-            SQLDatabaseHelper.COL_DATE, //1
-            SQLDatabaseHelper.COL_TIME, //2
-            SQLDatabaseHelper.COL_MILES, //3
-            SQLDatabaseHelper.COL_CALORIES, //4
-            SQLDatabaseHelper.COL_CARDIO_TYPE}; //5
+    public String[] from = new String[]{SQLDatabaseHelper.COL_DATE, //0
+            SQLDatabaseHelper.COL_TIME, //1
+            SQLDatabaseHelper.COL_MILES, //2
+            SQLDatabaseHelper.COL_CALORIES, //3
+            SQLDatabaseHelper.COL_CARDIO_TYPE}; //4
 
     private DatabaseAccess() {
         helper = new SQLDatabaseHelper(MyApplication.appContext);
@@ -57,14 +56,7 @@ class DatabaseAccess {
     }
 
     public Cursor getRecords() {
-        Cursor c = null;
-        database = helper.getReadableDatabase();
-        try {
-            c = database.query(SQLDatabaseHelper.DATA_TABLE, from, null, null, null, null, null);
-        } catch (Exception e) {
-
-        }
-        return c;
+        return helper.getReadableDatabase().query(SQLDatabaseHelper.DATA_TABLE, from, null, null, null, null, SQLDatabaseHelper.COL_DATE + " desc");
     }
 
     //will still work

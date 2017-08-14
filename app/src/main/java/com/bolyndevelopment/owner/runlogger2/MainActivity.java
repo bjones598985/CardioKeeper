@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -42,13 +43,11 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         initRecyclerView();
         //addRandomData();
         queryForRecords();
-
 
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,11 +110,12 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 ListItem item;
                 while (!cursor.isAfterLast()) {
                     item = new ListItem();
-                    item.order = cursor.getInt(0);
-                    item.calories = cursor.getInt(4);
-                    item.distance = cursor.getFloat(3);
-                    item.date = cursor.getString(1);
-                    item.time = Utils.convertMillisToHms(cursor.getLong(2));
+                    //item.order = cursor.getInt(0);
+                    item.cType = cursor.getString(4);
+                    item.calories = cursor.getInt(3);
+                    item.distance = cursor.getFloat(2);
+                    item.date = cursor.getString(0);
+                    item.time = Utils.convertMillisToHms(cursor.getLong(1));
                     recordsList.add(item);
                     cursor.moveToNext();
                 }
@@ -140,9 +140,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     }
 
     private class ListItem {
-        int order, calories;
+        int calories;
         float distance;
-        String date, time;
+        String date, time, cType;
     }
 
     @Override
@@ -165,32 +165,36 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     @Override
     public void onDialogPositiveClick(Bundle bundle) {
         final ArrayList<String> list = bundle.getStringArrayList("data");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long id = DatabaseAccess.getInstance().addRecord(list);
-                if (id > -1) {
-                    ListItem item = new ListItem();
-                    item.order = (int) id;
-                    item.date = String.valueOf(list.get(0));
-                    item.time = String.valueOf(list.get(1));
-                    item.distance = Float.parseFloat((String)list.get(2));
-                    item.calories = Integer.parseInt((String)list.get(3));
-                    recordsList.add(item);
-                    final int index = recordsList.indexOf(item);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAdapter.notifyItemInserted(index);
-                        }
-                    });
+        if (list != null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long id = DatabaseAccess.getInstance().addRecord(list);
+                    if (id > -1) {
+                        ListItem item = new ListItem();
+                        //item.order = (int) id;
+                        item.date = list.get(0);
+                        item.time = list.get(1);
+                        item.distance = Float.parseFloat(list.get(2));
+                        item.calories = Integer.parseInt(list.get(3));
+                        item.cType = list.get(4);
+                        recordsList.add(item);
+                        final int index = recordsList.indexOf(item);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.notifyItemInserted(index);
+                            }
+                        });
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        } else {
+            //alert to their being a problem
+        }
     }
 
-    public void graphIt(int position) {
-        //startActivity(new Intent(this, Graphs.class));
+    public void graphIt(/*int position*/) {
         startActivity(new Intent(this, HelloGraph.class));
     }
 
@@ -209,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         @Override
         public void onBindViewHolder(MyAdapter.BaseViewHolder holder, int position) {
             ListItem item = recordsList.get(position);
-            holder.order.setText(String.valueOf(item.order));
+            //holder.order.setText(String.valueOf(item.order));
             holder.date.setText(item.date);
             holder.time.setText(item.time);
             holder.distance.setText(String.valueOf(item.distance));
@@ -223,20 +227,22 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
         public class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             TextView order, date, time, distance, calories;
+            ImageView icon;
 
             public BaseViewHolder(View itemView) {
                 super(itemView);
                 itemView.setOnClickListener(this);
-                order = (TextView) itemView.findViewById(R.id.column_number);
+                //order = (TextView) itemView.findViewById(R.id.column_number);
                 date = (TextView) itemView.findViewById(R.id.list_date_input);
                 time = (TextView) itemView.findViewById(R.id.list_time_input);
                 distance = (TextView) itemView.findViewById(R.id.list_miles_input);
                 calories = (TextView) itemView.findViewById(R.id.list_calories_input);
+                icon = (ImageView) itemView.findViewById(R.id.column_icon);
             }
 
             @Override
             public void onClick(View v) {
-                graphIt(getAdapterPosition());
+                graphIt(/*getAdapterPosition()*/);
             }
         }
     }
