@@ -175,6 +175,7 @@ public class HelloGraph extends AppCompatActivity {
                 }
                 Axis axis = new Axis(axisValues);
                 axis.setTextColor(axisColor);
+                axis.setHasTiltedLabels(true);
                 final ComboLineColumnChartData data = new ComboLineColumnChartData(columnData, lineData);
                 data.setAxisXBottom(axis);
                 Axis axisY = new Axis().setHasLines(true).setTextColor(axisColor);
@@ -277,6 +278,14 @@ public class HelloGraph extends AppCompatActivity {
                 Column col = new Column(subcolumnValues);
                 col.setHasLabelsOnlyForSelected(true);
                 columns.add(col);
+                final AxisValue av = new AxisValue(count);
+                int mod = count % baseAverage;
+                if (count > 0 && mod == 0) {
+                    av.setLabel(results.getString(0));
+                } else {
+                    av.setLabel("");
+                }
+                axisValues.add(av);
                 results.moveToNext();
                 count++;
             }
