@@ -32,11 +32,19 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MainActivity extends AppCompatActivity implements LogActivityDialogFragment.LogActivityListener{
     public static final String TAG = "MainActivity";
+    static final int CODE_TIMER = 100;
 
     List<ListItem> recordsList = new ArrayList<>();
     Handler handler = new Handler();
     RecyclerView recyclerView;
     MyAdapter mAdapter;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "Request code: " + requestCode);
+        Log.d(TAG, "Result code: " + resultCode);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +63,13 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 showDialog();
             }
         });
-        startActivity(new Intent(this, TimerActivity.class));
+        findViewById(R.id.fab_time_record).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
+            }
+        });
+
     }
 
     private void addRandomData() {

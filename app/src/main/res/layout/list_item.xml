@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/listPreferredItemHeight"
     android:orientation="horizontal"
-    android:background="@android:color/white"
-    android:padding="8dp">
+    android:background="@android:color/white">
 
     <TextView
         android:id="@+id/order_textview"
@@ -22,7 +21,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:layout_marginStart="16dp"
-        android:textSize="32sp"
+        android:textSize="42sp"
         android:text="00:00:00"
         android:textColor="@android:color/black"/>
 

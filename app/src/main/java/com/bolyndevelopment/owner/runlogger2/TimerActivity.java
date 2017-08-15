@@ -1,6 +1,7 @@
 package com.bolyndevelopment.owner.runlogger2;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     ActivityTimerBinding binder;
     long timeStopped;
     ArrayList<String> lapList;
+    Typeface digital, digitalItalic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             this.onClick(binder.startTimer);
             lapList = savedInstanceState.getStringArrayList("list");
         }
+        digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
+        digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
+        binder.chronometer.setTypeface(digital);
 
         initButtons();
         initRv();
@@ -115,11 +120,12 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.chronometer.setBase(SystemClock.elapsedRealtime());
                 binder.startTimer.animate().alpha(1f).start();
                 binder.startTimer.setVisibility(View.VISIBLE);
+                lapList.clear();
+                binder.list.getAdapter().notifyDataSetChanged();
         }
     }
 
     private class LapAdapter extends RecyclerView.Adapter<LapAdapter.LapHolder> {
-        int count = 0;
 
         @Override
         public LapHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -130,6 +136,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onBindViewHolder(LapHolder holder, int position) {
             holder.order.setText(String.valueOf(lapList.size() - position));
+            holder.lap.setTypeface(digitalItalic);
             holder.lap.setText(lapList.get(position));
         }
 
