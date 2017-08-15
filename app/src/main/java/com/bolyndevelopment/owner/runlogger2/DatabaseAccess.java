@@ -50,7 +50,11 @@ class DatabaseAccess {
         values.put(SQLDatabaseHelper.COL_DATE, data.get(0));
         values.put(SQLDatabaseHelper.COL_TIME, Long.parseLong(data.get(1)));
         values.put(SQLDatabaseHelper.COL_MILES, Float.parseFloat(data.get(2)));
-        values.put(SQLDatabaseHelper.COL_CALORIES, Integer.parseInt(data.get(3)));
+        if (!data.get(3).equals("")) {
+            values.put(SQLDatabaseHelper.COL_CALORIES, Integer.parseInt(data.get(3)));
+        } else {
+            values.put(SQLDatabaseHelper.COL_CALORIES, 0);
+        }
         values.put(SQLDatabaseHelper.COL_CARDIO_TYPE, data.get(4));
         return helper.getWritableDatabase().insert(SQLDatabaseHelper.DATA_TABLE, null, values);
     }

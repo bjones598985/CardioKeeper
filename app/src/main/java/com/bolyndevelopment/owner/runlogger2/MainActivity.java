@@ -174,9 +174,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                         ListItem item = new ListItem();
                         //item.order = (int) id;
                         item.date = list.get(0);
-                        item.time = list.get(1);
+                        item.time = Utils.convertMillisToHms(Long.parseLong(list.get(1)));
                         item.distance = Float.parseFloat(list.get(2));
-                        item.calories = Integer.parseInt(list.get(3));
+                        item.calories = list.get(3).equals("") ? 0 : Integer.parseInt(list.get(3));
                         item.cType = list.get(4);
                         recordsList.add(item);
                         final int index = recordsList.indexOf(item);
@@ -199,7 +199,17 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     }
 
     public void showDialog() {
+        Cursor c = DatabaseAccess.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
+        c.moveToFirst();
+
+
+        Bundle b = new Bundle();
+        if (c.getCount() > 0) {
+            b.putString("type", c.getString(1));
+        }
+        c.close();
         final LogActivityDialogFragment frag = new LogActivityDialogFragment();
+        frag.setArguments(b);
         frag.show(getFragmentManager(), "dialog");
     }
 

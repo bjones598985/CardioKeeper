@@ -31,42 +31,6 @@ import java.util.concurrent.TimeUnit;
 public class Utils {
     public static final String TAG = "Utils";
 
-    static int writeWorkoutsToFile(ArrayList<String> list, String fileName, int mode) {
-        final Context context = MyApplication.appContext;
-        FileOutputStream outputStream = null;
-        final List<String> fileList = Arrays.asList(context.fileList());
-        try {
-            /*
-            if (fileList.contains(fileName)) {
-                outputStream = context.openFileOutput(fileName, Context.MODE_APPEND);
-            } else {
-                outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-            }
-            */
-            if (mode == Context.MODE_APPEND) {
-                outputStream = context.openFileOutput(fileName, Context.MODE_APPEND);
-            } else {
-                outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-            }
-
-            //outputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), fileName));
-            StringBuilder sb = new StringBuilder();
-            for (int x = 0; x < list.size() - 1; x++) {
-                sb.append(list.get(x));
-                sb.append(",");
-            }
-            sb.append(list.get(list.size() - 1));
-            sb.append('\n');
-            outputStream.write(sb.toString().getBytes());
-            outputStream.close();
-            return 1;
-        } catch (IOException ioe) {
-            Log.e(TAG, ioe.toString());
-            Log.e(TAG, "The file did not write");
-            return -1;
-        }
-    }
-
     @Nullable
     static Date convertStringToDate(String inDate, String format) {
         DateFormat formatter;

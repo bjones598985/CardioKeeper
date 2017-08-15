@@ -42,23 +42,30 @@
 
             <TextView
                 android:id="@+id/textView5"
-                style="@style/MainActivityTextViews"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="4dp"
+                android:textColor="@android:color/white"
                 android:text="@string/column_distance" />
 
             <TextView
                 android:id="@+id/textView6"
-                style="@style/MainActivityTextViews"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="4dp"
+                android:textColor="@android:color/white"
                 android:text="@string/column_calories" />
 
             <TextView
                 android:id="@+id/textView2"
                 style="@style/MainActivityTextViews"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

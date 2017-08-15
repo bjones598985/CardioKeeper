@@ -27,8 +27,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -49,6 +51,7 @@ public class LogActivityDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
         mListener = (LogActivityListener) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(), R.layout.dialog_frag_layout, null, false);
@@ -59,6 +62,15 @@ public class LogActivityDialogFragment extends DialogFragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         binding.cardioTypeSpinner.setAdapter(adapter);
+        //set the cardio type to the last recorded one
+        final String type = getArguments().getString("type");
+        if (type != null) {
+            final List<String> list = Arrays.asList(getResources().getStringArray(R.array.cardio_types));
+            binding.cardioTypeSpinner.setSelection(list.indexOf(type));
+        }
+        //set the date to today, can change if want
+        String date = Utils.convertDateToString(new Date(), "MM/dd/yyyy");
+        binding.dateInput.setText(date);
         binding.datePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
