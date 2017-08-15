@@ -20,10 +20,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".AndroidDatabaseManager" />
-        <activity android:name=".HelloGraph"
+        <activity
+            android:name=".HelloGraph"
             android:label="Graph It"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".TimerActivity"></activity>
     </application>
 
 </manifest>

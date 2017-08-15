@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 showDialog();
             }
         });
+        startActivity(new Intent(this, TimerActivity.class));
     }
 
     private void addRandomData() {
