@@ -31,6 +31,7 @@ import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SubcolumnValue;
+import lecho.lib.hellocharts.renderer.ComboLineColumnChartRenderer;
 
 public class HelloGraph extends AppCompatActivity {
     //Created by Bobby Jones on 8/11/2017
@@ -43,18 +44,18 @@ public class HelloGraph extends AppCompatActivity {
     private static final int YEAR = 100;
 
     boolean initialDataLoaded = false;
-    int baseAverage = 3;
-    int zoomLevel = 2;
-    int columnColor = Color.parseColor("#ffffff");
-    int lineColor = Color.parseColor("#00ff00");
-    int axisColor = Color.parseColor("#ffffff");
+    int baseAverage;
+    int zoomLevel;
+    int columnColor;
+    int lineColor;
+    int axisColor;
 
     int timeFrame = MONTH;
     String query = QueryStrings.DURATION_QUERY;
 
     Handler handler = new Handler();
     List<Float> rawData;
-    List<AxisValue> axisValues = new ArrayList<>();
+    List<AxisValue> axisValues;
     ColumnChartData columnData;
     LineChartData lineData;
     ActivityGraphsBinding binding;
@@ -68,6 +69,7 @@ public class HelloGraph extends AppCompatActivity {
             timeFrame = savedInstanceState.getInt("timeFrame");
             query = savedInstanceState.getString("query");
         }
+        initVars();
         initSpinners();
         initGraph();
         initFabs();
@@ -82,6 +84,18 @@ public class HelloGraph extends AppCompatActivity {
         outState.putInt("timeFrame", timeFrame);
         outState.putString("query", query);
         super.onSaveInstanceState(outState);
+    }
+
+    private void initVars() {
+        baseAverage = 3;
+        zoomLevel = 2;
+        columnColor = Color.WHITE;
+        lineColor = getResources().getColor(R.color.colorAccent);
+        axisColor = Color.WHITE;
+
+        timeFrame = MONTH;
+        query = QueryStrings.DURATION_QUERY;
+        axisValues = new ArrayList<>();
     }
 
     private void initSpinners() {
@@ -147,7 +161,7 @@ public class HelloGraph extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (zoomLevel < 10) {
-                    binding.helloGraph.setZoomLevelWithAnimation(20, 0, zoomLevel++);
+                    binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel++);
                 }
             }
         });
@@ -155,7 +169,7 @@ public class HelloGraph extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (zoomLevel > -1) {
-                    binding.helloGraph.setZoomLevelWithAnimation(20, 0, zoomLevel--);
+                    binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel--);
                 }
             }
         });
@@ -199,6 +213,8 @@ public class HelloGraph extends AppCompatActivity {
         int count = 0;
         while (!results.isAfterLast()) {
             subcolumnValues = new ArrayList<>();
+            setAxisValues(count, results.getString(0));
+            /*
             final AxisValue av = new AxisValue(count);
             //we only want to put a label on every third piece of data
             int mod = count % baseAverage;
@@ -208,6 +224,7 @@ public class HelloGraph extends AppCompatActivity {
                 av.setLabel("");
             }
             axisValues.add(av);
+            */
             float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
             //we are placing the chart values w/o dates to be used for the average line chart
             rawData.add(raw);
@@ -220,6 +237,18 @@ public class HelloGraph extends AppCompatActivity {
         }
         results.close();
         columnData = new ColumnChartData(columns);
+    }
+
+    private void setAxisValues(int count, String data) {
+        final AxisValue av = new AxisValue(count);
+        //we only want to put a label on every third piece of data
+        int mod = count % baseAverage;
+        if (count > 0 && mod == 0) {
+            av.setLabel(data);
+        } else {
+            av.setLabel("");
+        }
+        axisValues.add(av);
     }
 
     private void updateColumnData(Cursor results) {
@@ -239,14 +268,17 @@ public class HelloGraph extends AppCompatActivity {
                     float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
                     columns.get(j).getValues().get(0).setTarget(raw);
                     rawData.add(raw);
+                    setAxisValues(count, results.getString(0));
+                    /*
                     final AxisValue av = new AxisValue(count);
                     int mod = count % baseAverage;
                     if (count > 0 && mod == 0) {
-                        av.setLabel(results.getString(0));
+                        av.setLabel(results.getString(0).substring(0, 5));
                     } else {
                         av.setLabel("");
                     }
                     axisValues.add(av);
+                    */
                     results.moveToNext();
                     count++;
                 }
@@ -258,6 +290,8 @@ public class HelloGraph extends AppCompatActivity {
                 float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
                 columns.get(j).getValues().get(0).setTarget(raw);
                 rawData.add(raw);
+                setAxisValues(count, results.getString(0));
+                /*
                 final AxisValue av = new AxisValue(count);
                 int mod = count % baseAverage;
                 if (count > 0 && mod == 0) {
@@ -266,6 +300,7 @@ public class HelloGraph extends AppCompatActivity {
                     av.setLabel("");
                 }
                 axisValues.add(av);
+                */
                 results.moveToNext();
                 count++;
             }
@@ -278,6 +313,8 @@ public class HelloGraph extends AppCompatActivity {
                 Column col = new Column(subcolumnValues);
                 col.setHasLabelsOnlyForSelected(true);
                 columns.add(col);
+                setAxisValues(count, results.getString(0));
+                /*
                 final AxisValue av = new AxisValue(count);
                 int mod = count % baseAverage;
                 if (count > 0 && mod == 0) {
@@ -286,6 +323,7 @@ public class HelloGraph extends AppCompatActivity {
                     av.setLabel("");
                 }
                 axisValues.add(av);
+                */
                 results.moveToNext();
                 count++;
             }

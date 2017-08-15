@@ -12,5 +12,6 @@
         android:id="@+id/run_adm"
         android:orderInCategory="100"
         android:title="Run ADM"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        android:enabled="false"/>
 </menu>
