@@ -45,5 +45,10 @@
     <string name="month">Months</string>
     <string name="year">Years</string>
 
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="lap">Lap</string>
+    <string name="resume">Resume</string>
+    <string name="end_reset">Finish and\nRecord</string>
 
 </resources>

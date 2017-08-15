@@ -8,15 +8,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.bolyndevelopment.owner.runlogger2.TimerActivity"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@android:color/white">
 
         <Chronometer
             android:id="@+id/chronometer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:gravity="center"
-            android:textSize="36sp"
+            android:textSize="72sp"
             android:textColor="@color/colorAccent"
             android:background="@android:color/white"/>
 
@@ -31,14 +32,14 @@
                 android:id="@+id/start_timer"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:text="Start"
+                android:layout_height="match_parent"
+                android:text="@string/start"
                 android:layout_gravity="center"
                 android:visibility="visible"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_gravity="center">
 
@@ -46,25 +47,27 @@
                     android:id="@+id/stop_timer"
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Stop"
+                    android:text="@string/pause"
+                    android:alpha="0"
                     android:visibility="invisible"/>
 
                 <Button
                     android:id="@+id/lap"
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Lap"
+                    android:text="@string/lap"
+                    android:alpha="0"
                     android:visibility="invisible"/>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_gravity="center">
 
@@ -72,18 +75,20 @@
                     android:id="@+id/resume_timer"
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Stop"
+                    android:text="@string/resume"
+                    android:alpha="0"
                     android:visibility="invisible"/>
 
                 <Button
                     android:id="@+id/reset_timer"
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Lap"
+                    android:text="@string/end_reset"
+                    android:alpha="0"
                     android:visibility="invisible"/>
 
             </LinearLayout>
@@ -91,9 +96,12 @@
         </FrameLayout>
 
         <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3" />
+            android:layout_weight="4"
+            android:paddingStart="@dimen/recyclerview_padding_sides"
+            android:paddingEnd="@dimen/recyclerview_padding_sides"/>
 
     </LinearLayout>
 
