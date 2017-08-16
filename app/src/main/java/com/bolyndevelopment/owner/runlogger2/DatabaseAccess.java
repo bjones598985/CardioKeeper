@@ -1,13 +1,20 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,20 +28,38 @@ class DatabaseAccess {
 
     private static volatile DatabaseAccess instance = null;
 
-    public SQLDatabaseHelper helper;
+    private static final int DATABASE_VERSION = 1;
+    static final String DATABASE_NAME = "log.db";
+
+    static final String COL_ID = "_id";
+
+    static final String COL_DATE = "date";
+    static final String COL_TIME = "time";
+    static final String COL_DISTANCE = "distance";
+    static final String COL_CALORIES = "calories";
+    static final String COL_CARDIO_TYPE = "cardio_type";
+    static final String DATA_TABLE = "Data";
+    static final String COL_NOTES = "notes";
+
+    static final String LAP_TABLE = "Lap";
+    static final String COL_WORKOUT_ID = "workout_id";
+    static final String COL_LAP_NUMBER = "lap_num";
+
+    SQLDatabaseHelper helper;
     private SQLiteDatabase database;
-    public String[] from = new String[]{SQLDatabaseHelper.COL_DATE, //0
-            SQLDatabaseHelper.COL_TIME, //1
-            SQLDatabaseHelper.COL_MILES, //2
-            SQLDatabaseHelper.COL_CALORIES, //3
-            SQLDatabaseHelper.COL_CARDIO_TYPE}; //4
+
+    public String[] from = new String[]{COL_DATE, //0
+            COL_TIME, //1
+            COL_DISTANCE, //2
+            COL_CALORIES, //3
+            COL_CARDIO_TYPE}; //4
 
     private DatabaseAccess() {
         helper = new SQLDatabaseHelper(MyApplication.appContext);
         helper.getWritableDatabase();
     }
 
-    public static DatabaseAccess getInstance() {
+    static DatabaseAccess getInstance() {
         if (instance == null) {
             synchronized(DatabaseAccess.class) {
                 if (instance == null) {
@@ -45,22 +70,22 @@ class DatabaseAccess {
         return instance;
     }
 
-    public long addRecord(ArrayList<String> data) {
+    long addRecord(ArrayList<String> data) {
         ContentValues values = new ContentValues();
-        values.put(SQLDatabaseHelper.COL_DATE, data.get(0));
-        values.put(SQLDatabaseHelper.COL_TIME, Long.parseLong(data.get(1)));
-        values.put(SQLDatabaseHelper.COL_MILES, Float.parseFloat(data.get(2)));
+        values.put(COL_DATE, data.get(0));
+        values.put(COL_TIME, Long.parseLong(data.get(1)));
+        values.put(COL_DISTANCE, Float.parseFloat(data.get(2)));
         if (!data.get(3).equals("")) {
-            values.put(SQLDatabaseHelper.COL_CALORIES, Integer.parseInt(data.get(3)));
+            values.put(COL_CALORIES, Integer.parseInt(data.get(3)));
         } else {
-            values.put(SQLDatabaseHelper.COL_CALORIES, 0);
+            values.put(COL_CALORIES, 0);
         }
-        values.put(SQLDatabaseHelper.COL_CARDIO_TYPE, data.get(4));
-        return helper.getWritableDatabase().insert(SQLDatabaseHelper.DATA_TABLE, null, values);
+        values.put(COL_CARDIO_TYPE, data.get(4));
+        return helper.getWritableDatabase().insert(DATA_TABLE, null, values);
     }
 
-    public Cursor getRecords() {
-        return helper.getReadableDatabase().query(SQLDatabaseHelper.DATA_TABLE, from, null, null, null, null, SQLDatabaseHelper.COL_DATE + " desc");
+    Cursor getAllRecords() {
+        return helper.getReadableDatabase().query(DATA_TABLE, from, null, null, null, null, COL_DATE + " desc");
     }
 
     //will still work
@@ -68,37 +93,33 @@ class DatabaseAccess {
         return helper.getWritableDatabase().rawQuery(query, arguments);
     }
 
-    public Cursor getRecords(String[] columns) {
-        return helper.getReadableDatabase().query(SQLDatabaseHelper.DATA_TABLE, columns, null,null,null,null,null);
+    Cursor getRecords(String[] columns) {
+        return helper.getReadableDatabase().query(DATA_TABLE, columns, null,null,null,null,null);
     }
 
     static class SQLDatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
-        public static final String TAG = "SQLDatabaseHelper";
 
-        private static final int DATABASE_VERSION = 1;
-        public static final String DATABASE_NAME = "log.db";
-        public static final String COL_DATE = "date";
-        public static final String COL_TIME = "time";
-        public static final String COL_MILES = "miles";
-        public static final String COL_CALORIES = "calories";
-        public static final String COL_CARDIO_TYPE = "cardio_type";
-        public static final String DATA_TABLE = "Data";
-
-        private static final String TABLE_CREATE = "create table " + DATA_TABLE + "("
-                + SQLDatabaseHelper._ID + " integer primary key autoincrement, " +
-                COL_DATE + " text not null, " +
-                COL_TIME + " integer not null, " +
-                COL_MILES + " real not null, " +
-                COL_CALORIES + " integer not null, " +
-                COL_CARDIO_TYPE + " text not null);";
-
-        public SQLDatabaseHelper(Context context) {
+        SQLDatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(TABLE_CREATE);
+            db.execSQL("create table " + DATA_TABLE + "(" +
+                    COL_ID + " integer primary key autoincrement, " +
+                    COL_DATE + " text not null, " +
+                    COL_TIME + " integer not null, " +
+                    COL_DISTANCE + " real not null, " +
+                    COL_CALORIES + " integer not null, " +
+                    COL_CARDIO_TYPE + " text not null, " +
+                    COL_NOTES + " text);");
+
+            db.execSQL("create table " + LAP_TABLE + "(" +
+                    COL_ID + " integer primary key autoincrement, " +
+                    COL_WORKOUT_ID + "integer not null, " +
+                    COL_LAP_NUMBER + " integer not null, " +
+                    COL_TIME + " integer not null, " +
+                    COL_DISTANCE + " real not null);");
         }
 
         @Override

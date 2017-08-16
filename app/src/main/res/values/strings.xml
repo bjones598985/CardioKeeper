@@ -49,6 +49,6 @@
     <string name="pause">Pause</string>
     <string name="lap">Lap</string>
     <string name="resume">Resume</string>
-    <string name="end_reset">Finish and\nRecord</string>
+    <string name="end_reset">Save and\nExit</string>
 
 </resources>

@@ -13,5 +13,5 @@
         android:orderInCategory="100"
         android:title="Run ADM"
         app:showAsAction="never"
-        android:enabled="false"/>
+        android:enabled="true"/>
 </menu>

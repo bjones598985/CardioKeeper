@@ -1,13 +1,20 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Typeface;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +23,6 @@ import android.widget.TextView;
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TimerActivity extends AppCompatActivity implements View.OnClickListener {
     static final String TAG = TimerActivity.class.getSimpleName();
@@ -30,7 +36,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
         if (savedInstanceState == null) {
-            binder.chronometer.setBase(SystemClock.elapsedRealtime());
+            //binder.chronometer.setBase(SystemClock.elapsedRealtime());
             lapList = new ArrayList<>();
         } else {
             long time = savedInstanceState.getLong("time");
@@ -71,6 +77,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start_timer:
+                binder.chronometer.setBase(SystemClock.elapsedRealtime());
                 binder.chronometer.start();
                 binder.startTimer.animate().alpha(0).start();
                 binder.startTimer.setVisibility(View.INVISIBLE);
@@ -111,6 +118,11 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.lap.setVisibility(View.VISIBLE);
                 break;
             case R.id.reset_timer:
+                SaveDialog sd = new SaveDialog();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.add(sd, "save");
+                ft.commitAllowingStateLoss();
+                /*
                 binder.chronometer.setBase(SystemClock.elapsedRealtime());
                 timeStopped = 0;
                 binder.resumeTimer.animate().alpha(0f).start();
@@ -122,22 +134,32 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.startTimer.setVisibility(View.VISIBLE);
                 lapList.clear();
                 binder.list.getAdapter().notifyDataSetChanged();
+                */
         }
+    }
+
+    private void onSavePositiveClick() {
+        Intent intent = new Intent();
+        intent.putExtra("totalTime", binder.chronometer.getText().toString());
+        intent.putStringArrayListExtra("list", lapList);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
     }
 
     private class LapAdapter extends RecyclerView.Adapter<LapAdapter.LapHolder> {
 
         @Override
         public LapHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+            //final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.timer_list_item, parent, false);
+            final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.timer_list_item_alt, parent, false);
             return new LapHolder(view);
         }
 
         @Override
         public void onBindViewHolder(LapHolder holder, int position) {
-            holder.order.setText(String.valueOf(lapList.size() - position));
-            holder.lap.setTypeface(digitalItalic);
-            holder.lap.setText(lapList.get(position));
+            //holder.order.setText(String.valueOf(lapList.size() - position));
+            String s = "Lap " + String.valueOf(lapList.size() - position) + ": " + lapList.get(position);
+            holder.lap.setText(s);
         }
 
         @Override
@@ -149,9 +171,31 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             TextView order, lap;
             public LapHolder(View itemView) {
                 super(itemView);
-                order = (TextView) itemView.findViewById(R.id.order_textview);
+                //order = (TextView) itemView.findViewById(R.id.order_textview);
                 lap = (TextView) itemView.findViewById(R.id.lap_info);
+                lap.setTypeface(digitalItalic);
             }
+        }
+    }
+
+    public static class SaveDialog extends DialogFragment {
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("You want to save and exit?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ((TimerActivity)getActivity()).onSavePositiveClick();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            //onSaveCancelClick();
+                        }
+                    });
+            return builder.create();
         }
     }
 }

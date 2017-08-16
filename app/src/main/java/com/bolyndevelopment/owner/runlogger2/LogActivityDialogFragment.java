@@ -51,6 +51,10 @@ public class LogActivityDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Bundle inBundle = getArguments();
+        final String totalTime = inBundle.getString("totalTime");
+        final ArrayList<String> lapData = inBundle.getStringArrayList("lapData");
+
 
         mListener = (LogActivityListener) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -71,6 +75,9 @@ public class LogActivityDialogFragment extends DialogFragment {
         //set the date to today, can change if want
         String date = Utils.convertDateToString(new Date(), "MM/dd/yyyy");
         binding.dateInput.setText(date);
+        if (totalTime != null) {
+            binding.timeInput.setText(totalTime);
+        }
         binding.datePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

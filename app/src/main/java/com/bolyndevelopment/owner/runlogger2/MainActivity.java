@@ -1,11 +1,11 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.app.FragmentTransaction;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,17 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class MainActivity extends AppCompatActivity implements LogActivityDialogFragment.LogActivityListener{
     public static final String TAG = "MainActivity";
@@ -42,8 +37,11 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "Request code: " + requestCode);
-        Log.d(TAG, "Result code: " + resultCode);
+        if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
+            final String totalTime = data.getStringExtra("totalTime");
+            final ArrayList<String> lapData = data.getStringArrayListExtra("list");
+            showDialog(totalTime, lapData);
+        }
     }
 
     @Override
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog();
+                showDialog(null, null);
             }
         });
         findViewById(R.id.fab_time_record).setOnClickListener(new View.OnClickListener() {
@@ -120,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final Cursor cursor = DatabaseAccess.getInstance().getRecords();
+                final Cursor cursor = DatabaseAccess.getInstance().getAllRecords();
                 cursor.moveToFirst();
                 ListItem item;
                 while (!cursor.isAfterLast()) {
@@ -213,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         startActivity(new Intent(this, HelloGraph.class));
     }
 
-    public void showDialog() {
+    public void showDialog(@Nullable String time, @Nullable ArrayList<String> lapData) {
         Cursor c = DatabaseAccess.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
         c.moveToFirst();
 
@@ -221,6 +219,12 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         Bundle b = new Bundle();
         if (c.getCount() > 0) {
             b.putString("type", c.getString(1));
+        }
+        if (time != null) {
+            b.putString("totalTime", time);
+        }
+        if (lapData != null) {
+            b.putStringArrayList("lapData", lapData);
         }
         c.close();
         final LogActivityDialogFragment frag = new LogActivityDialogFragment();
