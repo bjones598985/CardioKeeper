@@ -14,10 +14,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by Owner on 11/18/2015.
@@ -70,7 +72,10 @@ class DatabaseAccess {
         return instance;
     }
 
-    long addRecord(ArrayList<String> data) {
+    long addRecords(ArrayList<String> data, @Nullable ArrayList<String> lapData) {
+        if (lapData != null) {
+            Log.d("TEST", "lapdata size: " + lapData.size());
+        }
         ContentValues values = new ContentValues();
         values.put(COL_DATE, data.get(0));
         values.put(COL_TIME, Long.parseLong(data.get(1)));
@@ -81,7 +86,19 @@ class DatabaseAccess {
             values.put(COL_CALORIES, 0);
         }
         values.put(COL_CARDIO_TYPE, data.get(4));
-        return helper.getWritableDatabase().insert(DATA_TABLE, null, values);
+        long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
+        int ids = 0;
+        if (lapData != null) {
+            Collections.reverse(lapData);
+            for (int l = 0; l < lapData.size(); l++) {
+                ContentValues lapValues = new ContentValues();
+                lapValues.put(COL_WORKOUT_ID, dataId);
+                lapValues.put(COL_LAP_NUMBER, l + 1);
+                lapValues.put(COL_TIME, Long.valueOf(lapData.get(l)));
+                ids += helper.getWritableDatabase().insert(LAP_TABLE, null, lapValues);
+            }
+        }
+        return dataId + ids;
     }
 
     Cursor getAllRecords() {
@@ -116,10 +133,9 @@ class DatabaseAccess {
 
             db.execSQL("create table " + LAP_TABLE + "(" +
                     COL_ID + " integer primary key autoincrement, " +
-                    COL_WORKOUT_ID + "integer not null, " +
+                    COL_WORKOUT_ID + " integer not null, " +
                     COL_LAP_NUMBER + " integer not null, " +
-                    COL_TIME + " integer not null, " +
-                    COL_DISTANCE + " real not null);");
+                    COL_TIME + " integer not null);");
         }
 
         @Override

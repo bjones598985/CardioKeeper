@@ -40,6 +40,7 @@ public class LogActivityDialogFragment extends DialogFragment {
     LogActivityListener mListener;
     ArrayList<String> runData = new ArrayList<>();
     DialogFragLayoutBinding binding;
+    ArrayList<String> lapData;
 
     public interface LogActivityListener {
         public void onDialogPositiveClick(Bundle bundle);
@@ -53,8 +54,7 @@ public class LogActivityDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle inBundle = getArguments();
         final String totalTime = inBundle.getString("totalTime");
-        final ArrayList<String> lapData = inBundle.getStringArrayList("lapData");
-
+        //lapData = inBundle.getStringArrayList("lapData");
 
         mListener = (LogActivityListener) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -84,6 +84,7 @@ public class LogActivityDialogFragment extends DialogFragment {
                 runDatePicker();
             }
         });
+        binding.cardioTypeSpinner.requestFocus();
         builder.setView(binding.getRoot())
                 .setTitle("Add Your Cardio")
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -112,6 +113,7 @@ public class LogActivityDialogFragment extends DialogFragment {
         runData.add(cardio); //how we'll add in the cardio type
         Bundle runInfo = new Bundle();
         runInfo.putStringArrayList("data", runData);
+        //runInfo.putStringArrayList("lapData", lapData);
         return runInfo;
     }
 

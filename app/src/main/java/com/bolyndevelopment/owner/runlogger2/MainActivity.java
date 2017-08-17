@@ -33,14 +33,16 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     Handler handler = new Handler();
     RecyclerView recyclerView;
     MyAdapter mAdapter;
+    ArrayList<String> lapDataFromTimer;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
             final String totalTime = data.getStringExtra("totalTime");
-            final ArrayList<String> lapData = data.getStringArrayListExtra("list");
-            showDialog(totalTime, lapData);
+            lapDataFromTimer = data.getStringArrayListExtra("list");
+            Log.d("TEST", "lapdata size: " + lapDataFromTimer.size());
+            showDialog(totalTime);
         }
     }
 
@@ -52,13 +54,13 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         initRecyclerView();
-        //addRandomData();
+        addRandomData();
         queryForRecords();
 
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog(null, null);
+                showDialog(null);
             }
         });
         findViewById(R.id.fab_time_record).setOnClickListener(new View.OnClickListener() {
@@ -81,36 +83,14 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 int calories = random.nextInt((1000 - 100) + 1) + 100;
                 ArrayList<String> list = new ArrayList<>();
                 list.add(date);
-                list.add(getTimeMillis(String.valueOf(min) + ":" + String.valueOf(sec)));
+                list.add(Utils.getTimeStringMillis(String.valueOf(min) + ":" + String.valueOf(sec)));
                 list.add(String.valueOf(miles));
                 list.add(String.valueOf(calories));
                 list.add("Bike");
-                DatabaseAccess.getInstance().addRecord(list);
+                long l = DatabaseAccess.getInstance().addRecords(list, null);
+                Log.d(TAG, "Row: " + l);
             }
         }
-    }
-
-    private String getTimeMillis(String time) {
-
-        String[] array = TextUtils.split(time, ":");
-        int[] timeArray = new int[array.length];
-        for (int x = 0; x<array.length;x++) {
-            if (array[x].equals("")) {
-                timeArray[x] = 0;
-            } else {
-                timeArray[x] = Integer.valueOf(array[x]);
-            }
-        }
-        long millis = 0;
-        switch (timeArray.length) {
-            case 2:
-                millis =  Utils.convertToMillis(0, timeArray[0], timeArray[1]);
-                break;
-            case 3:
-                millis =  Utils.convertToMillis(timeArray[0], timeArray[1], timeArray[2]);
-                break;
-        }
-        return String.valueOf(millis);
     }
 
     private void queryForRecords() {
@@ -182,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    long id = DatabaseAccess.getInstance().addRecord(list);
+                    long id = DatabaseAccess.getInstance().addRecords(list, lapDataFromTimer);
                     if (id > -1) {
                         ListItem item = new ListItem();
                         //item.order = (int) id;
@@ -211,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         startActivity(new Intent(this, HelloGraph.class));
     }
 
-    public void showDialog(@Nullable String time, @Nullable ArrayList<String> lapData) {
+    public void showDialog(@Nullable String time) {
         Cursor c = DatabaseAccess.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
         c.moveToFirst();
 
@@ -223,9 +203,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         if (time != null) {
             b.putString("totalTime", time);
         }
-        if (lapData != null) {
-            b.putStringArrayList("lapData", lapData);
-        }
+        //if (lapData != null) {
+            //b.putStringArrayList("lapData", lapData);
+        //}
         c.close();
         final LogActivityDialogFragment frag = new LogActivityDialogFragment();
         frag.setArguments(b);

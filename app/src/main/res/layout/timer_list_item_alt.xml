@@ -1,16 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-    android:id="@+id/lap_info"
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:padding="8dp"
-    android:textColor="@android:color/white"
-    android:text="Lap 1: 00:00:00"
+    android:orientation="horizontal"
+    android:background="@drawable/rounded_corner_background"
     android:gravity="center"
-    android:textSize="36sp"
-    android:background="@drawable/rounded_corner_background"/>
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp">
+
+    <TextView
+        android:id="@+id/lap_info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="@android:color/white"
+        android:text="Lap 1 -"
+        android:layout_gravity="center"
+        android:textSize="36sp"
+        />
+
+    <TextView
+        android:id="@+id/lap_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="@android:color/white"
+        android:text="00:00"
+        android:layout_gravity="center"
+        android:textSize="36sp"/>
+
+</LinearLayout>

@@ -28,8 +28,52 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Owner on 1/19/2016.
  */
-public class Utils {
-    public static final String TAG = "Utils";
+class Utils {
+    static final String TAG = "Utils";
+
+    static String getTimeStringMillis(String time) {
+        String[] array = TextUtils.split(time, ":");
+        int[] timeArray = new int[array.length];
+        for (int x = 0; x<array.length;x++) {
+            if (array[x].equals("")) {
+                timeArray[x] = 0;
+            } else {
+                timeArray[x] = Integer.valueOf(array[x]);
+            }
+        }
+        long millis = 0;
+        switch (timeArray.length) {
+            case 2:
+                millis =  convertToMillis(0, timeArray[0], timeArray[1]);
+                break;
+            case 3:
+                millis =  convertToMillis(timeArray[0], timeArray[1], timeArray[2]);
+                break;
+        }
+        return String.valueOf(millis);
+    }
+
+    static long getTimeLongMillis(String time) {
+        String[] array = TextUtils.split(time, ":");
+        int[] timeArray = new int[array.length];
+        for (int x = 0; x<array.length;x++) {
+            if (array[x].equals("")) {
+                timeArray[x] = 0;
+            } else {
+                timeArray[x] = Integer.valueOf(array[x]);
+            }
+        }
+        long millis = 0;
+        switch (timeArray.length) {
+            case 2:
+                millis =  convertToMillis(0, timeArray[0], timeArray[1]);
+                break;
+            case 3:
+                millis =  convertToMillis(timeArray[0], timeArray[1], timeArray[2]);
+                break;
+        }
+        return millis;
+    }
 
     @Nullable
     static Date convertStringToDate(String inDate, String format) {
@@ -118,8 +162,7 @@ public class Utils {
     }
 
     static String convertMillisToHms(long millis) {
-        return String.format(Locale.US, "%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
-                TimeUnit.MILLISECONDS.toMinutes(millis) -
+        return String.format(Locale.US, "%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(millis) -
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));

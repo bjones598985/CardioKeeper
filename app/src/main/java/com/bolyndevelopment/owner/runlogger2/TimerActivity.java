@@ -30,6 +30,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     long timeStopped;
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
+    long lastLap = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +39,10 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         if (savedInstanceState == null) {
             //binder.chronometer.setBase(SystemClock.elapsedRealtime());
             lapList = new ArrayList<>();
+            timeStopped = 0;
         } else {
-            long time = savedInstanceState.getLong("time");
-            binder.chronometer.setBase(SystemClock.elapsedRealtime() + time);
+            timeStopped = savedInstanceState.getLong("time");
+            binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
             this.onClick(binder.startTimer);
             lapList = savedInstanceState.getStringArrayList("list");
         }
@@ -77,7 +79,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start_timer:
-                binder.chronometer.setBase(SystemClock.elapsedRealtime());
+                binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
                 binder.chronometer.start();
                 binder.startTimer.animate().alpha(0).start();
                 binder.startTimer.setVisibility(View.INVISIBLE);
@@ -101,7 +103,8 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.lap:
                 String time = binder.chronometer.getText().toString();
-                lapList.add(0, time);
+                lastLap = Utils.getTimeLongMillis(time) - lastLap;
+                lapList.add(0, String.valueOf(lastLap));
                 binder.list.getAdapter().notifyItemInserted(0);
                 binder.list.scrollToPosition(0);
                 break;
@@ -158,8 +161,10 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onBindViewHolder(LapHolder holder, int position) {
             //holder.order.setText(String.valueOf(lapList.size() - position));
-            String s = "Lap " + String.valueOf(lapList.size() - position) + ": " + lapList.get(position);
-            holder.lap.setText(s);
+            String time = Utils.convertMillisToHms(Long.valueOf(lapList.get(position)));
+            String s = "Lap " + String.valueOf(lapList.size() - position) + " - ";
+            holder.lapOrder.setText(s);
+            holder.lapTime.setText(time);
         }
 
         @Override
@@ -168,12 +173,12 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         }
 
         class LapHolder extends RecyclerView.ViewHolder {
-            TextView order, lap;
+            TextView lapOrder, lapTime;
             public LapHolder(View itemView) {
                 super(itemView);
-                //order = (TextView) itemView.findViewById(R.id.order_textview);
-                lap = (TextView) itemView.findViewById(R.id.lap_info);
-                lap.setTypeface(digitalItalic);
+                lapOrder = (TextView) itemView.findViewById(R.id.lap_info_text);
+                lapTime = (TextView) itemView.findViewById(R.id.lap_info);
+                lapTime.setTypeface(digitalItalic);
             }
         }
     }
