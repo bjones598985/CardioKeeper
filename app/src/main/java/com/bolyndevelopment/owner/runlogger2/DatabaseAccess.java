@@ -87,6 +87,7 @@ class DatabaseAccess {
         }
         values.put(COL_CARDIO_TYPE, data.get(4));
         long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
+
         int ids = 0;
         if (lapData != null) {
             Collections.reverse(lapData);

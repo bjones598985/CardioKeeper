@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         initRecyclerView();
-        addRandomData();
+        //addRandomData();
         queryForRecords();
 
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
