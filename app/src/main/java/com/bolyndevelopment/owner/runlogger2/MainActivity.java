@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         } else {
             //alert to their being a problem
         }
-        new DatabaseBackup(this).dumpBackupFile();
+        //new DatabaseBackup(this).dumpBackupFile();
     }
 
     public void graphIt(/*int position*/) {
