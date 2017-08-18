@@ -8,6 +8,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -40,13 +41,16 @@ public class LogActivityDialogFragment extends DialogFragment {
     LogActivityListener mListener;
     ArrayList<String> runData = new ArrayList<>();
     DialogFragLayoutBinding binding;
-    ArrayList<String> lapData;
 
-    public interface LogActivityListener {
+    final int CARDIO_SPINNER = 1;
+    final int TIME_EDITTEXT = 2;
+    final int DIST_EDITTEXT = 3;
+
+    interface LogActivityListener {
         public void onDialogPositiveClick(Bundle bundle);
     }
 
-    public void setDateInput(String datePicked) {
+    private void setDateInput(String datePicked) {
         binding.dateInput.setText(datePicked);
     }
 
@@ -91,7 +95,12 @@ public class LogActivityDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (validateTimeFormattedProper() && binding.cardioTypeSpinner.getSelectedItemPosition() > 0) {
-                            mListener.onDialogPositiveClick(addInfoToArray());
+                            int validation = validateFields();
+                            if (validation == -1) {
+                                mListener.onDialogPositiveClick(addInfoToArray());
+                            } else {
+
+                            }
                         }
                     }
                 })
@@ -104,7 +113,30 @@ public class LogActivityDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    public Bundle addInfoToArray() {
+    private int validateFields() {
+        if (binding.cardioTypeSpinner.getSelectedItemPosition() == 0) return CARDIO_SPINNER;
+        if (binding.timeInput.getText().equals("")) return TIME_EDITTEXT;
+        if (binding.milesInput.getText().equals("")) return DIST_EDITTEXT;
+        return -1;
+    }
+
+    private void highlightField(int field) {
+        switch (field) {
+            case CARDIO_SPINNER:
+                Rect rect = new Rect();
+                binding.cardioTypeSpinner.getDrawingRect(rect);
+
+                break;
+            case TIME_EDITTEXT:
+
+                break;
+            case DIST_EDITTEXT:
+
+                break;
+        }
+    }
+
+    private Bundle addInfoToArray() {
         runData.add(binding.dateInput.getText().toString());
         runData.add(getTimeMillis());
         runData.add(binding.milesInput.getText().toString());
@@ -140,18 +172,7 @@ public class LogActivityDialogFragment extends DialogFragment {
         return String.valueOf(millis);
     }
 
-    private long getDateMillis() {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        Date date = null;
-        try {
-            date = sdf.parse(binding.dateInput.getText().toString());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date != null ? date.getTime() : 0;
-    }
-
-    public void runDatePicker() {
+    private void runDatePicker() {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
     }

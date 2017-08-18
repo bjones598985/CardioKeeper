@@ -3,9 +3,12 @@ package com.bolyndevelopment.owner.runlogger2;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +22,8 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     RecyclerView recyclerView;
     MyAdapter mAdapter;
     ArrayList<String> lapDataFromTimer;
+    ActivityMainBinding binder;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -49,21 +55,22 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(binder.toolbar);
 
         initRecyclerView();
         //addRandomData();
         queryForRecords();
 
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+        binder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDialog(null);
             }
         });
-        findViewById(R.id.fab_time_record).setOnClickListener(new View.OnClickListener() {
+        binder.fabTimeRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
@@ -125,11 +132,10 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     }
 
     private void initRecyclerView() {
-        recyclerView = (RecyclerView) findViewById(R.id.main_recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
+        binder.mainRecyclerview.setLayoutManager(new LinearLayoutManager(this));
+        binder.mainRecyclerview.setHasFixedSize(true);
         mAdapter = new MyAdapter();
-        recyclerView.setAdapter(mAdapter);
+        binder.mainRecyclerview.setAdapter(mAdapter);
     }
 
     private class ListItem {
@@ -186,6 +192,19 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             //alert to their being a problem
         }
         //new DatabaseBackup(this).dumpBackupFile();
+    }
+
+    private void sort(TextView tv) {
+        Snackbar.make(binder.getRoot(), "Press: " + tv.getText().toString(), Snackbar.LENGTH_SHORT).show();
+        switch (tv.getId()) {
+
+            case R.id.main_date_tv:
+            case R.id.main_time_tv:
+            case R.id.main_dist_tv:
+            case R.id.main_cals_tv:
+            case R.id.main_icon_tv:
+
+        }
     }
 
     public void graphIt(/*int position*/) {
