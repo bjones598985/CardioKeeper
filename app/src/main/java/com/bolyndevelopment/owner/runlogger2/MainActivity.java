@@ -171,12 +171,12 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                         item.distance = Float.parseFloat(list.get(2));
                         item.calories = list.get(3).equals("") ? 0 : Integer.parseInt(list.get(3));
                         item.cType = list.get(4);
-                        recordsList.add(item);
-                        final int index = recordsList.indexOf(item);
+                        recordsList.add(0, item);
+                        //final int index = recordsList.indexOf(item);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                mAdapter.notifyItemInserted(index);
+                                mAdapter.notifyItemInserted(0);
                             }
                         });
                     }
@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         } else {
             //alert to their being a problem
         }
+        new DatabaseBackup(this).dumpBackupFile();
     }
 
     public void graphIt(/*int position*/) {

@@ -73,20 +73,28 @@ class DatabaseAccess {
     }
 
     long addRecords(ArrayList<String> data, @Nullable ArrayList<String> lapData) {
-        if (lapData != null) {
-            Log.d("TEST", "lapdata size: " + lapData.size());
-        }
+        ArrayList<String> inserts = new ArrayList<>();
+        int cals = 0;
         ContentValues values = new ContentValues();
         values.put(COL_DATE, data.get(0));
         values.put(COL_TIME, Long.parseLong(data.get(1)));
         values.put(COL_DISTANCE, Float.parseFloat(data.get(2)));
         if (!data.get(3).equals("")) {
-            values.put(COL_CALORIES, Integer.parseInt(data.get(3)));
+            cals = Integer.parseInt(data.get(3));
+            values.put(COL_CALORIES, cals);
         } else {
-            values.put(COL_CALORIES, 0);
+            values.put(COL_CALORIES, cals);
         }
         values.put(COL_CARDIO_TYPE, data.get(4));
         long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
+        String sqlInsert = "insert into " + DATA_TABLE + " values(" + data.get(0) + ", " + Long.parseLong(data.get(1)) + ", " +
+                Float.parseFloat(data.get(2)) + ", " + cals + ", " + data.get(4) + ");";
+        Log.d(TAG, "SQL: " + sqlInsert);
+        if (dataId > -1) {
+            inserts.add(sqlInsert + ":success");
+        } else {
+            inserts.add(sqlInsert + ":fail");
+        }
 
         int ids = 0;
         if (lapData != null) {
@@ -97,9 +105,18 @@ class DatabaseAccess {
                 lapValues.put(COL_LAP_NUMBER, l + 1);
                 lapValues.put(COL_TIME, Long.valueOf(lapData.get(l)));
                 ids += helper.getWritableDatabase().insert(LAP_TABLE, null, lapValues);
+                long ll = l + 1;
+                String sql = "insert into " + LAP_TABLE + " values(" + dataId + ", " + ll + ", " + lapData.get(l) + ");";
+                Log.d(TAG, "SQL: " + sql);
+                if (ids > -1) {
+                    inserts.add(sql + ":success");
+                } else {
+                    inserts.add(sql + ":fail");
+                }
             }
         }
-        return dataId + ids;
+        new DatabaseBackup(MyApplication.appContext).updateDbLog(inserts);
+        return dataId;
     }
 
     Cursor getAllRecords() {

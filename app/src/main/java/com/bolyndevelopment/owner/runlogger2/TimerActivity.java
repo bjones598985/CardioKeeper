@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     long timeStopped;
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
-    long lastLap = 0;
+    long lastTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             timeStopped = 0;
         } else {
             timeStopped = savedInstanceState.getLong("time");
-            binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
+            //binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
             this.onClick(binder.startTimer);
             lapList = savedInstanceState.getStringArrayList("list");
         }
@@ -102,9 +103,14 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.resetTimer.setVisibility(View.VISIBLE);
                 break;
             case R.id.lap:
-                String time = binder.chronometer.getText().toString();
-                lastLap = Utils.getTimeLongMillis(time) - lastLap;
-                lapList.add(0, String.valueOf(lastLap));
+                Log.d(TAG, "lastTime: " + lastTime);
+                long time =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
+                Log.d(TAG, "time: " + time);
+                long diff = time - lastTime;
+                Log.d(TAG, "diff: " + diff);
+                lastTime = time;
+                Log.d(TAG, "lastTime: " + lastTime);
+                lapList.add(0, String.valueOf(diff));
                 binder.list.getAdapter().notifyItemInserted(0);
                 binder.list.scrollToPosition(0);
                 break;

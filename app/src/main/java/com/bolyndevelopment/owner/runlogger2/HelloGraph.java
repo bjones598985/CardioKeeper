@@ -462,7 +462,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private class QueryStrings {
         final static String DURATION_QUERY = "select date, time from Data order by date asc";
-        final static String DISTANCE_QUERY = "select date, miles from Data order by date asc";
+        final static String DISTANCE_QUERY = "select date, distance from Data order by date asc";
         final static String CALORIES_BURNED_QUERY = "select date, calories from Data order by date asc";
     }
 
