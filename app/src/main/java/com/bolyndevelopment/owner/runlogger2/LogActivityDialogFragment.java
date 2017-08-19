@@ -8,7 +8,10 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -39,7 +42,7 @@ import java.util.Locale;
  */
 public class LogActivityDialogFragment extends DialogFragment {
     LogActivityListener mListener;
-    ArrayList<String> runData = new ArrayList<>();
+
     DialogFragLayoutBinding binding;
 
     final int CARDIO_SPINNER = 1;
@@ -94,12 +97,12 @@ public class LogActivityDialogFragment extends DialogFragment {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (validateTimeFormattedProper() && binding.cardioTypeSpinner.getSelectedItemPosition() > 0) {
+                        if (validateTimeFormattedProper()) {
                             int validation = validateFields();
                             if (validation == -1) {
                                 mListener.onDialogPositiveClick(addInfoToArray());
                             } else {
-
+                                highlightField(validation);
                             }
                         }
                     }
@@ -121,11 +124,14 @@ public class LogActivityDialogFragment extends DialogFragment {
     }
 
     private void highlightField(int field) {
+        Log.d("TEST", "highlightField");
         switch (field) {
             case CARDIO_SPINNER:
-                Rect rect = new Rect();
-                binding.cardioTypeSpinner.getDrawingRect(rect);
-
+                Log.d("TEST", "CardioSpinner");
+                Drawable background = getResources().getDrawable(R.drawable.rounded_corner_background);
+                background.mutate();
+                background.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+                binding.cardioTypeSpinner.setBackground(background);
                 break;
             case TIME_EDITTEXT:
 
@@ -137,6 +143,7 @@ public class LogActivityDialogFragment extends DialogFragment {
     }
 
     private Bundle addInfoToArray() {
+        ArrayList<String> runData = new ArrayList<>();
         runData.add(binding.dateInput.getText().toString());
         runData.add(getTimeMillis());
         runData.add(binding.milesInput.getText().toString());
@@ -153,7 +160,7 @@ public class LogActivityDialogFragment extends DialogFragment {
         final String time = binding.timeInput.getText().toString();
         String[] array = TextUtils.split(time, ":");
         int[] timeArray = new int[array.length];
-        for (int x = 0; x<array.length;x++) {
+        for (int x = 0; x<array.length; x++) {
             if (array[x].equals("")) {
                 timeArray[x] = 0;
             } else {
@@ -173,8 +180,8 @@ public class LogActivityDialogFragment extends DialogFragment {
     }
 
     private void runDatePicker() {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
+        //DialogFragment newFragment = new DatePickerFragment();
+        //newFragment.show(getFragmentManager(), "datePicker");
     }
 
     private boolean validateTimeFormattedProper() {
@@ -214,6 +221,7 @@ public class LogActivityDialogFragment extends DialogFragment {
         }
     }
 
+    /*
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
         @Override
@@ -237,4 +245,5 @@ public class LogActivityDialogFragment extends DialogFragment {
             ((LogActivityDialogFragment)getFragmentManager().findFragmentByTag("dialog")).setDateInput(formattedDate);
         }
     }
+    */
 }
