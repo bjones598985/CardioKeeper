@@ -3,6 +3,9 @@ package com.bolyndevelopment.owner.runlogger2;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -10,16 +13,18 @@ import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.app.FragmentTransaction;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.TextView;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
@@ -36,6 +41,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     long base;
     long timeWhenStopped = 0;
     boolean isRunning;
+    NotificationCompat.Builder builder;
+    NotificationManager notiMgr;
+    final int NOTI_ID = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +100,29 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         binder.list.setAdapter(new LapAdapter());
     }
 
+    private void createNotification() {
+        builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_timer)
+                .setContentTitle("Cardio Keeper - Timer")
+                .setContentText("Content Text")
+                .setAutoCancel(true);
+        Intent i = new Intent(this, TimerActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(TimerActivity.class);
+        stackBuilder.addNextIntent(i);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(resultPendingIntent);
+        notiMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notiMgr.notify(NOTI_ID, builder.build());
+        binder.chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer chronometer) {
+                builder.setContentText(String.format("Time elapsed: %s", chronometer.getText().toString()));
+                notiMgr.notify(NOTI_ID, builder.build());
+            }
+        });
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -101,6 +132,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
                 isRunning = true;
+                createNotification();
                 break;
             case R.id.stop_timer:
                 binder.chronometer.stop();
