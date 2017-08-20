@@ -145,6 +145,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             b.setVisibility(View.VISIBLE);
         }
     }
+
     private void onSavePositiveClick() {
         Intent intent = new Intent();
         intent.putExtra("totalTime", binder.chronometer.getText().toString());

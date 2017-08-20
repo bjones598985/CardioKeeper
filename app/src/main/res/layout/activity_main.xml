@@ -34,41 +34,40 @@
                     style="@style/MainActivityTextViews"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/column_date" />
+                    android:text="@string/column_date"
+                    android:onClick="sort"/>
 
                 <TextView
                     android:id="@+id/main_time_tv"
                     style="@style/MainActivityTextViews"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/column_time" />
+                    android:text="@string/column_time"
+                    android:onClick="sort"/>
 
                 <TextView
                     android:id="@+id/main_dist_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:textColor="@android:color/white"
-                    android:text="@string/column_distance" />
+                    style="@style/MainActivityTextViews.Other"
+                    android:text="@string/column_distance"
+                    android:onClick="sort"/>
 
                 <TextView
                     android:id="@+id/main_cals_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:textColor="@android:color/white"
-                    android:text="@string/column_calories" />
+                    style="@style/MainActivityTextViews.Other"
+                    android:text="@string/column_calories"
+                    android:onClick="sort"/>
 
                 <TextView
                     android:id="@+id/main_icon_tv"
                     style="@style/MainActivityTextViews"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"/>
+                    android:visibility="gone"
+                    android:onClick="sort"/>
 
             </LinearLayout>
 

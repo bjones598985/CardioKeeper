@@ -24,6 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
     List<ListItem> recordsList = new ArrayList<>();
     Handler handler = new Handler();
-    RecyclerView recyclerView;
     MyAdapter mAdapter;
     ArrayList<String> lapDataFromTimer;
     ActivityMainBinding binder;
@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
             Log.d("TEST", "lapdata size: " + lapDataFromTimer.size());
-            showDialog(totalTime);
+            //showDialog(totalTime);
+            initAddDialog(totalTime);
         }
     }
 
@@ -84,12 +85,22 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         initRecyclerView();
         //addRandomData();
         queryForRecords();
+        if (savedInstanceState != null) {
+            isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
+            if (isAddDialogOpen) {
+                initAddDialog(null);
+            }
+        }
 
         binder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //showDialog(null);
-                if (!isAddDialogOpen) initAddDialog(null);
+                Log.d(TAG, "dialogopen: " + isAddDialogOpen);
+                if (!isAddDialogOpen) {
+                    initAddDialog(null);
+                    isAddDialogOpen = true;
+                }
             }
         });
         binder.fabTimeRecord.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +110,12 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             }
         });
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("isAddDialogOpen", isAddDialogOpen);
+        super.onSaveInstanceState(outState);
     }
 
     private void initAddDialog(@Nullable String time) {
@@ -261,19 +278,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         //new DatabaseBackup(this).dumpBackupFile();
     }
 
-    private void sort(TextView tv) {
-        Snackbar.make(binder.getRoot(), "Press: " + tv.getText().toString(), Snackbar.LENGTH_SHORT).show();
-        switch (tv.getId()) {
-
-            case R.id.main_date_tv:
-            case R.id.main_time_tv:
-            case R.id.main_dist_tv:
-            case R.id.main_cals_tv:
-            case R.id.main_icon_tv:
-
-        }
-    }
-
     public void graphIt(/*int position*/) {
         startActivity(new Intent(this, HelloGraph.class));
     }
@@ -295,6 +299,19 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         final LogActivityDialogFragment frag = new LogActivityDialogFragment();
         frag.setArguments(b);
         frag.show(getFragmentManager(), "dialog");
+    }
+
+    public void sort(View view) {
+        Snackbar.make(binder.getRoot(), "Press: " + ((TextView)view).getText().toString(), Snackbar.LENGTH_SHORT).show();
+        switch (view.getId()) {
+
+            case R.id.main_date_tv:
+            case R.id.main_time_tv:
+            case R.id.main_dist_tv:
+            case R.id.main_cals_tv:
+            case R.id.main_icon_tv:
+
+        }
     }
 
     private class ListItem {
@@ -381,8 +398,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
         public class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable{
             Spinner cardioSpinner;
-            ImageButton datePickerButton;
-            Button cancel, confirm;
             TextView dateInput;
             EditText timeInput, distInput, calsInput;
             TextInputLayout timeLayout;
@@ -415,16 +430,18 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                         newFragment.show(getFragmentManager(), "datePicker");
                         break;
                     case R.id.cancel_button:
-                        Toast.makeText(getBaseContext(), "Cancel button", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Cancel button", Toast.LENGTH_SHORT).show();
+                        recordsList.remove(0);
+                        binder.mainRecyclerview.getAdapter().notifyItemRemoved(0);
+                        isAddDialogOpen = false;
                         break;
                     case R.id.confirm_button:
-                        Toast.makeText(getBaseContext(), "Confirm button", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Confirm button", Toast.LENGTH_SHORT).show();
                         int validation = validateFields();
                         if (validation > -1) {
                             highlightField(validation);
                         } else if (validateTimeFormattedProper()){
                             saveEnteredData(addInfoToArray());
-
                         }
                         break;
                 }
