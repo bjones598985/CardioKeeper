@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
@@ -32,24 +33,36 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
     long lastTime = 0;
+    long base;
+    long timeWhenStopped = 0;
+    boolean isRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
-        if (savedInstanceState == null) {
-            //binder.chronometer.setBase(SystemClock.elapsedRealtime());
-            lapList = new ArrayList<>();
-            timeStopped = 0;
-        } else {
-            timeStopped = savedInstanceState.getLong("time");
-            //binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
-            this.onClick(binder.startTimer);
+        isRunning = false;
+        lapList = new ArrayList<>();
+        if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
+            timeWhenStopped = savedInstanceState.getLong("time");
+            isRunning = savedInstanceState.getBoolean("isRunning");
+            long runningTime = savedInstanceState.getLong("runningTime");
+            lastTime = savedInstanceState.getLong("lastTime");
+            if (isRunning) {
+                binder.chronometer.setBase(SystemClock.elapsedRealtime() - runningTime);
+            } else {
+                binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
+            }
         }
-        digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
-        digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
-        binder.chronometer.setTypeface(digital);
+        if (isRunning) {
+            binder.chronometer.start();
+            hideButtons(binder.startTimer);
+            showButtons(binder.stopTimer, binder.lap);
+        }
+        //digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
+        //digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
+        //binder.chronometer.setTypeface(digital);
 
         initButtons();
         initRv();
@@ -58,7 +71,10 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putStringArrayList("list", lapList);
-        outState.putLong("time", binder.chronometer.getBase() - SystemClock.elapsedRealtime());
+        outState.putLong("time", timeWhenStopped);
+        outState.putLong("runningTime", SystemClock.elapsedRealtime() - binder.chronometer.getBase());
+        outState.putBoolean("isRunning", isRunning);
+        outState.putLong("lastTime", lastTime);
         super.onSaveInstanceState(outState);
     }
 
@@ -80,73 +96,55 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start_timer:
-                binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
+                binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
                 binder.chronometer.start();
-                binder.startTimer.animate().alpha(0).start();
-                binder.startTimer.setVisibility(View.INVISIBLE);
-                binder.stopTimer.animate().alpha(1f).start();
-                binder.stopTimer.setVisibility(View.VISIBLE);
-                binder.lap.animate().alpha(1f).start();
-                binder.lap.setVisibility(View.VISIBLE);
+                hideButtons(binder.startTimer);
+                showButtons(binder.stopTimer, binder.lap);
+                isRunning = true;
                 break;
-
             case R.id.stop_timer:
-                timeStopped = binder.chronometer.getBase() - SystemClock.elapsedRealtime();
                 binder.chronometer.stop();
-                binder.stopTimer.animate().alpha(0f).start();
-                binder.stopTimer.setVisibility(View.INVISIBLE);
-                binder.lap.animate().alpha(0f).start();
-                binder.lap.setVisibility(View.INVISIBLE);
-                binder.resumeTimer.animate().alpha(1f).start();
-                binder.resumeTimer.setVisibility(View.VISIBLE);
-                binder.resetTimer.animate().alpha(1f).start();
-                binder.resetTimer.setVisibility(View.VISIBLE);
+                timeWhenStopped = SystemClock.elapsedRealtime() - binder.chronometer.getBase();
+                hideButtons(binder.stopTimer, binder.lap);
+                showButtons(binder.resumeTimer, binder.resetTimer);
+                isRunning = false;
                 break;
             case R.id.lap:
-                Log.d(TAG, "lastTime: " + lastTime);
                 long time =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
-                Log.d(TAG, "time: " + time);
                 long diff = time - lastTime;
-                Log.d(TAG, "diff: " + diff);
                 lastTime = time;
-                Log.d(TAG, "lastTime: " + lastTime);
                 lapList.add(0, String.valueOf(diff));
                 binder.list.getAdapter().notifyItemInserted(0);
                 binder.list.scrollToPosition(0);
                 break;
             case R.id.resume_timer:
-                binder.chronometer.setBase(SystemClock.elapsedRealtime() + timeStopped);
+                binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
                 binder.chronometer.start();
-                binder.resumeTimer.animate().alpha(0f).start();
-                binder.resumeTimer.setVisibility(View.INVISIBLE);
-                binder.resetTimer.animate().alpha(0f).start();
-                binder.resetTimer.setVisibility(View.INVISIBLE);
-                binder.stopTimer.animate().alpha(1f).start();
-                binder.stopTimer.setVisibility(View.VISIBLE);
-                binder.lap.animate().alpha(1f).start();
-                binder.lap.setVisibility(View.VISIBLE);
+                hideButtons(binder.resumeTimer, binder.resetTimer);
+                showButtons(binder.stopTimer, binder.lap);
+                isRunning = true;
                 break;
             case R.id.reset_timer:
                 SaveDialog sd = new SaveDialog();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.add(sd, "save");
                 ft.commitAllowingStateLoss();
-                /*
-                binder.chronometer.setBase(SystemClock.elapsedRealtime());
-                timeStopped = 0;
-                binder.resumeTimer.animate().alpha(0f).start();
-                binder.resumeTimer.setVisibility(View.INVISIBLE);
-                binder.resetTimer.animate().alpha(0f).start();
-                binder.resetTimer.setVisibility(View.INVISIBLE);
-                binder.chronometer.setBase(SystemClock.elapsedRealtime());
-                binder.startTimer.animate().alpha(1f).start();
-                binder.startTimer.setVisibility(View.VISIBLE);
-                lapList.clear();
-                binder.list.getAdapter().notifyDataSetChanged();
-                */
         }
     }
 
+    private void hideButtons(Button... buttons) {
+        for (Button b : buttons) {
+            b.animate().alpha(0f).start();
+            b.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void showButtons(Button... buttons) {
+        for (Button b : buttons) {
+            b.animate().alpha(1f).start();
+            b.setVisibility(View.VISIBLE);
+        }
+    }
     private void onSavePositiveClick() {
         Intent intent = new Intent();
         intent.putExtra("totalTime", binder.chronometer.getText().toString());
