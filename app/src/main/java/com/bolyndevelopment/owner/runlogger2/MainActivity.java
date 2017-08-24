@@ -278,8 +278,10 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         //new DatabaseBackup(this).dumpBackupFile();
     }
 
-    public void graphIt(/*int position*/) {
-        startActivity(new Intent(this, HelloGraph.class));
+    public void graphIt(String date) {
+        Intent i = new Intent(this, HelloGraph.class);
+        i.putExtra("date", date);
+        startActivity(i);
     }
 
     public void showDialog(@Nullable String time) {
@@ -375,14 +377,13 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             return recordsList.size();
         }
 
-        public class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            TextView order, date, time, distance, calories;
+        class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+            TextView date, time, distance, calories;
             ImageView icon;
 
-            public BaseViewHolder(View itemView) {
+            BaseViewHolder(View itemView) {
                 super(itemView);
                 itemView.setOnClickListener(this);
-                //order = (TextView) itemView.findViewById(R.id.column_number);
                 date = (TextView) itemView.findViewById(R.id.list_date_input);
                 time = (TextView) itemView.findViewById(R.id.list_time_input);
                 distance = (TextView) itemView.findViewById(R.id.list_miles_input);
@@ -392,11 +393,11 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
             @Override
             public void onClick(View v) {
-                graphIt(/*getAdapterPosition()*/);
+                graphIt(date.getText().toString());
             }
         }
 
-        public class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable{
+        class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable{
             Spinner cardioSpinner;
             TextView dateInput;
             EditText timeInput, distInput, calsInput;

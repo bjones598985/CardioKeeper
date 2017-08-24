@@ -4,6 +4,7 @@
     <string name="duration">Duration</string>
     <string name="distance">Distance</string>
     <string name="cal_burned">Calories Burned</string>
+    <string name="laps">Laps</string>
 
     <string-array name="graph_array_list">
         <item>Select\u2026</item>
@@ -41,6 +42,7 @@
     <string name="cardio_icon_description">Cardio Icon</string>
 
     <!-- HelloGraph Strings -->
+    <string name="day">Days</string>
     <string name="week">Weeks</string>
     <string name="month">Months</string>
     <string name="year">Years</string>

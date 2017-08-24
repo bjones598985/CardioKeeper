@@ -18,8 +18,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Owner on 11/18/2015.
@@ -42,6 +45,7 @@ class DatabaseAccess {
     static final String COL_CARDIO_TYPE = "cardio_type";
     static final String DATA_TABLE = "Data";
     static final String COL_NOTES = "notes";
+    static final String COL_SEQUENCE = "sequence";
 
     static final String LAP_TABLE = "Lap";
     static final String COL_WORKOUT_ID = "workout_id";
@@ -77,6 +81,7 @@ class DatabaseAccess {
         int cals = 0;
         ContentValues values = new ContentValues();
         values.put(COL_DATE, data.get(0));
+        values.put(COL_SEQUENCE, generateSequenceNumber(data.get(0)));
         values.put(COL_TIME, Long.parseLong(data.get(1)));
         values.put(COL_DISTANCE, Float.parseFloat(data.get(2)));
         if (!data.get(3).equals("")) {
@@ -132,6 +137,26 @@ class DatabaseAccess {
         return helper.getReadableDatabase().query(DATA_TABLE, columns, null,null,null,null,null);
     }
 
+    int generateSequenceNumber(long currentTime) {
+        Date d = new Date(currentTime);
+        String formattedDate = new SimpleDateFormat("MM/dd/yyyy", Locale.US).format(d);
+        Cursor c = rawQuery("Select max(" + COL_SEQUENCE + ") from "
+                + DATA_TABLE + " where " + COL_DATE + " =?", new String[]{formattedDate});
+        c.moveToFirst();
+        int seq = c.getInt(0) + 1;
+        c.close();
+        return seq;
+    }
+
+    int generateSequenceNumber(String date) {
+        Cursor c = rawQuery("Select max(" + COL_SEQUENCE + ") from "
+                + DATA_TABLE + " where " + COL_DATE + " =?", new String[]{date});
+        c.moveToFirst();
+        int seq = c.getInt(0) + 1;
+        c.close();
+        return seq;
+    }
+
     static class SQLDatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
         SQLDatabaseHelper(Context context) {
@@ -143,6 +168,7 @@ class DatabaseAccess {
             db.execSQL("create table " + DATA_TABLE + "(" +
                     COL_ID + " integer primary key autoincrement, " +
                     COL_DATE + " text not null, " +
+                    COL_SEQUENCE + " integer not null, " +
                     COL_TIME + " integer not null, " +
                     COL_DISTANCE + " real not null, " +
                     COL_CALORIES + " integer not null, " +

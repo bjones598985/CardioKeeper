@@ -68,9 +68,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             hideButtons(binder.startTimer);
             showButtons(binder.stopTimer, binder.lap);
         }
-        //digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
-        //digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
-        //binder.chronometer.setTypeface(digital);
+        digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
+        digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
+        binder.chronometer.setTypeface(digital);
 
         initButtons();
         initRv();
@@ -132,7 +132,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
                 isRunning = true;
-                createNotification();
+                //createNotification();
                 break;
             case R.id.stop_timer:
                 binder.chronometer.stop();

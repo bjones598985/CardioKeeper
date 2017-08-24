@@ -55,16 +55,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/hello_graph"
+                android:layout_marginTop="16dp"
                 android:fitsSystemWindows="true"
                 android:background="@color/colorPrimaryDark"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:visibility="invisible"/>
+
+            <lecho.lib.hellocharts.view.ColumnChartView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/hello_graph_2"
+                android:layout_marginTop="16dp"
+                android:fitsSystemWindows="true"
+                android:background="@color/colorPrimaryDark"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:visibility="invisible"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_margin="@dimen/fab_margin"
-                android:layout_gravity="bottom|end">
+                android:layout_gravity="bottom|end"
+                android:visibility="gone">
 
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/fab_plus"
@@ -110,14 +123,6 @@
                     android:paddingTop="@dimen/activity_vertical_margin"
                     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-                    <!--
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="@dimen/nav_header_vertical_spacing"
-                        app:srcCompat="@android:drawable/sym_def_app_icon" />
-                    -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -126,16 +131,15 @@
                         android:paddingTop="16dp"
                         android:text="Cardio Keeper"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-                    <!--
-                    <TextView
-                        android:id="@+id/textView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="android.studio@android.com" />
-                        -->
-
 
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/lap_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/HelloGraphNavTextView"
+                    android:text="@string/laps"/>
 
                 <TextView
                     android:id="@+id/duration_tv"
@@ -166,6 +170,13 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginBottom="4dp"
                     android:layout_marginTop="4dp"/>
+
+                <TextView
+                    android:id="@+id/days"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/HelloGraphNavTextView"
+                    android:text="@string/day"/>
 
                 <TextView
                     android:id="@+id/weeks"

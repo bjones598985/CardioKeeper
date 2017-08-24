@@ -1,26 +1,32 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsBinding;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import lecho.lib.hellocharts.animation.ChartAnimationListener;
 import lecho.lib.hellocharts.gesture.ZoomType;
+import lecho.lib.hellocharts.listener.ColumnChartOnValueSelectListener;
 import lecho.lib.hellocharts.listener.ComboLineColumnChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
@@ -31,7 +37,6 @@ import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SubcolumnValue;
-import lecho.lib.hellocharts.renderer.ComboLineColumnChartRenderer;
 
 public class HelloGraph extends AppCompatActivity {
     //Created by Bobby Jones on 8/11/2017
@@ -39,9 +44,13 @@ public class HelloGraph extends AppCompatActivity {
 
     private static final String LIMIT = " limit ";
 
+    private static final int DAY = 1;
     private static final int WEEK = 15;
     private static final int MONTH = 30;
     private static final int YEAR = 100;
+
+    private static final int HELLO_GRAPH_1 = -1;
+    private static final int HELLO_GRAPH_2 = 1;
 
     boolean initialDataLoaded = false;
     int baseAverage;
@@ -53,30 +62,45 @@ public class HelloGraph extends AppCompatActivity {
     int timeFrame = MONTH;
     String query = QueryStrings.DURATION_QUERY;
 
+    int[] colors = new int[]{Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
+            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
+            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
+            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
+            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA};
+
     Handler handler = new Handler();
     List<Float> rawData;
     List<AxisValue> axisValues;
-    ColumnChartData columnData;
+    ColumnChartData columnData, stackedColumnData;
     LineChartData lineData;
     ActivityGraphsBinding binding;
+    String date;
+    int visibleGraph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
+        date = getIntent().getStringExtra("date");
 
         if (savedInstanceState != null) {
             timeFrame = savedInstanceState.getInt("timeFrame");
             query = savedInstanceState.getString("query");
         }
         initVars();
-        initSpinners();
+        //initSpinners();
         initGraph();
-        initFabs();
+        //initFabs();
 
         binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
-        presentChart(QueryStrings.DURATION_QUERY + LIMIT + timeFrame);
+        if (date == null) {
+            fadeInOutCharts(HELLO_GRAPH_1);
+            presentChart(query + LIMIT + timeFrame, null);
+        } else {
+            query = QueryStrings.LAPS_QUERY;
+            fadeInOutCharts(HELLO_GRAPH_2);
+            presentChart(query, new String[]{date});
+        }
     }
 
     @Override
@@ -96,6 +120,10 @@ public class HelloGraph extends AppCompatActivity {
         timeFrame = MONTH;
         query = QueryStrings.DURATION_QUERY;
         axisValues = new ArrayList<>();
+        rawData = new ArrayList<>();
+        columnData = new ColumnChartData();
+        lineData = new LineChartData();
+        stackedColumnData = new ColumnChartData();
     }
 
     private void initSpinners() {
@@ -107,13 +135,13 @@ public class HelloGraph extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 1:
-                        presentChart(QueryStrings.DURATION_QUERY);
+                        presentChart(QueryStrings.DURATION_QUERY, null);
                         break;
                     case 2:
-                        presentChart(QueryStrings.DISTANCE_QUERY);
+                        presentChart(QueryStrings.DISTANCE_QUERY, null);
                         break;
                     case 3:
-                        presentChart(QueryStrings.CALORIES_BURNED_QUERY);
+                        presentChart(QueryStrings.CALORIES_BURNED_QUERY, null);
                         break;
                 }
             }
@@ -152,8 +180,11 @@ public class HelloGraph extends AppCompatActivity {
 
     private void initGraph() {
         binding.helloGraph.setValueTouchEnabled(true);
-        binding.helloGraph.setOnValueTouchListener(new ValueTouchListener());
+        binding.helloGraph.setOnValueTouchListener(new ComboTouchListener());
         binding.helloGraph.setZoomType(ZoomType.HORIZONTAL);
+        binding.helloGraph2.setValueTouchEnabled(true);
+        binding.helloGraph2.setOnValueTouchListener(new StackedTouchListener());
+        binding.helloGraph2.setZoomType(ZoomType.HORIZONTAL);
     }
 
     private void initFabs() {
@@ -175,24 +206,114 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
-    private void presentChart(final String query) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
-                if (initialDataLoaded) {
-                    updateColumnData(c);
-                } else {
-                    generateColumnData(c);
-                    generateLineData();
-                    initialDataLoaded = true;
+    private void fadeInOutCharts(int which) {
+        if (which == HELLO_GRAPH_1) {
+            binding.helloGraph.setAlpha(0f);
+            binding.helloGraph.setVisibility(View.VISIBLE);
+            binding.helloGraph.animate().alpha(1f).setDuration(500).setListener(null).start();
+            binding.helloGraph2.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    binding.helloGraph2.setVisibility(View.GONE);
                 }
-                Axis axis = new Axis(axisValues);
-                axis.setTextColor(axisColor);
-                axis.setHasTiltedLabels(true);
+            }).start();
+            visibleGraph = HELLO_GRAPH_1;
+        } else {
+            binding.helloGraph2.setAlpha(0f);
+            binding.helloGraph2.setVisibility(View.VISIBLE);
+            binding.helloGraph2.animate().alpha(1f).setDuration(500).setListener(null).start();
+            binding.helloGraph.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    binding.helloGraph.setVisibility(View.GONE);
+                }
+            }).start();
+            visibleGraph = HELLO_GRAPH_2;
+        }
+    }
+
+    private void presentChart(@NonNull final String query, @Nullable final String[] args) {
+        if (args == null) {
+            if (visibleGraph == HELLO_GRAPH_2) {
+                fadeInOutCharts(HELLO_GRAPH_1);
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
+                    if (initialDataLoaded) {
+                        updateColumnData(c);
+                    } else {
+                        generateColumnData(c);
+                        //generateAverageLine();
+                        generateLineData();
+                        initialDataLoaded = true;
+                    }
+                    setAxesAndDisplay();
+                }
+            }).start();
+        } else {
+            if (visibleGraph == HELLO_GRAPH_1) {
+                fadeInOutCharts(HELLO_GRAPH_2);
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, args);
+                    //dumpCursorToScreen(c);
+                    if (initialDataLoaded) {
+                        generateStackedColumnData(c, 0, false);
+                        setAxesAndDisplay();
+                    } else {
+                        generateStackedColumnData(c, 0, false);
+                        setAxesAndDisplay();
+                        //initialDataLoaded = true;
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private void generateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
+        c.moveToFirst();
+        List<SubcolumnValue> subs = new ArrayList<>();
+        List<Column> columns = new ArrayList<>();
+        axisValues.clear();
+        int colCount = 0;
+        int count = 0;
+        while (!c.isAfterLast()) {
+            String date = c.getString(0);
+            setAxisValues(colCount, c.getString(0), HELLO_GRAPH_2);
+            subs = new ArrayList<>();
+            while (!c.isAfterLast() && date.equals(c.getString(0))) {
+                SubcolumnValue scv = new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1));
+                subs.add(new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1)));
+                c.moveToNext();
+                count++;
+            }
+            Column col = new Column(subs);
+            col.setHasLabels(true);
+            columns.add(col);
+            colCount++;
+        }
+        c.close();
+        stackedColumnData.setColumns(columns);
+        stackedColumnData.setStacked(true);
+        //binding.helloGraph.getChartRenderer().onChartDataChanged();
+    }
+
+    private void updateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
+        c.moveToFirst();
+
+    }
+
+    private void setAxesAndDisplay() {
+        switch (visibleGraph) {
+            case HELLO_GRAPH_1:
+                final Axis axis = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(true).setName("    ");
                 final ComboLineColumnChartData data = new ComboLineColumnChartData(columnData, lineData);
                 data.setAxisXBottom(axis);
-                Axis axisY = new Axis().setHasLines(true).setTextColor(axisColor);
+                final Axis axisY = new Axis().setHasLines(true).setTextColor(axisColor).setName("Minutes").setTextSize(16);
                 data.setAxisYLeft(axisY);
                 handler.post(new Runnable() {
                     @Override
@@ -200,31 +321,37 @@ public class HelloGraph extends AppCompatActivity {
                         binding.helloGraph.setComboLineColumnChartData(data);
                     }
                 });
-            }
-        }).start();
+                break;
+            case HELLO_GRAPH_2:
+                final Axis axisX = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(false).setName("    ");
+                stackedColumnData.setAxisXBottom(axisX);
+                final Axis axisY2 = new Axis().setHasLines(true).setTextColor(axisColor).setName("Minutes").setTextSize(16);
+                stackedColumnData.setAxisYLeft(axisY2);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        binding.helloGraph2.setColumnChartData(stackedColumnData);
+                    }
+                });
+        }
+    }
+
+    private void dumpCursorToScreen(Cursor c) {
+        String s = DatabaseUtils.dumpCursorToString(c);
+        Log.d(TAG, "Dump: " + s);
     }
 
     private void generateColumnData(Cursor results) {
         results.moveToFirst();
-        rawData = new ArrayList<>();
+        //rawData = new ArrayList<>();
+        rawData.clear();
         List<SubcolumnValue> subcolumnValues;
         List<Column> columns = new ArrayList<>();
         axisValues.clear();
         int count = 0;
         while (!results.isAfterLast()) {
             subcolumnValues = new ArrayList<>();
-            setAxisValues(count, results.getString(0));
-            /*
-            final AxisValue av = new AxisValue(count);
-            //we only want to put a label on every third piece of data
-            int mod = count % baseAverage;
-            if (count > 0 && mod == 0) {
-                av.setLabel(results.getString(0));
-            } else {
-                av.setLabel("");
-            }
-            axisValues.add(av);
-            */
+            setAxisValues(count, results.getString(0), HELLO_GRAPH_1);
             float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
             //we are placing the chart values w/o dates to be used for the average line chart
             rawData.add(raw);
@@ -236,17 +363,21 @@ public class HelloGraph extends AppCompatActivity {
             count++;
         }
         results.close();
-        columnData = new ColumnChartData(columns);
+        columnData.setColumns(columns);
     }
 
-    private void setAxisValues(int count, String data) {
+    private void setAxisValues(int count, String data, int whichGraph) {
         final AxisValue av = new AxisValue(count);
         //we only want to put a label on every third piece of data
-        int mod = count % baseAverage;
-        if (count > 0 && mod == 0) {
-            av.setLabel(data);
+        if (whichGraph == HELLO_GRAPH_1) {
+            int mod = count % baseAverage;
+            if (count > 0 && mod == 0) {
+                av.setLabel(data);
+            } else {
+                av.setLabel("");
+            }
         } else {
-            av.setLabel("");
+            av.setLabel(data);
         }
         axisValues.add(av);
     }
@@ -260,7 +391,7 @@ public class HelloGraph extends AppCompatActivity {
         int count = 0;
         List<Column> columns = oldData.getColumnChartData().getColumns();
         if (cursorCount <= oldColumnCount) {
-            rawData = new ArrayList<>();
+            rawData.clear();
             for (int j = 0; j < oldColumnCount; j++) {
                 if (j >= cursorCount) {
                     columns.get(j).getValues().get(0).setTarget(0);
@@ -268,39 +399,19 @@ public class HelloGraph extends AppCompatActivity {
                     float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
                     columns.get(j).getValues().get(0).setTarget(raw);
                     rawData.add(raw);
-                    setAxisValues(count, results.getString(0));
-                    /*
-                    final AxisValue av = new AxisValue(count);
-                    int mod = count % baseAverage;
-                    if (count > 0 && mod == 0) {
-                        av.setLabel(results.getString(0).substring(0, 5));
-                    } else {
-                        av.setLabel("");
-                    }
-                    axisValues.add(av);
-                    */
+                    setAxisValues(count, results.getString(0), HELLO_GRAPH_1);
                     results.moveToNext();
                     count++;
                 }
             }
         } else {
-            rawData = new ArrayList<>();
+            rawData.clear();
             List<SubcolumnValue> subcolumnValues;
             for (int j = 0; j < oldColumnCount; j++) {
                 float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
                 columns.get(j).getValues().get(0).setTarget(raw);
                 rawData.add(raw);
-                setAxisValues(count, results.getString(0));
-                /*
-                final AxisValue av = new AxisValue(count);
-                int mod = count % baseAverage;
-                if (count > 0 && mod == 0) {
-                    av.setLabel(results.getString(0));
-                } else {
-                    av.setLabel("");
-                }
-                axisValues.add(av);
-                */
+                setAxisValues(count, results.getString(0), HELLO_GRAPH_1);
                 results.moveToNext();
                 count++;
             }
@@ -313,22 +424,34 @@ public class HelloGraph extends AppCompatActivity {
                 Column col = new Column(subcolumnValues);
                 col.setHasLabelsOnlyForSelected(true);
                 columns.add(col);
-                setAxisValues(count, results.getString(0));
-                /*
-                final AxisValue av = new AxisValue(count);
-                int mod = count % baseAverage;
-                if (count > 0 && mod == 0) {
-                    av.setLabel(results.getString(0));
-                } else {
-                    av.setLabel("");
-                }
-                axisValues.add(av);
-                */
+                setAxisValues(count, results.getString(0), HELLO_GRAPH_1);
                 results.moveToNext();
                 count++;
             }
         }
+        //generateAverageLine();
         updateLineData(oldColumnCount, cursorCount);
+    }
+
+    private void generateAverageLine() {
+        List<PointValue> pointValues = new ArrayList<>();
+        float values = 0;
+        int size = columnData.getColumns().size() -1;
+        for (Column c : columnData.getColumns()) {
+            values += c.getValues().get(0).getValue();
+        }
+        float ave = values / size;
+        pointValues.add(new PointValue(0, ave));
+        pointValues.add(new PointValue(size, ave));
+        Line line = new Line(pointValues);
+        line.setColor(lineColor);
+        //line.setCubic(true);
+        line.setHasLabels(true);
+        line.setHasLines(true);
+        line.setHasPoints(true);
+        List<Line> lines = new ArrayList<>();
+        lines.add(line);
+        lineData.setLines(lines);
     }
 
     private void generateLineData() {
@@ -352,7 +475,7 @@ public class HelloGraph extends AppCompatActivity {
         line.setHasPoints(true);
         List<Line> lines = new ArrayList<>();
         lines.add(line);
-        lineData = new LineChartData(lines);
+        lineData.setLines(lines);
     }
 
     private void updateLineData(final int oldColumnCount, final int newColumnCount) {
@@ -427,6 +550,9 @@ public class HelloGraph extends AppCompatActivity {
 
     public void onNavClick(View v) {
         switch (v.getId()) {
+            case R.id.lap_tv:
+                query = QueryStrings.LAPS_QUERY;
+                break;
             case R.id.duration_tv:
                 query = QueryStrings.DURATION_QUERY;
                 break;
@@ -435,6 +561,9 @@ public class HelloGraph extends AppCompatActivity {
                 break;
             case R.id.cal_burn_tv:
                 query = QueryStrings.CALORIES_BURNED_QUERY;
+                break;
+            case R.id.days:
+                timeFrame = DAY;
                 break;
             case R.id.weeks:
                 timeFrame = WEEK;
@@ -452,21 +581,29 @@ public class HelloGraph extends AppCompatActivity {
         }
         binding.drawerLayout.closeDrawer(binding.chartsNavViewRight);
         Timer t = new Timer(true);
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                presentChart(query + LIMIT + timeFrame);
-            }
-        }, 300);
+        //t.schedule(new TimerTask() {
+            //@Override
+            //public void run() {
+                if (query.equals(QueryStrings.LAPS_QUERY)) {
+                    presentChart(query, new String[]{date});
+                } else {
+                    if (timeFrame == DAY) {
+                        timeFrame = WEEK;
+                    }
+                    presentChart(query + LIMIT + timeFrame, null);
+                }
+            //}
+        //}, 300);
     }
 
-    private class QueryStrings {
+    private static class QueryStrings {
         final static String DURATION_QUERY = "select date, time from Data order by date asc";
         final static String DISTANCE_QUERY = "select date, distance from Data order by date asc";
         final static String CALORIES_BURNED_QUERY = "select date, calories from Data order by date asc";
+        final static String LAPS_QUERY = "select Data.date, Lap.lap_num, Lap.time from Lap inner join Data on Data._id=Lap.workout_id where Data.date=?";
     }
 
-    private class ValueTouchListener implements ComboLineColumnChartOnValueSelectListener {
+    private class ComboTouchListener implements ComboLineColumnChartOnValueSelectListener {
 
         @Override
         public void onColumnValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
@@ -481,6 +618,20 @@ public class HelloGraph extends AppCompatActivity {
         @Override
         public void onValueDeselected() {
             //do nothing, we don't care
+        }
+    }
+
+    private class StackedTouchListener implements ColumnChartOnValueSelectListener {
+
+        @Override
+        public void onValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
+            Toast.makeText(getBaseContext(), "Column: " + columnIndex
+                    + "\nSubColumn Value: " + value.getValue(), Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onValueDeselected() {
+
         }
     }
 }
