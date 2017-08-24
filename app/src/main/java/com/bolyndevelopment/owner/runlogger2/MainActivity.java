@@ -270,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                             public void run() {
                                 mAdapter.notifyItemChanged(0);
                                 binder.mainRecyclerview.scrollToPosition(0);
+                                isAddDialogOpen = false;
                             }
                         });
                     }
@@ -324,8 +325,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
     private class AddDialog extends ListItem {
         int spinnerPosition = 0;
-
-
     }
 
     private class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

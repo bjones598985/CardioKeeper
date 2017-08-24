@@ -36,14 +36,16 @@
                         >
 
                         <Spinner
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:id="@+id/spinner_data" />
+                            android:id="@+id/spinner_data"
+                            android:layout_weight="1"/>
 
                         <Spinner
                             android:id="@+id/spinner_time_frame"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"/>
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"/>
 
                     </LinearLayout>
 
