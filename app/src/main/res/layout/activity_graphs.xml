@@ -79,7 +79,7 @@
                 android:orientation="vertical"
                 android:layout_margin="@dimen/fab_margin"
                 android:layout_gravity="bottom|end"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/fab_plus"

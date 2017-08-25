@@ -63,6 +63,10 @@ public class HelloGraph extends AppCompatActivity {
     int timeFrame = MONTH;
     String query = QueryStrings.DURATION_QUERY;
 
+    //for testing only
+    String[] strings = new String[]{"08/21/2017", "08/24/2017", "08/25/2017"};
+    int stringsCount = 0;
+
     int[] colors = new int[]{Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
             Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
             Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
@@ -100,7 +104,15 @@ public class HelloGraph extends AppCompatActivity {
         initVars();
         //initSpinners();
         initGraph();
-        //initFabs();
+        initFabs();
+
+        if (date.equals(strings[0])) {
+            stringsCount = 0;
+        } else if(date.equals(strings[1])) {
+            stringsCount = 1;
+        } else if (date.equals(strings[2])) {
+            stringsCount = 2;
+        }
 
         binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         /*
@@ -207,16 +219,25 @@ public class HelloGraph extends AppCompatActivity {
         binding.fabPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (zoomLevel < 10) {
-                    binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel++);
+                //if (zoomLevel < 10) {
+                    //binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel++);
+                //}
+                if (stringsCount < 2) {
+                    stringsCount++;
+                    presentGeneralStatsChart(QueryStrings.LAPS_QUERY, new String[]{strings[stringsCount]});
                 }
+
             }
         });
         binding.fabMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (zoomLevel > -1) {
-                    binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel--);
+                //if (zoomLevel > -1) {
+                   // binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel--);
+                //}
+                if (stringsCount > 0) {
+                    stringsCount--;
+                    presentGeneralStatsChart(QueryStrings.LAPS_QUERY, new String[]{strings[stringsCount]});
                 }
             }
         });
@@ -421,15 +442,59 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void updateColumnData(Cursor results) {
-        results.moveToFirst();
         final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
         final int cursorCount = results.getCount();
-        final int oldColumnCount = oldData.getColumnChartData().getColumns().size();
+
+
+        int colCount = 0;
+
+        results.moveToFirst();
         axisValues.clear();
-        int count = 0;
         List<Column> columns = oldData.getColumnChartData().getColumns();
+        final int oldColumnCount = columns.size();
+
         if (cursorCount <= oldColumnCount) {
             rawData.clear();
+            while (!results.isAfterLast()) {
+                int count = 0;
+                String date = results.getString(0);
+                setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                    float raw;
+                    if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                        raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                    } else {
+                        raw = results.getFloat(1);
+                    }
+                    columns.get(colCount).getValues().get(count).setTarget(raw).setColor(colors[count]);
+                    if (!isStacked) { //if we're just doing reg columns, delete the stacked values
+                        int subsSize = columns.get(colCount).getValues().size();
+                        for (int k = 1; k < subsSize; k++) {
+                            columns.get(colCount).getValues().get(k).setTarget(0);
+                        }
+                    }
+                    results.moveToNext();
+                    count++;
+                }
+                if (columns.get(colCount).getValues().size() > count) {
+                    for (int z = count; z < columns.get(colCount).getValues().size(); z++) {
+                        columns.get(colCount).getValues().get(z).setTarget(0);
+                    }
+                }
+                colCount++;
+            }
+            for (int q = cursorCount; q < oldColumnCount; q++) {
+                if (!isStacked) {
+                    int subSize = columns.get(q).getValues().size();
+                    for (int l = 0; l < subSize; l++) {
+                        columns.get(q).getValues().get(l).setTarget(0);
+                    }
+                } else {
+                    columns.get(q).getValues().get(0).setTarget(0);
+                }
+
+            }
+            /*
             for (int j = 0; j < oldColumnCount; j++) {
                 if (j >= cursorCount) {
                     columns.get(j).getValues().get(0).setTarget(0);
@@ -442,11 +507,74 @@ public class HelloGraph extends AppCompatActivity {
                     count++;
                 }
             }
+            */
         } else {
             rawData.clear();
             List<SubcolumnValue> subcolumnValues;
             for (int j = 0; j < oldColumnCount; j++) {
-                float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
+                //if(colCount < oldColumnCount) {
+                int sublistSize = columns.get(colCount).getValues().size();
+                int count = 0;
+                String date = results.getString(0);
+                setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                    float raw;
+                    if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                        raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                    } else {
+                        raw = results.getFloat(1);
+                    }
+                    if (count >= sublistSize) {
+                        columns.get(colCount).getValues().add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
+                    } else {
+                        columns.get(colCount).getValues().get(count).setTarget(raw).setColor(colors[count]);
+                    }
+                    if (!isStacked) { //if we're just doing reg columns, delete the stacked values
+                        int subsSize = columns.get(colCount).getValues().size();
+                        for (int k = 1; k < subsSize; k++) {
+                            columns.get(colCount).getValues().get(k).setTarget(0);
+                        }
+                    }
+                    results.moveToNext();
+                    count++;
+                }
+                if (columns.get(colCount).getValues().size() > count) {
+                    for (int z = count; z < columns.get(colCount).getValues().size(); z++) {
+                        Log.d(TAG, "colcount: " + colCount + ", count: " + count + ", z: " +z);
+                        columns.get(colCount).getValues().get(z).setTarget(0);
+                    }
+                }
+                colCount++;
+            }
+            while (!results.isAfterLast()) {
+                int count = 0;
+                String date = results.getString(0);
+                setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+                List<SubcolumnValue> sublist = new ArrayList<>();
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                    float raw;
+                    if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                        raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                    } else {
+                        raw = results.getFloat(1);
+                    }
+                    sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
+
+                    results.moveToNext();
+                    count++;
+                }
+                columns.add(new Column(sublist).setHasLabelsOnlyForSelected(true));
+                colCount++;
+            }
+
+            /*
+            for (int j = 0; j < oldColumnCount; j++) {
+                float raw;
+                if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                    raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                } else {
+                    raw = results.getFloat(1);
+                }
                 columns.get(j).getValues().get(0).setTarget(raw);
                 rawData.add(raw);
                 setAxisValues(count, results.getString(0), COMBO_GRAPH);
@@ -454,7 +582,12 @@ public class HelloGraph extends AppCompatActivity {
                 count++;
             }
             for (int i = oldColumnCount; i < cursorCount; i++) {
-                float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
+                float raw;
+                if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                    raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                } else {
+                    raw = results.getFloat(1);
+                }
                 rawData.add(raw);
                 subcolumnValues = new ArrayList<>();
                 subcolumnValues.add(new SubcolumnValue(0, columnColor));
@@ -466,9 +599,11 @@ public class HelloGraph extends AppCompatActivity {
                 results.moveToNext();
                 count++;
             }
+            */
         }
         //generateAverageLine();
         //updateLineData(oldColumnCount, cursorCount);
+        final int colCountFinal = colCount;
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -481,8 +616,8 @@ public class HelloGraph extends AppCompatActivity {
                     @Override
                     public void onAnimationFinished() {
                         binding.helloGraph.setDataAnimationListener(null);
-                        if (oldColumnCount > cursorCount) {
-                            for (int i = oldColumnCount - 1; i >= cursorCount; i--) {
+                        if (oldColumnCount > colCountFinal) {
+                            for (int i = oldColumnCount - 1; i >= colCountFinal; i--) {
                                 binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
                             }
                         }
