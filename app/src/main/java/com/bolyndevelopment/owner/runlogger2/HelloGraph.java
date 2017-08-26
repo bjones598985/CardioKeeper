@@ -49,9 +49,6 @@ public class HelloGraph extends AppCompatActivity {
     private static final int MONTH = 30;
     private static final int YEAR = 100;
 
-    private static final int COMBO_GRAPH = -1;
-    private static final int COLUMN_ONLY_GRAPH = 1;
-
     boolean initialDataLoaded = false;
     int baseAverage;
     int zoomLevel;
@@ -89,12 +86,16 @@ public class HelloGraph extends AppCompatActivity {
     LineChartData lineData;
     ActivityGraphsBinding binding;
     String date;
-    int visibleGraph;
+
+    int time = 1, dataType, cardioType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
+        binding.toolbar.setTitle("Graphs");
+        setSupportActionBar(binding.toolbar);
+        binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         date = getIntent().getStringExtra("date");
 
         if (savedInstanceState != null) {
@@ -102,32 +103,13 @@ public class HelloGraph extends AppCompatActivity {
             query = savedInstanceState.getString("query");
         }
         initVars();
-        //initSpinners();
+        initSpinners();
         initGraph();
-        initFabs();
+        //initFabs();
 
-        if (date.equals(strings[0])) {
-            stringsCount = 0;
-        } else if(date.equals(strings[1])) {
-            stringsCount = 1;
-        } else if (date.equals(strings[2])) {
-            stringsCount = 2;
-        }
-
-        binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        /*
-        if (date == null) {
-            fadeInOutCharts(COMBO_GRAPH);
-            presentGeneralStatsChart(query + LIMIT + timeFrame, null);
-        } else {
-            query = QueryStrings.LAPS_QUERY;
-            fadeInOutCharts(COLUMN_ONLY_GRAPH);
-            presentGeneralStatsChart(query, new String[]{date});
-        }
-        */
         isStacked = true;
         query = QueryStrings.LAPS_QUERY;
-        fadeInOutCharts(COMBO_GRAPH);
+        //fadeInOutCharts(COMBO_GRAPH);
         presentGeneralStatsChart(query, new String[]{date});
     }
 
@@ -154,6 +136,15 @@ public class HelloGraph extends AppCompatActivity {
         stackedColumnData = new ColumnChartData();
     }
 
+    /*
+    @param position:
+        1 = laps
+        2 = duration
+        3 = distance
+        4 = cals burned
+        5 = dph
+     */
+
     private void initSpinners() {
         final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_array_list, android.R.layout.simple_spinner_item);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -163,13 +154,14 @@ public class HelloGraph extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 1:
-                        presentGeneralStatsChart(QueryStrings.DURATION_QUERY, null);
+
+                        //presentGeneralStatsChart(QueryStrings.DURATION_QUERY, null);
                         break;
                     case 2:
-                        presentGeneralStatsChart(QueryStrings.DISTANCE_QUERY, null);
+                        //presentGeneralStatsChart(QueryStrings.DISTANCE_QUERY, null);
                         break;
                     case 3:
-                        presentGeneralStatsChart(QueryStrings.CALORIES_BURNED_QUERY, null);
+                        //presentGeneralStatsChart(QueryStrings.CALORIES_BURNED_QUERY, null);
                         break;
                 }
             }
@@ -183,7 +175,33 @@ public class HelloGraph extends AppCompatActivity {
         final ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this, R.array.time_frame, android.R.layout.simple_spinner_item);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerTimeFrame.setAdapter(timeAdapter);
+        binding.spinnerTimeFrame.setSelection(1);
         binding.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+
+                        break;
+                    case 1:
+
+                        break;
+                    case 2:
+
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                //do nothing, we don't care
+            }
+        });
+
+        final ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.cardio_types, android.R.layout.simple_spinner_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerCardioType.setAdapter(typeAdapter);
+        binding.spinnerCardioType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
@@ -210,9 +228,6 @@ public class HelloGraph extends AppCompatActivity {
         binding.helloGraph.setValueTouchEnabled(true);
         binding.helloGraph.setOnValueTouchListener(new ComboTouchListener());
         binding.helloGraph.setZoomType(ZoomType.HORIZONTAL);
-        binding.helloGraph2.setValueTouchEnabled(true);
-        binding.helloGraph2.setOnValueTouchListener(new StackedTouchListener());
-        binding.helloGraph2.setZoomType(ZoomType.HORIZONTAL);
     }
 
     private void initFabs() {
@@ -243,149 +258,24 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
-    private void fadeInOutCharts(int which) {
-        if (which == COMBO_GRAPH) {
-            binding.helloGraph.setAlpha(0f);
-            binding.helloGraph.setVisibility(View.VISIBLE);
-            binding.helloGraph.animate().alpha(1f).setDuration(500).setListener(null).start();
-            binding.helloGraph2.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    binding.helloGraph2.setVisibility(View.GONE);
-                }
-            }).start();
-            visibleGraph = COMBO_GRAPH;
-        } else {
-            binding.helloGraph2.setAlpha(0f);
-            binding.helloGraph2.setVisibility(View.VISIBLE);
-            binding.helloGraph2.animate().alpha(1f).setDuration(500).setListener(null).start();
-            binding.helloGraph.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    binding.helloGraph.setVisibility(View.GONE);
-                }
-            }).start();
-            visibleGraph = COLUMN_ONLY_GRAPH;
-        }
-    }
-    private void presentLapStatsChart(int timeFrame) {
-
-    }
-
     private void presentGeneralStatsChart(@NonNull final String query, @Nullable final String[] args) {
-        //if (args == null) {
-            if (visibleGraph == COLUMN_ONLY_GRAPH) {
-                fadeInOutCharts(COMBO_GRAPH);
-            }
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, args);
-                    if (initialDataLoaded) {
-                        updateColumnData(c);
-                    } else {
-                        generateColumnData(c);
-                        //generateAverageLine();
-                        //generateLineData();
-                        initialDataLoaded = true;
-                    }
-                    setAxesAndDisplay();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Cursor c = DatabaseAccess.getInstance().rawQuery(query, args);
+                if (initialDataLoaded) {
+                    updateColumnData(c);
+                } else {
+                    generateColumnData(c);
+                    initialDataLoaded = true;
                 }
-            }).start();
-            /*
-        } else {
-            if (visibleGraph == COMBO_GRAPH) {
-                fadeInOutCharts(COLUMN_ONLY_GRAPH);
+                setAxesAndDisplay();
             }
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, args);
-                    //dumpCursorToScreen(c);
-                    if (initialDataLoaded) {
-                        generateStackedColumnData(c, 0, false);
-                        setAxesAndDisplay();
-                    } else {
-                        generateStackedColumnData(c, 0, false);
-                        setAxesAndDisplay();
-                        //initialDataLoaded = true;
-                    }
-                }
-            }).start();
-        }
-        */
-    }
-
-    private void generateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
-        c.moveToFirst();
-        List<SubcolumnValue> subs;
-        List<Column> columns = new ArrayList<>();
-        axisValues.clear();
-        int colCount = 0;
-        int count = 0;
-        while (!c.isAfterLast()) {
-            String date = c.getString(0);
-            setAxisValues(colCount, c.getString(0), COLUMN_ONLY_GRAPH);
-            subs = new ArrayList<>();
-            while (!c.isAfterLast() && date.equals(c.getString(0))) {
-                SubcolumnValue scv = new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1));
-                subs.add(new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1)));
-                c.moveToNext();
-                count++;
-            }
-            Column col = new Column(subs);
-            col.setHasLabels(true);
-            columns.add(col);
-            colCount++;
-        }
-        c.close();
-        stackedColumnData.setColumns(columns);
-        stackedColumnData.setStacked(isStacked);
-        //binding.helloGraph.getChartRenderer().onChartDataChanged();
-    }
-
-    private void updateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
-        c.moveToFirst();
-
-    }
-
-    private void setAxesAndDisplay() {
-        switch (visibleGraph) {
-            case COMBO_GRAPH:
-                final Axis axis = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(true).setName("    ");
-                final ComboLineColumnChartData data = new ComboLineColumnChartData(columnData, lineData);
-                data.setAxisXBottom(axis);
-                final Axis axisY = new Axis().setHasLines(true).setTextColor(axisColor).setName("Minutes").setTextSize(16);
-                data.setAxisYLeft(axisY);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        binding.helloGraph.setComboLineColumnChartData(data);
-                    }
-                });
-                break;
-            case COLUMN_ONLY_GRAPH:
-                final Axis axisX = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(false).setName("    ");
-                stackedColumnData.setAxisXBottom(axisX);
-                final Axis axisY2 = new Axis().setHasLines(true).setTextColor(axisColor).setName("Minutes").setTextSize(16);
-                stackedColumnData.setAxisYLeft(axisY2);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        binding.helloGraph2.setColumnChartData(stackedColumnData);
-                    }
-                });
-        }
-    }
-
-    private void dumpCursorToScreen(Cursor c) {
-        String s = DatabaseUtils.dumpCursorToString(c);
-        Log.d(TAG, "Dump: " + s);
+        }).start();
     }
 
     private void generateColumnData(Cursor results) {
         results.moveToFirst();
-        Log.d(TAG, "Count: " + results.getCount());
         rawData.clear();
         List<SubcolumnValue> subcolumnValues;
         List<Column> columns = new ArrayList<>();
@@ -395,7 +285,7 @@ public class HelloGraph extends AppCompatActivity {
         while (!results.isAfterLast()) {
             String date = results.getString(0);
             subcolumnValues = new ArrayList<>();
-            setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+            setAxisValues(colCount, results.getString(0));
             while (!results.isAfterLast() && date.equals(results.getString(0))) {
                 float raw;
                 if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
@@ -403,14 +293,9 @@ public class HelloGraph extends AppCompatActivity {
                 } else {
                     raw = results.getFloat(1);
                 }
-                //SubcolumnValue scv = new SubcolumnValue(results.getLong(1), colors[count]);
                 subcolumnValues.add(new SubcolumnValue(raw, colors[count]));
                 results.moveToNext();
                 count++;
-                //float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
-                //we are placing the chart values w/o dates to be used for the average line chart
-                //rawData.add(raw);
-                //subcolumnValues.add(new SubcolumnValue(raw, columnColor));
             }
             Column col = new Column(subcolumnValues);
             col.setHasLabelsOnlyForSelected(true);
@@ -423,42 +308,20 @@ public class HelloGraph extends AppCompatActivity {
         columnData.setStacked(isStacked);
     }
 
-    private void setAxisValues(int count, String data, int whichGraph) {
-        final AxisValue av = new AxisValue(count);
-        /*we only want to put a label on every third piece of data
-        if (whichGraph == COMBO_GRAPH) {
-            int mod = count % baseAverage;
-            if (count > 0 && mod == 0) {
-                av.setLabel(data);
-            } else {
-                av.setLabel("");
-            }
-        } else {
-            av.setLabel(data);
-        }
-        */
-        av.setLabel(data);
-        axisValues.add(av);
-    }
-
     private void updateColumnData(Cursor results) {
         final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
         final int cursorCount = results.getCount();
-
-
         int colCount = 0;
-
         results.moveToFirst();
         axisValues.clear();
         List<Column> columns = oldData.getColumnChartData().getColumns();
         final int oldColumnCount = columns.size();
-
         if (cursorCount <= oldColumnCount) {
             rawData.clear();
             while (!results.isAfterLast()) {
                 int count = 0;
                 String date = results.getString(0);
-                setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+                setAxisValues(colCount, results.getString(0));
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw;
                     if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
@@ -492,31 +355,14 @@ public class HelloGraph extends AppCompatActivity {
                 } else {
                     columns.get(q).getValues().get(0).setTarget(0);
                 }
-
             }
-            /*
-            for (int j = 0; j < oldColumnCount; j++) {
-                if (j >= cursorCount) {
-                    columns.get(j).getValues().get(0).setTarget(0);
-                } else {
-                    float raw = query.equals(QueryStrings.DURATION_QUERY) ? Utils.convertMillisToFloatMinutes(results.getLong(1)) : results.getFloat(1);
-                    columns.get(j).getValues().get(0).setTarget(raw);
-                    rawData.add(raw);
-                    setAxisValues(count, results.getString(0), COMBO_GRAPH);
-                    results.moveToNext();
-                    count++;
-                }
-            }
-            */
         } else {
             rawData.clear();
-            List<SubcolumnValue> subcolumnValues;
             for (int j = 0; j < oldColumnCount; j++) {
-                //if(colCount < oldColumnCount) {
                 int sublistSize = columns.get(colCount).getValues().size();
                 int count = 0;
                 String date = results.getString(0);
-                setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+                setAxisValues(colCount, results.getString(0));
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw;
                     if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
@@ -549,7 +395,7 @@ public class HelloGraph extends AppCompatActivity {
             while (!results.isAfterLast()) {
                 int count = 0;
                 String date = results.getString(0);
-                setAxisValues(colCount, results.getString(0), COMBO_GRAPH);
+                setAxisValues(colCount, results.getString(0));
                 List<SubcolumnValue> sublist = new ArrayList<>();
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw;
@@ -566,40 +412,6 @@ public class HelloGraph extends AppCompatActivity {
                 columns.add(new Column(sublist).setHasLabelsOnlyForSelected(true));
                 colCount++;
             }
-
-            /*
-            for (int j = 0; j < oldColumnCount; j++) {
-                float raw;
-                if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
-                    raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
-                } else {
-                    raw = results.getFloat(1);
-                }
-                columns.get(j).getValues().get(0).setTarget(raw);
-                rawData.add(raw);
-                setAxisValues(count, results.getString(0), COMBO_GRAPH);
-                results.moveToNext();
-                count++;
-            }
-            for (int i = oldColumnCount; i < cursorCount; i++) {
-                float raw;
-                if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
-                    raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
-                } else {
-                    raw = results.getFloat(1);
-                }
-                rawData.add(raw);
-                subcolumnValues = new ArrayList<>();
-                subcolumnValues.add(new SubcolumnValue(0, columnColor));
-                subcolumnValues.get(0).setTarget(raw);
-                Column col = new Column(subcolumnValues);
-                col.setHasLabelsOnlyForSelected(true);
-                columns.add(col);
-                setAxisValues(count, results.getString(0), COMBO_GRAPH);
-                results.moveToNext();
-                count++;
-            }
-            */
         }
         //generateAverageLine();
         //updateLineData(oldColumnCount, cursorCount);
@@ -627,6 +439,79 @@ public class HelloGraph extends AppCompatActivity {
                 binding.helloGraph.startDataAnimation(1000);
             }
         });
+    }
+
+    private void setAxisValues(int count, String data) {
+        final AxisValue av = new AxisValue(count);
+        /*we only want to put a label on every third piece of data
+        if (whichGraph == COMBO_GRAPH) {
+            int mod = count % baseAverage;
+            if (count > 0 && mod == 0) {
+                av.setLabel(data);
+            } else {
+                av.setLabel("");
+            }
+        } else {
+            av.setLabel(data);
+        }
+        */
+        av.setLabel(data);
+        axisValues.add(av);
+    }
+
+    private void setAxesAndDisplay() {
+        final Axis axis = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(false).setName(" \n ");
+        final ComboLineColumnChartData data = new ComboLineColumnChartData(columnData, lineData);
+        data.setAxisXBottom(axis);
+        final Axis axisY = new Axis().setHasLines(true).setTextColor(axisColor).setName("Minutes").setTextSize(16);
+        data.setAxisYLeft(axisY);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                binding.helloGraph.setComboLineColumnChartData(data);
+            }
+        });
+    }
+
+
+
+
+    private void generateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
+        c.moveToFirst();
+        List<SubcolumnValue> subs;
+        List<Column> columns = new ArrayList<>();
+        axisValues.clear();
+        int colCount = 0;
+        int count = 0;
+        while (!c.isAfterLast()) {
+            String date = c.getString(0);
+            setAxisValues(colCount, c.getString(0));
+            subs = new ArrayList<>();
+            while (!c.isAfterLast() && date.equals(c.getString(0))) {
+                SubcolumnValue scv = new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1));
+                subs.add(new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1)));
+                c.moveToNext();
+                count++;
+            }
+            Column col = new Column(subs);
+            col.setHasLabels(true);
+            columns.add(col);
+            colCount++;
+        }
+        c.close();
+        stackedColumnData.setColumns(columns);
+        stackedColumnData.setStacked(isStacked);
+        //binding.helloGraph.getChartRenderer().onChartDataChanged();
+    }
+
+    private void updateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
+        c.moveToFirst();
+
+    }
+
+    private void dumpCursorToScreen(Cursor c) {
+        String s = DatabaseUtils.dumpCursorToString(c);
+        Log.d(TAG, "Dump: " + s);
     }
 
     private void generateAverageLine() {
@@ -817,20 +702,6 @@ public class HelloGraph extends AppCompatActivity {
         @Override
         public void onValueDeselected() {
             //do nothing, we don't care
-        }
-    }
-
-    private class StackedTouchListener implements ColumnChartOnValueSelectListener {
-
-        @Override
-        public void onValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
-            Toast.makeText(getBaseContext(), "Column: " + columnIndex
-                    + "\nSubColumn Value: " + value.getValue(), Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onValueDeselected() {
-
         }
     }
 }

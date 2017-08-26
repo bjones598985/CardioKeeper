@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.bolyndevelopment.owner.runlogger2.MainActivity">
     <item
-        android:id="@+id/graph_it"
+        android:id="@+id/about_app"
         android:orderInCategory="100"
         android:title="@string/action_graph"
         app:showAsAction="never" />

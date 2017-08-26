@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -14,9 +16,11 @@ import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -208,8 +212,11 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.graph_it) {
-
+        if (id == R.id.about_app) {
+            AboutDialog sd = new AboutDialog();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(sd, "about");
+            ft.commitAllowingStateLoss();
         } else {
             startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
         }
@@ -567,6 +574,22 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             // Do something with the date chosen by the user
             avh.dateInput.setText(formattedDate);
             //((LogActivityDialogFragment)getFragmentManager().findFragmentByTag("dialog")).setDateInput(formattedDate);
+        }
+    }
+
+    public static class AboutDialog extends DialogFragment {
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("About Cardio Keeper").setView(R.layout.about_layout)
+                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            getDialog().dismiss();
+                        }
+                    });
+            return builder.create();
         }
     }
 }

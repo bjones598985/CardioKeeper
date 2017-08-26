@@ -18,38 +18,44 @@
 
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/AppTheme.AppBarOverlay"
-                android:visibility="gone">
+                android:layout_height="30dp"
+                android:theme="@style/AppTheme.PopupOverlay"
+                android:visibility="visible">
 
                 <android.support.v7.widget.Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
-                    app:popupTheme="@style/AppTheme.PopupOverlay" >
+                    app:popupTheme="@style/AppTheme.PopupOverlay"
+                    android:visibility="gone"
+                    app:layout_scrollFlags="scroll|enterAlways"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center">
+
+                    <Spinner
+                        android:id="@+id/spinner_cardio_type"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        >
+                        android:layout_weight="1"/>
 
-                        <Spinner
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:id="@+id/spinner_data"
-                            android:layout_weight="1"/>
+                    <Spinner
+                        android:id="@+id/spinner_data"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
 
-                        <Spinner
-                            android:id="@+id/spinner_time_frame"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"/>
+                    <Spinner
+                        android:id="@+id/spinner_time_frame"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
 
-                    </LinearLayout>
-
-                </android.support.v7.widget.Toolbar>
+                </LinearLayout>
 
             </android.support.design.widget.AppBarLayout>
 
@@ -57,21 +63,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/hello_graph"
-                android:layout_marginTop="16dp"
-                android:fitsSystemWindows="true"
+                android:paddingTop="16dp"
                 android:background="@color/colorPrimaryDark"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                android:visibility="invisible"/>
-
-            <lecho.lib.hellocharts.view.ColumnChartView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/hello_graph_2"
-                android:layout_marginTop="16dp"
-                android:fitsSystemWindows="true"
-                android:background="@color/colorPrimaryDark"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                android:visibility="invisible"/>
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -79,7 +73,7 @@
                 android:orientation="vertical"
                 android:layout_margin="@dimen/fab_margin"
                 android:layout_gravity="bottom|end"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/fab_plus"
@@ -107,7 +101,8 @@
             android:maxWidth="200dp"
             android:background="@android:color/white"
             android:fitsSystemWindows="true"
-            tools:context=".HelloGraph">
+            tools:context=".HelloGraph"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
