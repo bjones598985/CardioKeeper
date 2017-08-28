@@ -212,13 +212,17 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.about_app) {
-            AboutDialog sd = new AboutDialog();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.add(sd, "about");
-            ft.commitAllowingStateLoss();
-        } else {
-            startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
+        switch (item.getItemId()) {
+            case R.id.about_app:
+                AboutDialog sd = new AboutDialog();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.add(sd, "about");
+                ft.commitAllowingStateLoss();
+            case R.id.run_adm:
+                startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
+            case R.id.dump_db_log:
+                DatabaseBackup dbb = new DatabaseBackup(this);
+                dbb.dumpBackupFile();
         }
         return super.onOptionsItemSelected(item);
     }

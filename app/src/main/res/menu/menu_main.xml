@@ -14,4 +14,11 @@
         android:title="Run ADM"
         app:showAsAction="never"
         android:enabled="true"/>
+
+    <item
+        android:id="@+id/dump_db_log"
+        android:orderInCategory="100"
+        android:title="Dump Db Log"
+        app:showAsAction="never"
+        android:enabled="true"/>
 </menu>
