@@ -1,5 +1,6 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -7,6 +8,7 @@ import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
@@ -20,6 +22,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,6 +62,9 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity implements LogActivityDialogFragment.LogActivityListener{
     public static final String TAG = "MainActivity";
     static final int CODE_TIMER = 100;
+
+    public static final int WRITE_REQUEST_CODE = 1;
+    public static final int INTERNET_REQUEST_CODE = 2;
 
     List<ListItem> recordsList = new ArrayList<>();
     Handler handler = new Handler();
@@ -158,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 list.add(Utils.getTimeStringMillis(String.valueOf(min) + ":" + String.valueOf(sec)));
                 list.add(String.valueOf(miles));
                 list.add(String.valueOf(calories));
-                list.add("Bike");
+                list.add("Biking");
                 long l = DatabaseAccess.getInstance().addRecords(list, null);
                 Log.d(TAG, "Row: " + l);
             }
@@ -222,11 +229,55 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
                 break;
             case R.id.dump_db_log:
-                DatabaseBackup dbb = new DatabaseBackup(this);
-                dbb.dumpBackupFile();
+                //DatabaseBackup dbb = new DatabaseBackup(this);
+                //dbb.dumpBackupFile();
+                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) Utils.exportData(handler);
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //isThereExternalWriteAccess = true;
+                    Toast.makeText(this, "You can now export the database.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case INTERNET_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //isThereInternetAccess = true;
+                    //Snackbar.make(mainLayout, "You can now access the internet.", Snackbar.LENGTH_SHORT).show();
+                }
+                break;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public boolean checkForPermission(String permission, int requestCode) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                Toast.makeText(this, "Should show request permission: true", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed, we can request the permission.
+                Toast.makeText(this, "Should show request permission: false", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override

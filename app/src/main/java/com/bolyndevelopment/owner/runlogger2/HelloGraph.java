@@ -1,13 +1,12 @@
 package com.bolyndevelopment.owner.runlogger2;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
@@ -16,17 +15,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsBinding;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 
 import lecho.lib.hellocharts.animation.ChartAnimationListener;
 import lecho.lib.hellocharts.gesture.ZoomType;
-import lecho.lib.hellocharts.listener.ColumnChartOnValueSelectListener;
 import lecho.lib.hellocharts.listener.ComboLineColumnChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
@@ -45,7 +45,7 @@ public class HelloGraph extends AppCompatActivity {
     private static final String LIMIT = " limit ";
 
     private static final int DAY = 1;
-    private static final int WEEK = 15;
+    private static final int WEEK = 7;
     private static final int MONTH = 30;
     private static final int YEAR = 100;
 
@@ -57,14 +57,14 @@ public class HelloGraph extends AppCompatActivity {
     int axisColor;
     boolean isStacked;
 
-    int timeFrame = MONTH;
+    //int timeFrame = MONTH;
     String query = QueryStrings.DURATION_QUERY;
 
     //for testing only
     String[] strings = new String[]{"08/21/2017", "08/24/2017", "08/25/2017"};
     int stringsCount = 0;
 
-    int[] colors = new int[]{Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
+    int[] colors = new int[]{Color.rgb(0,0,200), Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
             Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
             Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
             Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
@@ -87,7 +87,10 @@ public class HelloGraph extends AppCompatActivity {
     ActivityGraphsBinding binding;
     String date;
 
-    int time = 1, dataType, cardioType;
+    boolean isDataTypeSet = false, isCardioTypeSet = false;
+    int dataType, timeFrame = 1;
+    String cardioType;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,10 +110,13 @@ public class HelloGraph extends AppCompatActivity {
         initGraph();
         //initFabs();
 
-        isStacked = true;
+
         query = QueryStrings.LAPS_QUERY;
         //fadeInOutCharts(COMBO_GRAPH);
-        presentGeneralStatsChart(query, new String[]{date});
+        if (date != null) {
+            isStacked = true;
+            presentGeneralStatsChart(query, new String[]{date});
+        }
     }
 
     @Override
@@ -146,24 +152,16 @@ public class HelloGraph extends AppCompatActivity {
      */
 
     private void initSpinners() {
-        final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_array_list, android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_data_type, android.R.layout.simple_spinner_item);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerData.setAdapter(dataAdapter);
         binding.spinnerData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 1:
-
-                        //presentGeneralStatsChart(QueryStrings.DURATION_QUERY, null);
-                        break;
-                    case 2:
-                        //presentGeneralStatsChart(QueryStrings.DISTANCE_QUERY, null);
-                        break;
-                    case 3:
-                        //presentGeneralStatsChart(QueryStrings.CALORIES_BURNED_QUERY, null);
-                        break;
-                }
+                dataType = position;
+                isDataTypeSet = position != 0;
+                //try and present chart at this point
+                presentChart();
             }
 
             @Override
@@ -179,17 +177,9 @@ public class HelloGraph extends AppCompatActivity {
         binding.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-
-                        break;
-                    case 1:
-
-                        break;
-                    case 2:
-
-                        break;
-                }
+                timeFrame = position;
+                //try and present chart at this point
+                presentChart();
             }
 
             @Override
@@ -204,17 +194,10 @@ public class HelloGraph extends AppCompatActivity {
         binding.spinnerCardioType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-
-                        break;
-                    case 1:
-
-                        break;
-                    case 2:
-
-                        break;
-                }
+                cardioType = ((TextView)view).getText().toString();
+                isCardioTypeSet = position != 0;
+                //try and present chart at this point
+                presentChart();
             }
 
             @Override
@@ -224,10 +207,15 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
+    //validate that cardioType and dataType have been chosen before trying to display the chart
+    private boolean canPresentChart() {
+        return isDataTypeSet && isCardioTypeSet;
+    }
+
     private void initGraph() {
         binding.helloGraph.setValueTouchEnabled(true);
         binding.helloGraph.setOnValueTouchListener(new ComboTouchListener());
-        binding.helloGraph.setZoomType(ZoomType.HORIZONTAL);
+        binding.helloGraph.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
     }
 
     private void initFabs() {
@@ -258,6 +246,84 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
+    private void presentChart() {
+        if (canPresentChart()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String query = null;
+                    String endOfQuery = buildAndReturnQuery();
+                    switch (dataType) {
+                        case 1:
+                            query = "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + endOfQuery + " order by Data.date asc";
+                            isStacked = true;
+                            break;
+                        case 2:
+                            query = "select date, time from Data where cardio_type=" + endOfQuery + " order by date asc";
+                            isStacked = false;
+                            break;
+                        case 3:
+                            query = "select date, distance from Data where cardio_type=" + endOfQuery + " order by date asc";
+                            isStacked = false;
+                            break;
+                        case 4:
+                            query = "select date, calories from Data where cardio_type=" + endOfQuery + " order by date asc";
+                            isStacked = false;
+                    }
+                    Log.d(TAG, "Query: " + query);
+                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
+                    dumpCursorToScreen(c);
+                    if (initialDataLoaded) {
+                        updateColumnData(c);
+                    } else {
+                        generateColumnData(c);
+                        initialDataLoaded = true;
+                    }
+                    setAxesAndDisplay();
+                }
+            }).start();
+        }
+    }
+
+    private String buildAndReturnQuery() {
+        String endOfQuery = null;
+        String ex = "\'" + cardioType + "\'";
+        String today = Utils.convertDateToString(new Date(), Utils.DB_DATE_FORMAT);
+        String secondDate = getSecondDate();
+        if (dataType == 1) {
+            endOfQuery = ex + " and Data.date between \'" + secondDate + "\' and \'" + today + "\'";
+        } else {
+            endOfQuery = ex + " and date between '" + secondDate + "\' and \'" + today + "\'";
+        }
+        return endOfQuery;
+    }
+
+    private String getSecondDate() {
+        Calendar cal = Calendar.getInstance();
+        switch (timeFrame) {
+            case 1:
+                cal.add(Calendar.DAY_OF_MONTH, -7);
+                break;
+            case 2:
+                cal.add(Calendar.MONTH, -1);
+                break;
+            case 3:
+                cal.add(Calendar.MONTH, -3);
+                break;
+            case 4:
+                cal.add(Calendar.MONTH, -6);
+                break;
+            case 5:
+                cal.set(Calendar.MONTH, 1);
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                break;
+            default:
+        }
+        return Utils.convertDateToString(cal.getTime(), Utils.DB_DATE_FORMAT);
+
+    }
+
+
     private void presentGeneralStatsChart(@NonNull final String query, @Nullable final String[] args) {
         new Thread(new Runnable() {
             @Override
@@ -273,6 +339,7 @@ public class HelloGraph extends AppCompatActivity {
             }
         }).start();
     }
+
 
     private void generateColumnData(Cursor results) {
         results.moveToFirst();
@@ -333,7 +400,7 @@ public class HelloGraph extends AppCompatActivity {
                     if (!isStacked) { //if we're just doing reg columns, delete the stacked values
                         int subsSize = columns.get(colCount).getValues().size();
                         for (int k = 1; k < subsSize; k++) {
-                            columns.get(colCount).getValues().get(k).setTarget(0);
+                            columns.get(colCount).getValues().get(k).setTarget(0);//.setColor(Color.TRANSPARENT);
                         }
                     }
                     results.moveToNext();
@@ -341,10 +408,11 @@ public class HelloGraph extends AppCompatActivity {
                 }
                 if (columns.get(colCount).getValues().size() > count) {
                     for (int z = count; z < columns.get(colCount).getValues().size(); z++) {
-                        columns.get(colCount).getValues().get(z).setTarget(0);
+                        columns.get(colCount).getValues().get(z).setTarget(0);//.setColor(Color.TRANSPARENT);
                     }
                 }
                 colCount++;
+                Log.d(TAG, "ColCount: " + colCount);
             }
             for (int q = cursorCount; q < oldColumnCount; q++) {
                 if (!isStacked) {
@@ -359,38 +427,42 @@ public class HelloGraph extends AppCompatActivity {
         } else {
             rawData.clear();
             for (int j = 0; j < oldColumnCount; j++) {
-                int sublistSize = columns.get(colCount).getValues().size();
-                int count = 0;
-                String date = results.getString(0);
-                setAxisValues(colCount, results.getString(0));
-                while (!results.isAfterLast() && date.equals(results.getString(0))) {
-                    float raw;
-                    if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
-                        raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
-                    } else {
-                        raw = results.getFloat(1);
+                if (!results.isAfterLast()) {
+                    int sublistSize = columns.get(colCount).getValues().size();
+                    int count = 0;
+                    String date = results.getString(0);
+                    setAxisValues(colCount, results.getString(0));
+                    while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                        float raw;
+                        if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                            raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                        } else {
+                            raw = results.getFloat(1);
+                        }
+                        if (count >= sublistSize) {
+                            columns.get(colCount).getValues().add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
+                        } else {
+                            columns.get(colCount).getValues().get(count).setTarget(raw).setColor(colors[count]);
+                        }
+                        if (!isStacked) { //if we're just doing reg columns, delete the stacked values
+                            int subsSize = columns.get(colCount).getValues().size();
+                            for (int k = 1; k < subsSize; k++) {
+                                columns.get(colCount).getValues().get(k).setTarget(0);//.setColor(Color.TRANSPARENT);
+                            }
+                        }
+                        results.moveToNext();
+                        count++;
                     }
-                    if (count >= sublistSize) {
-                        columns.get(colCount).getValues().add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
-                    } else {
-                        columns.get(colCount).getValues().get(count).setTarget(raw).setColor(colors[count]);
-                    }
-                    if (!isStacked) { //if we're just doing reg columns, delete the stacked values
-                        int subsSize = columns.get(colCount).getValues().size();
-                        for (int k = 1; k < subsSize; k++) {
-                            columns.get(colCount).getValues().get(k).setTarget(0);
+                    //somehow a vestige of this color is remaining when we shring the values to 0
+                    if (columns.get(colCount).getValues().size() > count) {
+                        for (int z = count; z < columns.get(colCount).getValues().size(); z++) {
+                            Log.d(TAG, "colcount: " + colCount + ", count: " + count + ", z: " + z);
+                            columns.get(colCount).getValues().get(z).setTarget(0);//.setColor(Color.TRANSPARENT);
                         }
                     }
-                    results.moveToNext();
-                    count++;
+                    colCount++;
+                    Log.d(TAG, "ColumnCount: " + colCount);
                 }
-                if (columns.get(colCount).getValues().size() > count) {
-                    for (int z = count; z < columns.get(colCount).getValues().size(); z++) {
-                        Log.d(TAG, "colcount: " + colCount + ", count: " + count + ", z: " +z);
-                        columns.get(colCount).getValues().get(z).setTarget(0);
-                    }
-                }
-                colCount++;
             }
             while (!results.isAfterLast()) {
                 int count = 0;
@@ -433,6 +505,7 @@ public class HelloGraph extends AppCompatActivity {
                                 binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
                             }
                         }
+                        //see if we can't animate the viewport here
                         binding.helloGraph.startDataAnimation(2000);
                     }
                 });
@@ -680,11 +753,21 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private static class QueryStrings {
-        final static String DURATION_QUERY = "select date, time from Data order by date asc";
+        final static String DURATION_QUERY = "select date, time from Data where cardio_type='Bike' and date between '02/01/2017' and '02/15/2017'";// order by date asc";
         final static String DISTANCE_QUERY = "select date, distance from Data order by date asc";
         final static String CALORIES_BURNED_QUERY = "select date, calories from Data order by date asc";
-        final static String LAPS_QUERY = "select Data.date, Lap.lap_num, Lap.time from Lap inner join Data on Data._id=Lap.workout_id where Data.date=?";
-        final static String LAPS_QUERY_ALT = "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where Data.date=?";
+        final static String LAPS_QUERY = "select Data.date, Lap.lap_num, Lap.time from Lap inner join Data on " +
+                "Data._id=Lap.workout_id where Data.date=?";
+        final static String LAPS_QUERY_ALT = "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on " +
+                "Data._id=Lap.workout_id where Data.date=?";
+
+        //these three take the same build for the end of the string
+        final static String DURATION_QUERY_2 = "select date, time from Data where cardio_type=";
+        final static String DISTANCE_QUERY_2 = "select date, distance from Data where cardio_type=";
+        final static String CALORIES_BURNED_QUERY_2 = "select date, calories from Data where cardio_type=";
+
+        //this has a different end build
+        final static String LAPS_QUERY_2 = "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=";
     }
 
     private class ComboTouchListener implements ComboLineColumnChartOnValueSelectListener {

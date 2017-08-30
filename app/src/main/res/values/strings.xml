@@ -7,7 +7,7 @@
     <string name="laps">Laps</string>
     <string name="dph">Distance per Hour</string>
 
-    <string-array name="graph_array_list">
+    <string-array name="graph_data_type">
         <item>Select\u2026</item>
         <item>@string/laps</item>
         <item>@string/duration</item>
@@ -19,7 +19,9 @@
     <string-array name="time_frame">
         <item>Day</item>
         <item>Week</item>
-        <item>Month</item>
+        <item>1 Month</item>
+        <item>3 Months</item>
+        <item>6 Months</item>
         <item>Year</item>
     </string-array>
 

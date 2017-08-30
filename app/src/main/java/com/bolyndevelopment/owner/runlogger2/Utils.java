@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 class Utils {
     static final String TAG = "Utils";
+    static final String DB_DATE_FORMAT = "MM/dd/yyyy";
 
     static String getTimeStringMillis(String time) {
         String[] array = TextUtils.split(time, ":");
@@ -198,8 +199,8 @@ class Utils {
 
                 final FileChannel source, destination;
                 //final FileChannel destination;
-                final String currentDBPath = "data/com.bolyndevelopment.owner.intelligym2/databases/workout_records.db";
-                final String backupDBPath = "workout_records.db";
+                final String currentDBPath = "data/com.bolyndevelopment.owner.runlogger2/databases/log.db";
+                final String backupDBPath = "log.db";
                 final File currentDB = new File(data, currentDBPath);
                 final File backupDB = new File(sd, backupDBPath);
 
