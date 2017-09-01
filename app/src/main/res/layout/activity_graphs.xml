@@ -18,8 +18,8 @@
 
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:theme="@style/AppTheme.PopupOverlay"
+                android:layout_height="50dp"
+                android:theme="@style/AppTheme.AppBarOverlay"
                 android:visibility="visible">
 
                 <android.support.v7.widget.Toolbar
@@ -27,33 +27,49 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
-                    app:popupTheme="@style/AppTheme.PopupOverlay"
                     android:visibility="gone"
-                    app:layout_scrollFlags="scroll|enterAlways"/>
+                    app:layout_scrollFlags="scroll|enterAlways"
+                    app:popupTheme="@style/AppTheme.PopupOverlay" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center">
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
 
                     <Spinner
                         android:id="@+id/spinner_cardio_type"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3"
+                        android:popupBackground="@color/colorPrimary"
+                        app:popupTheme="@style/AppTheme.PopupOverlay" />
 
                     <Spinner
                         android:id="@+id/spinner_data"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3"
+                        android:popupBackground="@color/colorPrimary"
+                        app:popupTheme="@style/AppTheme.PopupOverlay" />
 
                     <Spinner
                         android:id="@+id/spinner_time_frame"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3"
+                        android:popupBackground="@color/colorPrimary"
+                        app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+                    <Button
+                        android:id="@+id/run_query_button"
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="GO"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="10sp" />
 
                 </LinearLayout>
 

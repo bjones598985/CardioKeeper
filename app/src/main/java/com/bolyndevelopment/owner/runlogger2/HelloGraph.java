@@ -108,6 +108,12 @@ public class HelloGraph extends AppCompatActivity {
         initVars();
         initSpinners();
         initGraph();
+        binding.runQueryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presentChart();
+            }
+        });
         //initFabs();
 
 
@@ -152,8 +158,8 @@ public class HelloGraph extends AppCompatActivity {
      */
 
     private void initSpinners() {
-        final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_data_type, android.R.layout.simple_spinner_item);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_data_type, R.layout.spinner_item);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerData.setAdapter(dataAdapter);
         binding.spinnerData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -161,7 +167,7 @@ public class HelloGraph extends AppCompatActivity {
                 dataType = position;
                 isDataTypeSet = position != 0;
                 //try and present chart at this point
-                presentChart();
+                //presentChart();
             }
 
             @Override
@@ -170,8 +176,8 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
 
-        final ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this, R.array.time_frame, android.R.layout.simple_spinner_item);
-        timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this, R.array.time_frame, R.layout.spinner_item);
+        timeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerTimeFrame.setAdapter(timeAdapter);
         binding.spinnerTimeFrame.setSelection(1);
         binding.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -179,7 +185,7 @@ public class HelloGraph extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 timeFrame = position;
                 //try and present chart at this point
-                presentChart();
+                //presentChart();
             }
 
             @Override
@@ -188,8 +194,8 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
 
-        final ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.cardio_types, android.R.layout.simple_spinner_item);
-        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.cardio_types, R.layout.spinner_item);
+        typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerCardioType.setAdapter(typeAdapter);
         binding.spinnerCardioType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -197,7 +203,7 @@ public class HelloGraph extends AppCompatActivity {
                 cardioType = ((TextView)view).getText().toString();
                 isCardioTypeSet = position != 0;
                 //try and present chart at this point
-                presentChart();
+                //presentChart();
             }
 
             @Override
