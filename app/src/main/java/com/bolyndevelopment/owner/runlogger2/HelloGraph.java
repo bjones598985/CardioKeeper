@@ -56,6 +56,7 @@ public class HelloGraph extends AppCompatActivity {
     int lineColor;
     int axisColor;
     boolean isStacked;
+    boolean isTimeQuery;
 
     //int timeFrame = MONTH;
     String query = QueryStrings.DURATION_QUERY;
@@ -63,6 +64,20 @@ public class HelloGraph extends AppCompatActivity {
     //for testing only
     String[] strings = new String[]{"08/21/2017", "08/24/2017", "08/25/2017"};
     int stringsCount = 0;
+
+    int queriesCounter = 0;
+
+    String[] queries = new String[]{"select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '06/01/2017' and '09/01/2017' order by Data.date asc",
+        "select date, time from Data where cardio_type='Elliptical' and date between '06/01/2017' and '09/01/2017' order by date asc",
+        "select date, time from Data where cardio_type='Biking' and date between '06/01/2017' and '09/01/2017' order by date asc",
+        "select date, time from Data where cardio_type='Biking' and date between '03/01/2017' and '09/01/2017' order by date asc",
+        "select date, distance from Data where cardio_type='Biking' and date between '03/01/2017' and '09/01/2017' order by date asc",
+        "select date, distance from Data where cardio_type='Elliptical' and date between '03/01/2017' and '09/01/2017' order by date asc",
+        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '03/01/2017' and '09/01/2017' order by Data.date asc",
+        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '08/01/2017' and '09/01/2017' order by Data.date asc",
+        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '08/25/2017' and '09/01/2017' order by Data.date asc",
+        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Biking' and Data.date between '08/25/2017' and '09/01/2017' order by Data.date asc",
+        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '06/01/2017' and '09/01/2017' order by Data.date asc"};
 
     int[] colors = new int[]{Color.rgb(0,0,200), Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
             Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
@@ -215,7 +230,8 @@ public class HelloGraph extends AppCompatActivity {
 
     //validate that cardioType and dataType have been chosen before trying to display the chart
     private boolean canPresentChart() {
-        return isDataTypeSet && isCardioTypeSet;
+        //return isDataTypeSet && isCardioTypeSet;
+        return true;
     }
 
     private void initGraph() {
@@ -277,15 +293,29 @@ public class HelloGraph extends AppCompatActivity {
                             isStacked = false;
                     }
                     Log.d(TAG, "Query: " + query);
-                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
-                    dumpCursorToScreen(c);
-                    if (initialDataLoaded) {
-                        updateColumnData(c);
+                    //Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
+                    if (queriesCounter == 4 || queriesCounter == 5){
+                        isTimeQuery= false;
                     } else {
-                        generateColumnData(c);
-                        initialDataLoaded = true;
+                        isTimeQuery = true;
                     }
-                    setAxesAndDisplay();
+                    Log.d(TAG, "isTimeQuery: " + isTimeQuery);
+                    Cursor c;
+                    Log.d(TAG, "Query: " + queries[queriesCounter]);
+                    if (queriesCounter < 11) {
+                        c = DatabaseAccess.getInstance().rawQuery(queries[queriesCounter], null);
+
+                        queriesCounter++;
+                        dumpCursorToScreen(c);
+                        if (initialDataLoaded) {
+                            //updateColumnData(c);
+                            updateTrialRun(c);
+                        } else {
+                            generateColumnData(c);
+                            initialDataLoaded = true;
+                        }
+                        setAxesAndDisplay();
+                    }
                 }
             }).start();
         }
@@ -362,8 +392,10 @@ public class HelloGraph extends AppCompatActivity {
             while (!results.isAfterLast() && date.equals(results.getString(0))) {
                 float raw;
                 if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
+                    //Log.d(TAG, "if query");
                     raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
                 } else {
+                    //Log.d(TAG, "else query");
                     raw = results.getFloat(1);
                 }
                 subcolumnValues.add(new SubcolumnValue(raw, colors[count]));
@@ -382,6 +414,8 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void updateColumnData(Cursor results) {
+        int newColCount = getNewColumnCount(results);
+        Log.d(TAG, "new col count: " + newColCount);
         final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
         final int cursorCount = results.getCount();
         int colCount = 0;
@@ -389,7 +423,8 @@ public class HelloGraph extends AppCompatActivity {
         axisValues.clear();
         List<Column> columns = oldData.getColumnChartData().getColumns();
         final int oldColumnCount = columns.size();
-        if (cursorCount <= oldColumnCount) {
+
+        if (newColCount <= oldColumnCount) {
             rawData.clear();
             while (!results.isAfterLast()) {
                 int count = 0;
@@ -420,7 +455,7 @@ public class HelloGraph extends AppCompatActivity {
                 colCount++;
                 Log.d(TAG, "ColCount: " + colCount);
             }
-            for (int q = cursorCount; q < oldColumnCount; q++) {
+            for (int q = newColCount; q < oldColumnCount; q++) {
                 if (!isStacked) {
                     int subSize = columns.get(q).getValues().size();
                     for (int l = 0; l < subSize; l++) {
@@ -432,8 +467,10 @@ public class HelloGraph extends AppCompatActivity {
             }
         } else {
             rawData.clear();
-            for (int j = 0; j < oldColumnCount; j++) {
-                if (!results.isAfterLast()) {
+            //for (int j = 0; j < oldColumnCount; j++) {
+            Log.e(TAG, "else colCount: " + colCount);
+                while(!results.isAfterLast() && colCount < oldColumnCount) {
+                //if (!results.isAfterLast()) {
                     int sublistSize = columns.get(colCount).getValues().size();
                     int count = 0;
                     String date = results.getString(0);
@@ -468,7 +505,7 @@ public class HelloGraph extends AppCompatActivity {
                     }
                     colCount++;
                     Log.d(TAG, "ColumnCount: " + colCount);
-                }
+                //}
             }
             while (!results.isAfterLast()) {
                 int count = 0;
@@ -518,6 +555,157 @@ public class HelloGraph extends AppCompatActivity {
                 binding.helloGraph.startDataAnimation(1000);
             }
         });
+    }
+
+    private void updateTrialRun(Cursor results) {
+        int newColCount = getNewColumnCount(results);
+        Log.d(TAG, "562 - new col count: " + newColCount);
+        final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
+        int colCount = 0;
+        results.moveToFirst();
+        axisValues.clear();
+        final List<Column> columns = oldData.getColumnChartData().getColumns();
+        int sublistSize = 0;
+        if (columns.size() > 0) {
+            sublistSize = columns.get(colCount).getValues().size();
+        }
+        int oldColumnCount = columns.size();
+        Log.d(TAG, "570 - oldColCount: " + oldColumnCount);
+
+        rawData.clear();
+        if (newColCount == 0) {
+            Log.d(TAG, "newcolcount = 0");
+            for (Column col : columns) {
+                int subSize = col.getValues().size();
+                for (int l = 0; l < subSize; l++) {
+                    Log.d(TAG, "578 - l = " + l);
+                    col.getValues().get(l).setTarget(0);
+                }
+            }
+        }
+
+        if (newColCount > 0) {
+            Log.d(TAG, "newcolcount > 0");
+            if (oldColumnCount == 0) {
+                for (int i = 0; i < newColCount; i++) {
+                    columns.add(new Column());
+                }
+                oldColumnCount = newColCount;
+            }
+
+
+            do {
+                int subColCount = 0;
+                String date = results.getString(0);
+                setAxisValues(colCount, results.getString(0));
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                    float raw;
+                    if (isTimeQuery) {
+                        raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                    } else {
+                        raw = results.getFloat(1);
+                    }
+                    Log.d(TAG, "588 - Date: " + results.getString(0) + ", Raw: " + raw);
+                    if (subColCount >= sublistSize) {
+                        Log.d(TAG, "610 - subColCount >= sublistsize");
+                        columns.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(colors[subColCount]));
+                    } else {
+                        columns.get(colCount).getValues().get(subColCount).setTarget(raw).setColor(colors[subColCount]);
+                    }
+                    results.moveToNext();
+                    subColCount++;
+                }
+                if (columns.get(colCount).getValues().size() > subColCount) {
+                    for (int z = subColCount; z < columns.get(colCount).getValues().size(); z++) {
+                        columns.get(colCount).getValues().get(z).setTarget(0);//.setColor(Color.TRANSPARENT);
+                    }
+                }
+                colCount++;
+
+            } while (!results.isAfterLast() && (colCount < oldColumnCount));
+        }
+        if ((newColCount > 0) && (newColCount < oldColumnCount)) {
+            Log.d(TAG, "newcolcount > 0 && < oldcolcount");
+            for (int k = newColCount; k < oldColumnCount; k++) {
+                int subSize = columns.get(k).getValues().size();
+                for (int l = 0; l < subSize; l++) {
+                    columns.get(k).getValues().get(l).setTarget(0);
+                }
+            }
+        }
+        if (newColCount > oldColumnCount) {
+            Log.d(TAG, "newcolcount > oldcolumncount");
+            while (!results.isAfterLast()) {
+                int count = 0;
+                String date = results.getString(0);
+                setAxisValues(colCount, results.getString(0));
+                List<SubcolumnValue> sublist = new ArrayList<>();
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                    float raw;
+                    if (isTimeQuery) {
+                        raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
+                    } else {
+                        raw = results.getFloat(1);
+                    }
+                    Log.d(TAG, "626 - Date: " + results.getString(0) + ", Raw: " + raw);
+                    sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
+                    results.moveToNext();
+                    count++;
+                }
+                columns.add(new Column(sublist).setHasLabelsOnlyForSelected(true));
+                colCount++;
+            }
+        }
+        final int colCountFinal = colCount;
+        final int oldColumnCountFinal = oldColumnCount;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                binding.helloGraph.setDataAnimationListener(new ChartAnimationListener() {
+                    @Override
+                    public void onAnimationStarted() {
+
+                    }
+
+                    @Override
+                    public void onAnimationFinished() {
+
+                        if (oldColumnCountFinal > colCountFinal) {
+                            for (int i = oldColumnCountFinal - 1; i >= colCountFinal; i--) {
+                                binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
+                            }
+                        }
+                        int count = 0;
+                        for (Column col : columns) {
+                            for (int i = 0; i < col.getValues().size(); i++) {
+                                if (col.getValues().get(i).getValue() == 0) {
+                                    Log.d(TAG, "i: " + i);
+                                    col.getValues().get(i).setColor(Color.TRANSPARENT);
+                                }
+                            }
+                            Log.d(TAG, "Count: " + count++);
+                        }
+                        binding.helloGraph.setDataAnimationListener(null);
+                        //see if we can't animate the viewport here
+                        binding.helloGraph.startDataAnimation(2000);
+                    }
+                });
+                binding.helloGraph.startDataAnimation(2000);
+            }
+        });
+    }
+
+    private int getNewColumnCount(Cursor results) {
+        results.moveToFirst();
+        int colCount = 0;
+        while (!results.isAfterLast()) {
+            String date = results.getString(0);
+            while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                results.moveToNext();
+            }
+            colCount++;
+        }
+        return colCount;
     }
 
     private void setAxisValues(int count, String data) {
@@ -781,6 +969,13 @@ public class HelloGraph extends AppCompatActivity {
         @Override
         public void onColumnValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
             Log.d(TAG, "ColumnIndex: " + columnIndex + ", SubColumnIndex: " + subcolumnIndex + ", subcolumnvalue: " + value);
+            final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
+            final List<Column> columns = oldData.getColumnChartData().getColumns();
+            final Column col = columns.get(columnIndex);
+            for (int i = 0; i < col.getValues().size(); i++) {
+                Log.d(TAG, "Column Dump: SubColumn Value " + i + ": " + col.getValues().get(i).getValue());
+            }
+
         }
 
         @Override
