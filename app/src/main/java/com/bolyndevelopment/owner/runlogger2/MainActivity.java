@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         setSupportActionBar(binder.toolbar);
