@@ -52,15 +52,17 @@
     <string name="week">Weeks</string>
     <string name="month">Months</string>
     <string name="year">Years</string>
+    <string name="no_graph_data">Nothing to show\nfor those selections</string>
 
     <string name="start">Start</string>
     <string name="pause">Pause</string>
     <string name="lap">Lap</string>
     <string name="resume">Resume</string>
     <string name="end_reset">Save and\nExit</string>
+    <string name="run_query_button_text">GO</string>
 
 
-    <string name="about_intro">Hi! You are using a product of Q29 Creations. I\'m a one man company making apps to make some aspects of life easier (or more complicated, depending on your age!). I hope you enjoy this product!</string>
+    <string name="about_intro">Q29 Creations</string>
     <string name="copyright">Cardio Keeper\nCopyright 2017 Robert M Jones II\n\nLicensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0http://www.apache.org/licenses/LICENSE-2.0\n
 \nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,

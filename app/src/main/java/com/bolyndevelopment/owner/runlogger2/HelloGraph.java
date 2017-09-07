@@ -79,20 +79,21 @@ public class HelloGraph extends AppCompatActivity {
         "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Biking' and Data.date between '08/25/2017' and '09/01/2017' order by Data.date asc",
         "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '06/01/2017' and '09/01/2017' order by Data.date asc"};
 
-    int[] colors = new int[]{Color.rgb(0,0,200), Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA,
-            Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN, Color.GRAY, Color.MAGENTA};
+
+    int[] colors = new int[]{Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
+            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff")};
 
     Handler handler = new Handler();
     List<Float> rawData;
@@ -111,8 +112,8 @@ public class HelloGraph extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
-        binding.toolbar.setTitle("Graphs");
-        setSupportActionBar(binding.toolbar);
+        //binding.toolbar.setTitle("Graphs");
+        //setSupportActionBar(binding.toolbar);
         binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         date = getIntent().getStringExtra("date");
 
@@ -130,7 +131,6 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
         //initFabs();
-
 
         query = QueryStrings.LAPS_QUERY;
         //fadeInOutCharts(COMBO_GRAPH);
@@ -162,15 +162,6 @@ public class HelloGraph extends AppCompatActivity {
         lineData = new LineChartData();
         stackedColumnData = new ColumnChartData();
     }
-
-    /*
-    @param position:
-        1 = laps
-        2 = duration
-        3 = distance
-        4 = cals burned
-        5 = dph
-     */
 
     private void initSpinners() {
         final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_data_type, R.layout.spinner_item);
@@ -230,8 +221,8 @@ public class HelloGraph extends AppCompatActivity {
 
     //validate that cardioType and dataType have been chosen before trying to display the chart
     private boolean canPresentChart() {
-        //return isDataTypeSet && isCardioTypeSet;
-        return true;
+        return isDataTypeSet && isCardioTypeSet;
+        //return true;
     }
 
     private void initGraph() {
@@ -293,29 +284,17 @@ public class HelloGraph extends AppCompatActivity {
                             isStacked = false;
                     }
                     Log.d(TAG, "Query: " + query);
-                    //Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
-                    if (queriesCounter == 4 || queriesCounter == 5){
-                        isTimeQuery= false;
+                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
+                    queriesCounter++;
+                    dumpCursorToScreen(c);
+                    if (initialDataLoaded) {
+                        //updateColumnData(c);
+                        updateTrialRun(c);
                     } else {
-                        isTimeQuery = true;
+                        generateColumnData(c);
+                        initialDataLoaded = true;
                     }
-                    Log.d(TAG, "isTimeQuery: " + isTimeQuery);
-                    Cursor c;
-                    Log.d(TAG, "Query: " + queries[queriesCounter]);
-                    if (queriesCounter < 11) {
-                        c = DatabaseAccess.getInstance().rawQuery(queries[queriesCounter], null);
-
-                        queriesCounter++;
-                        dumpCursorToScreen(c);
-                        if (initialDataLoaded) {
-                            //updateColumnData(c);
-                            updateTrialRun(c);
-                        } else {
-                            generateColumnData(c);
-                            initialDataLoaded = true;
-                        }
-                        setAxesAndDisplay();
-                    }
+                    setAxesAndDisplay();
                 }
             }).start();
         }
@@ -403,6 +382,7 @@ public class HelloGraph extends AppCompatActivity {
                 count++;
             }
             Column col = new Column(subcolumnValues);
+            col.setHasLabels(true);
             col.setHasLabelsOnlyForSelected(true);
             columns.add(col);
             results.moveToNext();
@@ -558,6 +538,7 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void updateTrialRun(Cursor results) {
+        boolean isThereNewData = true;
         int newColCount = getNewColumnCount(results);
         Log.d(TAG, "562 - new col count: " + newColCount);
         final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
@@ -574,23 +555,26 @@ public class HelloGraph extends AppCompatActivity {
 
         rawData.clear();
         if (newColCount == 0) {
+            isThereNewData = false;
             Log.d(TAG, "newcolcount = 0");
             for (Column col : columns) {
                 int subSize = col.getValues().size();
                 for (int l = 0; l < subSize; l++) {
-                    Log.d(TAG, "578 - l = " + l);
+                    Log.d(TAG, "581 - l = " + l);
                     col.getValues().get(l).setTarget(0);
                 }
             }
         }
 
         if (newColCount > 0) {
+            isThereNewData = true;
             Log.d(TAG, "newcolcount > 0");
             if (oldColumnCount == 0) {
-                for (int i = 0; i < newColCount; i++) {
+                Log.d(TAG, "oldColCount = 0");
+                //for (int i = 0; i < newColCount; i++) {
                     columns.add(new Column());
-                }
-                oldColumnCount = newColCount;
+                //}
+                oldColumnCount = 1;
             }
 
 
@@ -605,7 +589,7 @@ public class HelloGraph extends AppCompatActivity {
                     } else {
                         raw = results.getFloat(1);
                     }
-                    Log.d(TAG, "588 - Date: " + results.getString(0) + ", Raw: " + raw);
+                    Log.d(TAG, "608 - Date: " + results.getString(0) + ", Raw: " + raw);
                     if (subColCount >= sublistSize) {
                         Log.d(TAG, "610 - subColCount >= sublistsize");
                         columns.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(colors[subColCount]));
@@ -656,6 +640,10 @@ public class HelloGraph extends AppCompatActivity {
                 colCount++;
             }
         }
+        for (Column col : columns) {
+            col.setHasLabels(true);
+        }
+        final boolean isThereNewDataFinal = isThereNewData;
         final int colCountFinal = colCount;
         final int oldColumnCountFinal = oldColumnCount;
         handler.post(new Runnable() {
@@ -669,7 +657,8 @@ public class HelloGraph extends AppCompatActivity {
 
                     @Override
                     public void onAnimationFinished() {
-
+                        if (isThereNewDataFinal) binding.noGraphDataTv.setVisibility(View.INVISIBLE);
+                        if (!isThereNewDataFinal) binding.noGraphDataTv.setVisibility(View.VISIBLE);
                         if (oldColumnCountFinal > colCountFinal) {
                             for (int i = oldColumnCountFinal - 1; i >= colCountFinal; i--) {
                                 binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
@@ -688,6 +677,7 @@ public class HelloGraph extends AppCompatActivity {
                         binding.helloGraph.setDataAnimationListener(null);
                         //see if we can't animate the viewport here
                         binding.helloGraph.startDataAnimation(2000);
+
                     }
                 });
                 binding.helloGraph.startDataAnimation(2000);
@@ -706,6 +696,15 @@ public class HelloGraph extends AppCompatActivity {
             colCount++;
         }
         return colCount;
+    }
+
+    private void toggleNoDataTextView() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                binding.noGraphDataTv.setVisibility(binding.noGraphDataTv.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
     }
 
     private void setAxisValues(int count, String data) {
