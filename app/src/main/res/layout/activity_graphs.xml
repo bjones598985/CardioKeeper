@@ -80,7 +80,7 @@
                 android:layout_height="match_parent"
                 android:id="@+id/hello_graph"
                 android:paddingTop="64dp"
-                android:paddingBottom="32dp"
+                android:paddingBottom="8dp"
                 android:paddingEnd="8dp"
                 android:background="@color/colorPrimaryDark"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

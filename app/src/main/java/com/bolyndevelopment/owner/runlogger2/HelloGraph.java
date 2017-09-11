@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsBinding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -68,19 +69,6 @@ public class HelloGraph extends AppCompatActivity {
 
     int queriesCounter = 0;
 
-    String[] queries = new String[]{"select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '06/01/2017' and '09/01/2017' order by Data.date asc",
-        "select date, time from Data where cardio_type='Elliptical' and date between '06/01/2017' and '09/01/2017' order by date asc",
-        "select date, time from Data where cardio_type='Biking' and date between '06/01/2017' and '09/01/2017' order by date asc",
-        "select date, time from Data where cardio_type='Biking' and date between '03/01/2017' and '09/01/2017' order by date asc",
-        "select date, distance from Data where cardio_type='Biking' and date between '03/01/2017' and '09/01/2017' order by date asc",
-        "select date, distance from Data where cardio_type='Elliptical' and date between '03/01/2017' and '09/01/2017' order by date asc",
-        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '03/01/2017' and '09/01/2017' order by Data.date asc",
-        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '08/01/2017' and '09/01/2017' order by Data.date asc",
-        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '08/25/2017' and '09/01/2017' order by Data.date asc",
-        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Biking' and Data.date between '08/25/2017' and '09/01/2017' order by Data.date asc",
-        "select Data.date, Lap.time, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type='Elliptical' and Data.date between '06/01/2017' and '09/01/2017' order by Data.date asc"};
-
-
     int[] colors = new int[]{Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
             Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
             Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
@@ -106,7 +94,7 @@ public class HelloGraph extends AppCompatActivity {
 
     boolean isDataTypeSet = false, isCardioTypeSet = false;
     int dataType, timeFrame = 1;
-    String cardioType, yAxisLabel;
+    String cardioType, yAxisLabel, cType;
 
 
     @Override
@@ -117,6 +105,7 @@ public class HelloGraph extends AppCompatActivity {
         //setSupportActionBar(binding.toolbar);
         binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         date = getIntent().getStringExtra("date");
+        cType = getIntent().getStringExtra("cType");
 
         if (savedInstanceState != null) {
             timeFrame = savedInstanceState.getInt("timeFrame");
@@ -136,6 +125,9 @@ public class HelloGraph extends AppCompatActivity {
         query = QueryStrings.LAPS_QUERY;
         //fadeInOutCharts(COMBO_GRAPH);
         if (date != null) {
+            int i = Arrays.asList(getResources().getStringArray(R.array.cardio_types)).indexOf(cType);
+            Log.d(TAG, "cType: " + cType + " index:  " + i);
+            binding.spinnerCardioType.setSelection(i);
             //binding.spinnerCardioType = we're going to send in the cardio type so we can set the spinner appropriately and then call presentchart
             binding.spinnerData.setSelection(1);
             isStacked = true;
@@ -360,7 +352,6 @@ public class HelloGraph extends AppCompatActivity {
             default:
         }
         return Utils.convertDateToString(cal.getTime(), Utils.DB_DATE_FORMAT);
-
     }
 
     private void presentGeneralStatsChart(@NonNull final String query, @Nullable final String[] args) {

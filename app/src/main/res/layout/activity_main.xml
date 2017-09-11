@@ -63,10 +63,10 @@
 
                 <TextView
                     android:id="@+id/main_icon_tv"
-                    style="@style/MainActivityTextViews"
+                    style="@style/MainActivityTextViews.Other"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:onClick="sort"/>
 
             </LinearLayout>

@@ -343,9 +343,10 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         //new DatabaseBackup(this).dumpBackupFile();
     }
 
-    public void graphIt(String date) {
+    public void graphIt(String date, String cType) {
         Intent i = new Intent(this, HelloGraph.class);
         i.putExtra("date", date);
+        i.putExtra("cType", cType);
         startActivity(i);
     }
 
@@ -371,7 +372,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     public void sort(View view) {
         Snackbar.make(binder.getRoot(), "Press: " + ((TextView)view).getText().toString(), Snackbar.LENGTH_SHORT).show();
         switch (view.getId()) {
-
             case R.id.main_date_tv:
             case R.id.main_time_tv:
             case R.id.main_dist_tv:
@@ -432,6 +432,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 bHolder.time.setText(item.time);
                 bHolder.distance.setText(String.valueOf(item.distance));
                 bHolder.calories.setText(String.valueOf(item.calories));
+
             }
         }
 
@@ -456,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
             @Override
             public void onClick(View v) {
-                graphIt(date.getText().toString());
+                graphIt(date.getText().toString(), recordsList.get(getAdapterPosition()).cType);
             }
         }
 
