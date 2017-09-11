@@ -5,7 +5,7 @@
     <string name="distance">Distance</string>
     <string name="cal_burned">Calories Burned</string>
     <string name="laps">Laps</string>
-    <string name="dph">Distance per Hour</string>
+    <string name="dph">Speed</string>
 
     <string-array name="graph_data_type">
         <item>Select\u2026</item>
