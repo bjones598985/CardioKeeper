@@ -79,9 +79,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/hello_graph"
-                android:paddingTop="16dp"
+                android:paddingTop="64dp"
+                android:paddingBottom="32dp"
+                android:paddingEnd="8dp"
                 android:background="@color/colorPrimaryDark"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:text="Chart Title"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="58dp"/>
 
             <TextView
                 android:id="@+id/no_graph_data_tv"
