@@ -297,8 +297,18 @@ public class HelloGraph extends AppCompatActivity {
                             yAxisLabel = "Calories";
                             break;
                         case 5:
-
+                            query = "select date, distance / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
+                            yAxisLabel = "Speed";
                             break;
+                        case 6:
+                            query = "select date, calories / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
+                            yAxisLabel = "Calories / Hour";
+                            break;
+                        case 7:
+                            query = "select date, calories / distance from Data where cardio_type=" + midQueryPart + " order by date asc";
+                            yAxisLabel = "Calories / Distance";
+                            break;
+
                     }
                     Log.d(TAG, "Query: " + query);
                     Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);

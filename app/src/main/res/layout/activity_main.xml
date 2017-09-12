@@ -143,7 +143,7 @@
                         android:gravity="center"
                         android:textSize="24sp"
                         android:paddingTop="16dp"
-                        android:text="Cardio Keeper"
+                        android:text="@string/app_name"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
                 </LinearLayout>
@@ -204,14 +204,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/HelloGraphNavTextView"
-                    android:text="@string/month"/>
+                    android:text="@string/months"/>
 
                 <TextView
                     android:id="@+id/year"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/HelloGraphNavTextView"
-                    android:text="@string/year"/>
+                    android:text="@string/years"/>
 
                 <View
                     android:layout_width="match_parent"

@@ -3,42 +3,67 @@
     <string name="action_graph">About</string>
     <string name="duration">Duration</string>
     <string name="distance">Distance</string>
-    <string name="cal_burned">Calories Burned</string>
+    <string name="cal_burned">Calories</string>
     <string name="laps">Laps</string>
     <string name="dph">Speed</string>
+    <string name="cals_per_time">Cals per Hr</string>
+    <string name="cals_per_dist">Cals per Dist.</string>
+
+    <string name="select_">Select\u2026</string>
+    <string name="biking">Biking</string>
+    <string name="elliptical">Elliptical</string>
+    <string name="exercise_bike">Exercise Bike</string>
+    <string name="hiking">Hiking</string>
+    <string name="jogging">Jogging</string>
+    <string name="jump_rope">Jump Rope</string>
+    <string name="rowing">Rowing</string>
+    <string name="rowing_machine">Rowing Machine</string>
+    <string name="running">Running</string>
+    <string name="stair_master">Stair Master</string>
+    <string name="treadmill">Treadmill</string>
+    <string name="walking">Walking</string>
 
     <string-array name="graph_data_type">
-        <item>Select\u2026</item>
+        <item>@string/select_</item>
         <item>@string/laps</item>
         <item>@string/duration</item>
         <item>@string/distance</item>
         <item>@string/cal_burned</item>
         <item>@string/dph</item>
+        <item>@string/cals_per_time</item>
+        <item>@string/cals_per_dist</item>
     </string-array>
 
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="one_mo">1 Month</string>
+    <string name="three_mo">3 Months</string>
+    <string name="six_mo">6 Months</string>
+    <string name="one_yr">1 Year</string>
+
     <string-array name="time_frame">
-        <item>Day</item>
-        <item>Week</item>
-        <item>1 Month</item>
-        <item>3 Months</item>
-        <item>6 Months</item>
-        <item>Year</item>
+        <item>@string/day</item>
+        <item>@string/week</item>
+        <item>@string/one_mo</item>
+        <item>@string/three_mo</item>
+        <item>@string/six_mo</item>
+        <item>@string/one_yr</item>
     </string-array>
 
     <string-array name="cardio_types">
-        <item>Select\u2026</item>
-        <item>Biking</item>
-        <item>Elliptical</item>
-        <item>Exercise Bike</item>
-        <item>Hiking</item>
-        <item>Jogging</item>
-        <item>Jump Rope</item>
-        <item>Rowing</item>
-        <item>Rowing Machine</item>
-        <item>Running</item>
-        <item>Stair Stepper</item>
-        <item>Treadmill</item>
-        <item>Walking</item>
+        <item>@string/select_</item>
+        <item>@string/biking</item>
+        <item>@string/elliptical</item>
+        <item>@string/exercise_bike</item>
+        <item>@string/hiking</item>
+        <item>@string/jogging</item>
+        <item>@string/jump_rope</item>
+        <item>@string/rowing</item>
+        <item>@string/rowing_machine</item>
+        <item>@string/running</item>
+        <item>@string/stair_master</item>
+        <item>@string/treadmill</item>
+        <item>@string/walking</item>
     </string-array>
 
     <string name="column_date">Date</string>
@@ -48,10 +73,10 @@
     <string name="cardio_icon_description">Cardio Icon</string>
 
     <!-- HelloGraph Strings -->
-    <string name="day">Days</string>
-    <string name="week">Weeks</string>
-    <string name="month">Months</string>
-    <string name="year">Years</string>
+    <string name="days">Days</string>
+    <string name="weeks">Weeks</string>
+    <string name="months">Months</string>
+    <string name="years">Years</string>
     <string name="no_graph_data">Nothing to show\nfor those selections</string>
 
     <string name="start">Start</string>
