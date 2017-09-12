@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
@@ -432,7 +433,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 bHolder.time.setText(item.time);
                 bHolder.distance.setText(String.valueOf(item.distance));
                 bHolder.calories.setText(String.valueOf(item.calories));
-
+                bHolder.icon.setImageResource(R.drawable.bike_cardio);
+                bHolder.icon.setBackgroundResource(R.drawable.circle_vector);
             }
         }
 

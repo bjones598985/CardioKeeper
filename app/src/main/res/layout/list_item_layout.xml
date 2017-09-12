@@ -2,8 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeightSmall"
-    android:background="?attr/selectableItemBackground">
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="@drawable/bg_ripple"
+    android:theme="@style/AppTheme.AppBarOverlay">
+
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:id="@+id/column_icon"
+        android:padding="8dp"
+        android:contentDescription="@string/cardio_icon_description"
+        android:visibility="visible"
+        android:layout_gravity="center"/>
 
     <TextView
         android:layout_width="0dp"
@@ -37,13 +49,6 @@
         android:padding="4dp"
         android:gravity="center" />
 
-    <ImageView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:id="@+id/column_icon"
-        android:layout_weight="1"
-        android:padding="4dp"
-        android:contentDescription="@string/cardio_icon_description"
-        android:visibility="gone"/>
+
 
 </LinearLayout>
