@@ -434,7 +434,10 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 bHolder.distance.setText(String.valueOf(item.distance));
                 bHolder.calories.setText(String.valueOf(item.calories));
                 bHolder.icon.setImageResource(R.drawable.bike_cardio);
-                bHolder.icon.setBackgroundResource(R.drawable.circle_vector);
+                Drawable circle = getResources().getDrawable(R.drawable.circle);
+                circle.mutate();
+                circle.setColorFilter(ColorUtils.pickColor(), PorterDuff.Mode.SRC_IN);
+                bHolder.icon.setBackground(circle);
             }
         }
 
