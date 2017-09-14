@@ -1,23 +1,19 @@
 package com.bolyndevelopment.owner.runlogger2;
 
-import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,8 +25,41 @@ import java.util.concurrent.TimeUnit;
  * Created by Owner on 1/19/2016.
  */
 class Utils {
-    static final String TAG = "Utils";
+    private static final String TAG = "Utils";
     static final String DB_DATE_FORMAT = "MM/dd/yyyy";
+
+    static int getCardioIcon(String exercise) {
+        switch (exercise) {
+            case "Biking":
+                return R.drawable.bike_cardio;
+            case "Elliptical":
+                return R.drawable.elliptical_cardio;
+            case "Exercise Bike":
+                return R.drawable.exercise_bike_cardio;
+            case "Hiking":
+                return R.drawable.hike_cardio;
+            case "Jogging":
+                return R.drawable.jog_cardio;
+            case "Jump Rope":
+                return R.drawable.jump_rope_cardio;
+            case "Rowing":
+                return R.drawable.row_cardio;
+            case "Rowing Machine":
+                return R.drawable.row_cardio;
+            case "Running":
+                return R.drawable.run_cardio;
+            case "Stair Master":
+                return R.drawable.swim_cardio;
+            case "Swimming":
+                return R.drawable.swim_cardio;
+            case "Treadmill":
+                return R.drawable.treadmill_cardio;
+            case "Walking":
+                return R.drawable.walk_cardio;
+            default:
+                return R.drawable.walk_cardio;
+        }
+    }
 
     static String getTimeStringMillis(String time) {
         String[] array = TextUtils.split(time, ":");
@@ -168,6 +197,7 @@ class Utils {
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }
+
     static boolean readInternalFile() {
         final File sd = Environment.getExternalStorageDirectory();
         final File data = MyApplication.appContext.getFilesDir();

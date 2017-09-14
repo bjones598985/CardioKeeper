@@ -52,6 +52,8 @@ import android.widget.Toast;
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
 import com.bolyndevelopment.owner.runlogger2.databinding.DialogFragLayoutBinding;
 
+import org.w3c.dom.Text;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,7 +189,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                     item.cType = cursor.getString(4);
                     item.calories = cursor.getInt(3);
                     item.distance = cursor.getFloat(2);
-                    item.date = cursor.getString(0);
+                    String date = Utils.convertDateToString(Utils.convertStringToDate(cursor.getString(0), "MM/dd/yyyy"), "MMM d");
+                    //item.date = cursor.getString(0);
+                    item.date = date;
                     item.time = Utils.convertMillisToHms(cursor.getLong(1));
                     recordsList.add(item);
                     cursor.moveToNext();
@@ -407,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return viewType == LIST_ITEM ? new BaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout, parent, false)) :
+            return viewType == LIST_ITEM ? new BaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_v2, parent, false)) :
                     new AddViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.button_dialog_frag_layout, parent, false));
         }
 
@@ -431,9 +435,12 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
                 bHolder.date.setText(item.date);
                 bHolder.time.setText(item.time);
-                bHolder.distance.setText(String.valueOf(item.distance));
-                bHolder.calories.setText(String.valueOf(item.calories));
-                bHolder.icon.setImageResource(R.drawable.bike_cardio);
+                String distTime = item.distance + " mi in " + item.time;
+                //bHolder.distance.setText(String.valueOf(item.distance));
+                bHolder.distance.setText(distTime);
+                bHolder.calories.setText(String.valueOf(item.calories) + " cals");
+                bHolder.name.setText(item.cType);
+                bHolder.icon.setImageResource(Utils.getCardioIcon(item.cType));
                 Drawable circle = getResources().getDrawable(R.drawable.circle);
                 circle.mutate();
                 circle.setColorFilter(ColorUtils.pickColor(), PorterDuff.Mode.SRC_IN);
@@ -447,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         }
 
         class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            TextView date, time, distance, calories;
+            TextView date, time, distance, calories, name;
             ImageView icon;
 
             BaseViewHolder(View itemView) {
@@ -457,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 time = (TextView) itemView.findViewById(R.id.list_time_input);
                 distance = (TextView) itemView.findViewById(R.id.list_miles_input);
                 calories = (TextView) itemView.findViewById(R.id.list_calories_input);
+                name = (TextView) itemView.findViewById(R.id.list_name_input);
                 icon = (ImageView) itemView.findViewById(R.id.column_icon);
             }
 

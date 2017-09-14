@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="@drawable/bg_ripple"
+    android:theme="@style/AppTheme.AppBarOverlay">
+
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:id="@+id/column_icon"
+        android:padding="8dp"
+        android:contentDescription="@string/cardio_icon_description"
+        android:visibility="visible"
+        android:layout_gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Sep 3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_date_input"
+        android:padding="4dp"
+        android:layout_alignTop="@+id/column_icon"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/list_time_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="25:36"
+        android:layout_alignBaseline="@+id/list_miles_input"
+        android:layout_alignBottom="@+id/list_miles_input"
+        android:layout_toEndOf="@+id/list_miles_input"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/list_miles_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:text="5.0 mi in 25 m 36 s"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"
+        android:layout_alignBottom="@+id/column_icon"
+        android:layout_toEndOf="@+id/column_icon" />
+
+    <TextView
+        android:text="500 cal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_calories_input"
+        android:paddingEnd="4dp"
+        android:layout_alignBaseline="@+id/list_miles_input"
+        android:layout_alignBottom="@+id/column_icon"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/list_name_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="4dp"
+        android:paddingStart="16dp"
+        android:text="Jump Rope"
+        android:textSize="24sp"
+        android:layout_marginTop="8dp"
+        android:layout_alignTop="@+id/column_icon"
+        android:layout_toEndOf="@+id/column_icon" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/list_date_input"
+        android:visibility="gone"
+        app:srcCompat="@android:drawable/btn_star" />
+
+
+</RelativeLayout>

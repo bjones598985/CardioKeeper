@@ -22,6 +22,7 @@
     <string name="stair_master">Stair Master</string>
     <string name="treadmill">Treadmill</string>
     <string name="walking">Walking</string>
+    <string name="swimming">Swimming</string>
 
     <string-array name="graph_data_type">
         <item>@string/select_</item>
@@ -62,6 +63,7 @@
         <item>@string/rowing_machine</item>
         <item>@string/running</item>
         <item>@string/stair_master</item>
+        <item>@string/swimming</item>
         <item>@string/treadmill</item>
         <item>@string/walking</item>
     </string-array>
