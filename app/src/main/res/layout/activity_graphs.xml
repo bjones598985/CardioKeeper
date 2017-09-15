@@ -106,30 +106,6 @@
                 android:textStyle="bold|italic"
                 android:visibility="invisible"/>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_margin="@dimen/fab_margin"
-                android:layout_gravity="bottom|end"
-                android:visibility="gone">
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab_plus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_add_36dp"
-                    android:layout_marginBottom="@dimen/fab_margin"/>
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab_minus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_minus_36dp"
-                    android:layout_marginBottom="4dp"/>
-
-            </LinearLayout>
-
         </android.support.design.widget.CoordinatorLayout>
 
         <android.support.design.widget.NavigationView

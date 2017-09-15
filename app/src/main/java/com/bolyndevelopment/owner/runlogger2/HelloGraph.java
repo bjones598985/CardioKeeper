@@ -44,13 +44,6 @@ public class HelloGraph extends AppCompatActivity {
     //Created by Bobby Jones on 8/11/2017
     public static final String TAG = "HelloGraph";
 
-    private static final String LIMIT = " limit ";
-
-    private static final int DAY = 1;
-    private static final int WEEK = 7;
-    private static final int MONTH = 30;
-    private static final int YEAR = 100;
-
     boolean initialDataLoaded = false;
     int baseAverage;
     int zoomLevel;
@@ -58,16 +51,6 @@ public class HelloGraph extends AppCompatActivity {
     int lineColor;
     int axisColor;
     boolean isStacked;
-    boolean isTimeQuery;
-
-    //int timeFrame = MONTH;
-    String query = QueryStrings.DURATION_QUERY;
-
-    //for testing only
-    String[] strings = new String[]{"08/21/2017", "08/24/2017", "08/25/2017"};
-    int stringsCount = 0;
-
-    int queriesCounter = 0;
 
     int[] colors = new int[]{Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
             Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
@@ -90,27 +73,19 @@ public class HelloGraph extends AppCompatActivity {
     ColumnChartData columnData, stackedColumnData;
     LineChartData lineData;
     ActivityGraphsBinding binding;
-    String date;
 
     boolean isDataTypeSet = false, isCardioTypeSet = false;
     int dataType, timeFrame = 1;
-    String cardioType, yAxisLabel, cType;
+    String cardioType, yAxisLabel, initialDate;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
-        //binding.toolbar.setTitle("Graphs");
-        //setSupportActionBar(binding.toolbar);
-        binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        date = getIntent().getStringExtra("date");
-        cType = getIntent().getStringExtra("cType");
 
-        if (savedInstanceState != null) {
-            timeFrame = savedInstanceState.getInt("timeFrame");
-            query = savedInstanceState.getString("query");
-        }
+        binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
         initVars();
         initSpinners();
         initGraph();
@@ -120,28 +95,28 @@ public class HelloGraph extends AppCompatActivity {
                 presentChart();
             }
         });
-        //initFabs();
 
-        query = QueryStrings.LAPS_QUERY;
-        //fadeInOutCharts(COMBO_GRAPH);
-        if (date != null) {
-            int i = Arrays.asList(getResources().getStringArray(R.array.cardio_types)).indexOf(cType);
-            Log.d(TAG, "cType: " + cType + " index:  " + i);
-            binding.spinnerCardioType.setSelection(i);
-            //binding.spinnerCardioType = we're going to send in the cardio type so we can set the spinner appropriately and then call presentchart
-            binding.spinnerData.setSelection(1);
-            isStacked = true;
-            presentGeneralStatsChart(query, new String[]{date})
-            ;
+        initialDate = getIntent().getStringExtra("date");
+        Log.d(TAG, "Initial date: " + initialDate);
+        String cType = getIntent().getStringExtra("cType");
+        if (initialDate != null) {
+            overrideInitVars(cType);
+            //presentGeneralStatsChart(query, new String[]{date});
+            presentChart();
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt("timeFrame", timeFrame);
-        outState.putString("query", query);
-        super.onSaveInstanceState(outState);
+    private void overrideInitVars(String cType) {
+        int i = Arrays.asList(getResources().getStringArray(R.array.cardio_types)).indexOf(cType);
+        binding.spinnerCardioType.setSelection(i);
+        cardioType = cType;
+        binding.spinnerData.setSelection(2);
+        dataType = 2;
+        binding.spinnerTimeFrame.setSelection(0);
+        isCardioTypeSet = true;
+        isDataTypeSet = true;
     }
+
 
     private void initVars() {
 
@@ -155,9 +130,7 @@ public class HelloGraph extends AppCompatActivity {
 
         axisColor = Color.WHITE;
 
-        timeFrame = MONTH;
-
-        query = QueryStrings.DURATION_QUERY;
+        timeFrame = 1;
 
         axisValues = new ArrayList<>();
 
@@ -181,8 +154,7 @@ public class HelloGraph extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 dataType = position;
                 isDataTypeSet = position != 0;
-                //try and present chart at this point
-                //presentChart();
+                isStacked = position == 1;
             }
 
             @Override
@@ -194,13 +166,11 @@ public class HelloGraph extends AppCompatActivity {
         final ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this, R.array.time_frame, R.layout.spinner_item);
         timeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerTimeFrame.setAdapter(timeAdapter);
-        binding.spinnerTimeFrame.setSelection(1);
+        binding.spinnerTimeFrame.setSelection(1); //default
         binding.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 timeFrame = position;
-                //try and present chart at this point
-                //presentChart();
             }
 
             @Override
@@ -217,8 +187,6 @@ public class HelloGraph extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 cardioType = ((TextView)view).getText().toString();
                 isCardioTypeSet = position != 0;
-                //try and present chart at this point
-                //presentChart();
             }
 
             @Override
@@ -231,7 +199,6 @@ public class HelloGraph extends AppCompatActivity {
     //validate that cardioType and dataType have been chosen before trying to display the chart
     private boolean canPresentChart() {
         return isDataTypeSet && isCardioTypeSet;
-        //return true;
     }
 
     private void initGraph() {
@@ -240,79 +207,14 @@ public class HelloGraph extends AppCompatActivity {
         binding.helloGraph.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
     }
 
-    private void initFabs() {
-        binding.fabPlus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //if (zoomLevel < 10) {
-                    //binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel++);
-                //}
-                if (stringsCount < 2) {
-                    stringsCount++;
-                    presentGeneralStatsChart(QueryStrings.LAPS_QUERY, new String[]{strings[stringsCount]});
-                }
-
-            }
-        });
-        binding.fabMinus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //if (zoomLevel > -1) {
-                   // binding.helloGraph.setZoomLevelWithAnimation(1, 0, zoomLevel--);
-                //}
-                if (stringsCount > 0) {
-                    stringsCount--;
-                    presentGeneralStatsChart(QueryStrings.LAPS_QUERY, new String[]{strings[stringsCount]});
-                }
-            }
-        });
-    }
-
     private void presentChart() {
         if (canPresentChart()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String query = null;
-                    String midQueryPart = buildAndRetrieveMidQueryPart();
-                    switch (dataType) {
-                        case 1:
-                            query = "select Data.date, round(Lap.time * 1.0 / 60000) as Mins, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + midQueryPart + " order by Data.date asc";
-                            //isStacked = true;
-                            yAxisLabel = "Minutes";
-                            break;
-                        case 2:
-                            query = "select date, round(time * 1.0 / 60000) as Mins from Data where cardio_type=" + midQueryPart + " order by date asc";
-                            //isStacked = false;
-                            yAxisLabel = "Minutes";
-                            break;
-                        case 3:
-                            query = "select date, distance from Data where cardio_type=" + midQueryPart + " order by date asc";
-                            //isStacked = false;
-                            yAxisLabel = "Distance";
-                            break;
-                        case 4:
-                            query = "select date, calories from Data where cardio_type=" + midQueryPart + " order by date asc";
-                            //isStacked = false;
-                            yAxisLabel = "Calories";
-                            break;
-                        case 5:
-                            query = "select date, distance / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
-                            yAxisLabel = "Speed";
-                            break;
-                        case 6:
-                            query = "select date, calories / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
-                            yAxisLabel = "Calories / Hour";
-                            break;
-                        case 7:
-                            query = "select date, calories / distance from Data where cardio_type=" + midQueryPart + " order by date asc";
-                            yAxisLabel = "Calories / Distance";
-                            break;
-
-                    }
+                    String query = getQuery();
                     Log.d(TAG, "Query: " + query);
                     Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
-                    queriesCounter++;
                     dumpCursorToScreen(c);
                     if (initialDataLoaded) {
                         //updateColumnData(c);
@@ -327,16 +229,63 @@ public class HelloGraph extends AppCompatActivity {
         }
     }
 
+    private String getQuery() {
+        String query = null;
+        String midQueryPart = buildAndRetrieveMidQueryPart();
+        switch (dataType) {
+            case 1:
+                query = "select Data.date, round(Lap.time * 1.0 / 60000) as Mins, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + midQueryPart + " order by Data.date asc";
+                yAxisLabel = "Minutes";
+                break;
+            case 2:
+                query = "select date, round(time * 1.0 / 60000) as Mins from Data where cardio_type=" + midQueryPart + " order by date asc";
+                yAxisLabel = "Minutes";
+                break;
+            case 3:
+                query = "select date, distance from Data where cardio_type=" + midQueryPart + " order by date asc";
+                yAxisLabel = "Distance";
+                break;
+            case 4:
+                query = "select date, calories from Data where cardio_type=" + midQueryPart + " order by date asc";
+                yAxisLabel = "Calories";
+                break;
+            case 5:
+                query = "select date, distance / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
+                yAxisLabel = "Speed";
+                break;
+            case 6:
+                query = "select date, calories / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
+                yAxisLabel = "Calories / Hour";
+                break;
+            case 7:
+                query = "select date, calories / distance from Data where cardio_type=" + midQueryPart + " order by date asc";
+                yAxisLabel = "Calories / Distance";
+                break;
+        }
+        Log.d(TAG, "Line 270 - Query: " + query);
+        return query;
+    }
+
     private String buildAndRetrieveMidQueryPart() {
         String endOfQuery = null;
         String ex = "\'" + cardioType + "\'";
-        String today = Utils.convertDateToString(new Date(), Utils.DB_DATE_FORMAT);
-        String secondDate = getSecondDate();
+        String today, secondDate;
+        if (initialDate != null && !initialDataLoaded) {
+            Log.d(TAG, "build -  initaldate not null");
+            today = initialDate;
+            secondDate = initialDate;
+        } else {
+            Log.d(TAG, "build -  initaldate null");
+            today = Utils.convertDateToString(new Date(), Utils.DB_DATE_FORMAT);
+            secondDate = getSecondDate();
+        }
+
         if (dataType == 1) {
             endOfQuery = ex + " and Data.date between \'" + secondDate + "\' and \'" + today + "\'";
         } else {
             endOfQuery = ex + " and date between '" + secondDate + "\' and \'" + today + "\'";
         }
+        Log.d(TAG, "end of query: " + endOfQuery);
         return endOfQuery;
     }
 
@@ -364,6 +313,7 @@ public class HelloGraph extends AppCompatActivity {
         return Utils.convertDateToString(cal.getTime(), Utils.DB_DATE_FORMAT);
     }
 
+    /*
     private void presentGeneralStatsChart(@NonNull final String query, @Nullable final String[] args) {
         new Thread(new Runnable() {
             @Override
@@ -379,6 +329,7 @@ public class HelloGraph extends AppCompatActivity {
             }
         }).start();
     }
+    */
 
     private void generateColumnData(Cursor results) {
         results.moveToFirst();
@@ -393,12 +344,7 @@ public class HelloGraph extends AppCompatActivity {
             subcolumnValues = new ArrayList<>();
             setAxisValues(colCount, results.getString(0));
             while (!results.isAfterLast() && date.equals(results.getString(0))) {
-                float raw;
-                if (query.equals(QueryStrings.DURATION_QUERY) || query.equals(QueryStrings.LAPS_QUERY_ALT)) {
-                    raw = results.getFloat(1);
-                } else {
-                    raw = results.getFloat(1);
-                }
+                float raw = results.getFloat(1);
                 subcolumnValues.add(new SubcolumnValue(raw, colors[count]));
                 results.moveToNext();
                 count++;
@@ -414,6 +360,7 @@ public class HelloGraph extends AppCompatActivity {
         columnData.setColumns(columns);
     }
 
+    /*
     private void updateColumnData(Cursor results) {
         int newColCount = getNewColumnCount(results);
         Log.d(TAG, "new col count: " + newColCount);
@@ -557,6 +504,7 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
     }
+    */
 
     private void updateTrialRun(Cursor results) {
         boolean isThereNewData = true;
@@ -565,7 +513,7 @@ public class HelloGraph extends AppCompatActivity {
         final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
         int colCount = 0;
         results.moveToFirst();
-        axisValues.clear();
+
         final List<Column> columns = oldData.getColumnChartData().getColumns();
         int sublistSize = 0;
         if (columns.size() > 0) {
@@ -585,16 +533,6 @@ public class HelloGraph extends AppCompatActivity {
                     Toasty.info(getBaseContext(), "Uh oh, your search turned up no results", Toast.LENGTH_LONG, true).show();
                 }
             });
-
-            /*
-            for (Column col : columns) {
-                int subSize = col.getValues().size();
-                for (int l = 0; l < subSize; l++) {
-                    Log.d(TAG, "581 - l = " + l);
-                    col.getValues().get(l).setTarget(0);
-                }
-            }
-            */
         }
 
         if (newColCount > 0) {
@@ -602,12 +540,10 @@ public class HelloGraph extends AppCompatActivity {
             Log.d(TAG, "newcolcount > 0");
             if (oldColumnCount == 0) {
                 Log.d(TAG, "oldColCount = 0");
-                //for (int i = 0; i < newColCount; i++) {
-                    columns.add(new Column());
-                //}
+                columns.add(new Column());
                 oldColumnCount = 1;
             }
-
+            axisValues.clear();
 
             do {
                 int subColCount = 0;
@@ -615,12 +551,7 @@ public class HelloGraph extends AppCompatActivity {
                 setAxisValues(colCount, results.getString(0));
                 sublistSize = columns.get(colCount).getValues().size();
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
-                    float raw;
-                    //if (isTimeQuery) {
-                       //raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
-                    //} else {
-                        raw = results.getFloat(1);
-                    //}
+                    float raw = results.getFloat(1);
                     Log.d(TAG, "608 - Date: " + results.getString(0) + ", Raw: " + raw);
                     if (subColCount >= sublistSize) {
                         Log.d(TAG, "610 - subColCount >= sublistsize");
@@ -658,12 +589,7 @@ public class HelloGraph extends AppCompatActivity {
                 setAxisValues(colCount, results.getString(0));
                 List<SubcolumnValue> sublist = new ArrayList<>();
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
-                    float raw;
-                    //if (isTimeQuery) {
-                    //raw = Utils.convertMillisToFloatMinutes(results.getLong(1));
-                    //} else {
-                    raw = results.getFloat(1);
-                    //}
+                    float raw = results.getFloat(1);
                     Log.d(TAG, "626 - Date: " + results.getString(0) + ", Raw: " + raw);
                     sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
                     results.moveToNext();
@@ -751,7 +677,8 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void setAxesAndDisplay() {
-        final Axis axis = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(true).setName(" ");
+        boolean hasTiltedLabels = axisValues.size() > 5;
+        final Axis axis = new Axis(axisValues).setTextColor(axisColor).setHasTiltedLabels(hasTiltedLabels).setName(" ");
         final ComboLineColumnChartData data = new ComboLineColumnChartData(columnData, lineData);
         data.setAxisXBottom(axis);
         final Axis axisY = new Axis().setHasLines(true).setTextColor(axisColor).setName(yAxisLabel).setTextSize(16);
@@ -763,9 +690,6 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
     }
-
-
-
 
     private void generateStackedColumnData(Cursor c, int timeFrame, boolean isStacked) {
         c.moveToFirst();
@@ -920,6 +844,7 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
+    /*
     public void onNavClick(View v) {
         switch (v.getId()) {
             case R.id.lap_tv:
@@ -969,6 +894,7 @@ public class HelloGraph extends AppCompatActivity {
             //}
         //}, 300);
     }
+    */
 
     private static class QueryStrings {
         final static String DURATION_QUERY = "select date, time from Data where cardio_type='Bike' and date between '02/01/2017' and '02/15/2017'";// order by date asc";

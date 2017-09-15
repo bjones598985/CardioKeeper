@@ -190,8 +190,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                     item.calories = cursor.getInt(3);
                     item.distance = cursor.getFloat(2);
                     String date = Utils.convertDateToString(Utils.convertStringToDate(cursor.getString(0), "MM/dd/yyyy"), "MMM d");
-                    //item.date = cursor.getString(0);
-                    item.date = date;
+                    item.date = cursor.getString(0);
+                    //item.date = date;
                     item.time = Utils.convertMillisToHms(cursor.getLong(1));
                     recordsList.add(item);
                     cursor.moveToNext();
@@ -433,7 +433,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             } else {
                 final ListItem item = recordsList.get(position);
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
-                bHolder.date.setText(item.date);
+                String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, "MM/dd/yyyy"), "MMM d");
+                bHolder.date.setText(date);
                 bHolder.time.setText(item.time);
                 String distTime = item.distance + " mi in " + item.time;
                 //bHolder.distance.setText(String.valueOf(item.distance));
@@ -470,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
             @Override
             public void onClick(View v) {
-                graphIt(date.getText().toString(), recordsList.get(getAdapterPosition()).cType);
+                graphIt(recordsList.get(getAdapterPosition()).date, recordsList.get(getAdapterPosition()).cType);
             }
         }
 

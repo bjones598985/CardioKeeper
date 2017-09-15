@@ -45,7 +45,7 @@ class Utils {
             case "Rowing":
                 return R.drawable.row_cardio;
             case "Rowing Machine":
-                return R.drawable.row_cardio;
+                return R.drawable.row_machine;
             case "Running":
                 return R.drawable.run_cardio;
             case "Stair Master":
