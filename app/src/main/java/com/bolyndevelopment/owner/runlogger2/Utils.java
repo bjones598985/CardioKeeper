@@ -4,6 +4,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.File;
@@ -121,6 +122,16 @@ class Utils {
 
     static String convertDateToString(Date inDate, String format) {
         return new SimpleDateFormat(format, Locale.US).format(inDate);
+    }
+
+    static float convertDpToPixel(float dp) {
+        DisplayMetrics metrics = MyApplication.appContext.getResources().getDisplayMetrics();
+        return dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    static float convertPixelsToDp(float px){
+        DisplayMetrics metrics = MyApplication.appContext.getResources().getDisplayMetrics();
+        return px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
     static String convertLongToDate(long time, String format) {

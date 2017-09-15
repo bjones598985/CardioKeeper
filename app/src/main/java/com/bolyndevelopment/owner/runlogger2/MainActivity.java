@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 if (!isAddDialogOpen) {
                     initAddDialog(null);
                     isAddDialogOpen = true;
+                    float dps = Utils.convertPixelsToDp((float)binder.fab.getHeight());
+                    Log.d(TAG, "fab height: " + dps);
                 }
             }
         });
