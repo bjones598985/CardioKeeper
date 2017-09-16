@@ -11,14 +11,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -29,30 +25,23 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
-import com.bolyndevelopment.owner.runlogger2.databinding.DialogFragLayoutBinding;
-
-import org.w3c.dom.Text;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -215,6 +204,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         binder.mainRecyclerview.setHasFixedSize(true);
         mAdapter = new MyAdapter();
         binder.mainRecyclerview.setAdapter(mAdapter);
+        Drawable right = getResources().getDrawable(R.drawable.right_divider);
+        Drawable left = getResources().getDrawable(R.drawable.left_divider);
+        //binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
     }
 
     @Override
@@ -265,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
     public boolean checkForPermission(String permission, int requestCode) {
         // Here, thisActivity is the current activity
+        Log.d(TAG, "checkForPermission");
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
@@ -283,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             }
             return false;
         } else {
+            Log.d(TAG, "permission already granted");
             return true;
         }
     }
@@ -376,18 +370,6 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         frag.show(getFragmentManager(), "dialog");
     }
 
-    public void sort(View view) {
-        Snackbar.make(binder.getRoot(), "Press: " + ((TextView)view).getText().toString(), Snackbar.LENGTH_SHORT).show();
-        switch (view.getId()) {
-            case R.id.main_date_tv:
-            case R.id.main_time_tv:
-            case R.id.main_dist_tv:
-            case R.id.main_cals_tv:
-            case R.id.main_icon_tv:
-
-        }
-    }
-
     private class ListItem {
         int calories;
         float distance;
@@ -413,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return viewType == LIST_ITEM ? new BaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_v2, parent, false)) :
+            return viewType == LIST_ITEM ? new BaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_v3, parent, false)) :
                     new AddViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.button_dialog_frag_layout, parent, false));
         }
 
@@ -437,16 +419,18 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
                 String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, "MM/dd/yyyy"), "MMM d");
                 bHolder.date.setText(date);
-                bHolder.time.setText(item.time);
+                //bHolder.time.setText(item.time);
                 String distTime = item.distance + " mi in " + item.time;
                 //bHolder.distance.setText(String.valueOf(item.distance));
                 bHolder.distance.setText(distTime);
                 bHolder.calories.setText(String.valueOf(item.calories) + " cals");
                 bHolder.name.setText(item.cType);
                 bHolder.icon.setImageResource(Utils.getCardioIcon(item.cType));
+                int color = ColorUtils.pickColor();
+                bHolder.fl.setBackgroundColor(color);
                 Drawable circle = getResources().getDrawable(R.drawable.circle);
                 circle.mutate();
-                circle.setColorFilter(ColorUtils.pickColor(), PorterDuff.Mode.SRC_IN);
+                circle.setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 bHolder.icon.setBackground(circle);
             }
         }
@@ -459,6 +443,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             TextView date, time, distance, calories, name;
             ImageView icon;
+            FrameLayout fl;
 
             BaseViewHolder(View itemView) {
                 super(itemView);
@@ -469,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 calories = (TextView) itemView.findViewById(R.id.list_calories_input);
                 name = (TextView) itemView.findViewById(R.id.list_name_input);
                 icon = (ImageView) itemView.findViewById(R.id.column_icon);
+                fl = (FrameLayout) itemView.findViewById(R.id.frame_bg);
             }
 
             @Override

@@ -28,58 +28,6 @@
                     android:background="?attr/colorPrimary"
                     app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-                <LinearLayout
-                    android:id="@+id/column_headers"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:theme="@style/Theme.AppCompat"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/main_icon_tv"
-                        style="@style/MainActivityTextViews.Other"
-                        android:layout_width="64dp"
-                        android:layout_height="wrap_content"
-                        android:visibility="visible"
-                        android:onClick="sort"/>
-
-                    <TextView
-                        android:id="@+id/main_date_tv"
-                        style="@style/MainActivityTextViews"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/column_date"
-                        android:onClick="sort"/>
-
-                    <TextView
-                        android:id="@+id/main_time_tv"
-                        style="@style/MainActivityTextViews"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/column_time"
-                        android:onClick="sort"/>
-
-                    <TextView
-                        android:id="@+id/main_dist_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        style="@style/MainActivityTextViews.Other"
-                        android:text="@string/column_distance"
-                        android:onClick="sort"/>
-
-                    <TextView
-                        android:id="@+id/main_cals_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        style="@style/MainActivityTextViews.Other"
-                        android:text="@string/column_calories"
-                        android:onClick="sort"/>
-
-
-
-                </LinearLayout>
-
             </android.support.design.widget.AppBarLayout>
 
             <android.support.v7.widget.RecyclerView
@@ -88,6 +36,9 @@
                 android:layout_height="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
+
+
+            <!-- fabs -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -102,7 +53,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginBottom="2dp"
+                    android:layout_marginBottom="4dp"
                     android:layout_gravity="bottom|end"/>
 
                 <android.support.design.widget.FloatingActionButton
@@ -110,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginBottom="16dp"

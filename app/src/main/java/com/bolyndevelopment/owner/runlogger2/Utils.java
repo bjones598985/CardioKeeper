@@ -2,10 +2,12 @@ package com.bolyndevelopment.owner.runlogger2;
 
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -251,8 +253,12 @@ class Utils {
                     destination.transferFrom(source, 0, source.size());
                     source.close();
                     destination.close();
-                    //Message msg = handler.obtainMessage(MainActivity.IMPORT_DB, "Data exported successfully!");
-                    //handler.dispatchMessage(msg);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MyApplication.appContext, "DB Exported", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } catch (IOException e) {
                     Log.d(TAG, "Error writing DB " + e.toString());
                     //Message msg = handler.obtainMessage(MainActivity.IMPORT_DB, "Uh oh - your export isn't working. Sorry.");
