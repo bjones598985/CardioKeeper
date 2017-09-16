@@ -9,8 +9,10 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,10 +23,13 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +56,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Timer;
+
+import es.dmoral.toasty.Toasty;
 
 public class MainActivity extends AppCompatActivity implements LogActivityDialogFragment.LogActivityListener{
     public static final String TAG = "MainActivity";
@@ -58,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
 
     public static final int WRITE_REQUEST_CODE = 1;
     public static final int INTERNET_REQUEST_CODE = 2;
+
+    private ActionBarDrawerToggle drawerToggle;
 
     List<ListItem> recordsList = new ArrayList<>();
     Handler handler = new Handler();
@@ -82,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         setSupportActionBar(binder.toolbar);
 
@@ -115,7 +127,71 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             }
         });
 
+
+        setSupportActionBar(binder.toolbar);
+        binder.toolbar.setTitleTextColor(Color.WHITE);//check styles.xml to change hamburger color
+        binder.toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_24dp));
+        binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getBaseContext(), "Nav touched...", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        binder.mainDrawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle = new ActionBarDrawerToggle(this,
+                binder.mainDrawerLayout,
+                binder.toolbar,
+                R.string.drawer_open,
+                R.string.drawer_close){
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+        };
+
     }
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    public void onNavClick(View v) {
+        switch (v.getId()) {
+            case R.id.nav_menu_graph:
+                startActivity(new Intent(this, HelloGraph.class));
+                break;
+            case R.id.nav_menu_backup:
+                Toasty.info(this, "Back Up", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                Toasty.info(this, "Settings", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_menu_about:
+                AboutDialog sd = new AboutDialog();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.add(sd, "about");
+                ft.commitAllowingStateLoss();
+                break;
+        }
+        binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

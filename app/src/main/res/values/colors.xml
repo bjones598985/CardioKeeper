@@ -5,4 +5,6 @@
     <color name="colorAccent_alt">#ffea00</color>
     <color name="colorAccent">#ff3d00</color>
 
+    <color name="menu_icon_color">#999999</color>
+
 </resources>

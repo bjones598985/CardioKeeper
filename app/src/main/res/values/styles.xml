@@ -19,7 +19,6 @@
 
     <style name="HelloGraphNavTextView" parent="AppTheme">
         <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">16sp</item>
         <item name="android:onClick">onNavClick</item>
         <item name="android:padding">16dp</item>
         <item name="android:background">?attr/selectableItemBackground</item>
@@ -46,5 +45,9 @@
         <!--<item name="colorBackgroundFloating">@color/colorPrimary</item>-->
         <item name="colorControlHighlight">@color/colorAccent</item>
         </style>
+
+    <style name="NavTheme" parent="AppTheme" >
+        <item name="colorControlHighlight">@color/colorPrimary</item>
+    </style>
 
 </resources>

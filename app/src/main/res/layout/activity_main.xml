@@ -80,6 +80,7 @@
             android:background="@android:color/white"
             android:fitsSystemWindows="true"
             tools:context=".MainActivity"
+            android:theme="@style/NavTheme"
             android:visibility="gone">
 
             <LinearLayout
@@ -89,7 +90,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="200dp"
                     android:background="@color/colorAccent"
                     android:orientation="vertical"
                     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -106,36 +107,51 @@
                         android:paddingTop="16dp"
                         android:text="@string/app_name"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/nav_menu_graph"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/HelloGraphNavTextView">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_equalizer_24dp"/>
+
+                    <TextView
+                        android:id="@+id/graph"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:textSize="16sp"
+                        android:text="@string/graph" />
+
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/lap_tv"
+                <LinearLayout
+                    android:id="@+id/nav_menu_backup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/laps"/>
+                    style="@style/HelloGraphNavTextView">
 
-                <TextView
-                    android:id="@+id/duration_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/duration"/>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_cloud_upload_24dp"/>
 
-                <TextView
-                    android:id="@+id/distance_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/distance"/>
+                    <TextView
+                        android:id="@+id/backup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:textSize="16sp"
+                        android:text="@string/backup"/>
 
-                <TextView
-                    android:id="@+id/cal_burn_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/cal_burned"/>
+
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
@@ -146,42 +162,51 @@
                     android:layout_marginBottom="4dp"
                     android:layout_marginTop="4dp"/>
 
-                <TextView
-                    android:id="@+id/days"
+                <LinearLayout
+                    android:id="@+id/nav_menu_settings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/day"/>
+                    style="@style/HelloGraphNavTextView">
 
-                <TextView
-                    android:id="@+id/weeks"
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_settings_24dp"/>
+
+                    <TextView
+                        android:id="@+id/settings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:textSize="16sp"
+                        android:text="@string/settings"/>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/nav_menu_about"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/week"/>
+                    style="@style/HelloGraphNavTextView">
 
-                <TextView
-                    android:id="@+id/months"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/months"/>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_info_outline_24dp"/>
 
-                <TextView
-                    android:id="@+id/year"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/HelloGraphNavTextView"
-                    android:text="@string/years"/>
+                    <TextView
+                        android:id="@+id/about"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:textSize="16sp"
+                        android:text="@string/about" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="#cccccc"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+
 
             </LinearLayout>
 

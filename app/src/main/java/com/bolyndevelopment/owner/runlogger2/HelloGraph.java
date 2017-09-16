@@ -84,7 +84,7 @@ public class HelloGraph extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
 
-        binding.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
 
         initVars();
         initSpinners();
@@ -843,58 +843,6 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
     }
-
-    /*
-    public void onNavClick(View v) {
-        switch (v.getId()) {
-            case R.id.lap_tv:
-                query = QueryStrings.LAPS_QUERY;
-                break;
-            case R.id.duration_tv:
-                query = QueryStrings.DURATION_QUERY;
-                break;
-            case R.id.distance_tv:
-                query = QueryStrings.DISTANCE_QUERY;
-                break;
-            case R.id.cal_burn_tv:
-                query = QueryStrings.CALORIES_BURNED_QUERY;
-                break;
-            case R.id.days:
-                timeFrame = DAY;
-                break;
-            case R.id.weeks:
-                timeFrame = WEEK;
-                break;
-            case R.id.months:
-                timeFrame = MONTH;
-                break;
-            case R.id.year:
-                timeFrame = YEAR;
-                break;
-            default:
-                timeFrame = MONTH;
-                query = QueryStrings.DURATION_QUERY;
-                break;
-        }
-        binding.drawerLayout.closeDrawer(binding.chartsNavViewRight);
-        Timer t = new Timer(true);
-        //t.schedule(new TimerTask() {
-            //@Override
-            //public void run() {
-                if (query.equals(QueryStrings.LAPS_QUERY)) {
-                    isStacked = true;
-                    presentGeneralStatsChart(query, new String[]{date});
-                } else {
-                    if (timeFrame == DAY) {
-                        timeFrame = WEEK;
-                    }
-                    isStacked = false;
-                    presentGeneralStatsChart(query + LIMIT + timeFrame, null);
-                }
-            //}
-        //}, 300);
-    }
-    */
 
     private static class QueryStrings {
         final static String DURATION_QUERY = "select date, time from Data where cardio_type='Bike' and date between '02/01/2017' and '02/15/2017'";// order by date asc";
