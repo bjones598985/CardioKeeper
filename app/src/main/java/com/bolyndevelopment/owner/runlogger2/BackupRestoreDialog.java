@@ -21,7 +21,6 @@ import android.widget.Button;
 public class BackupRestoreDialog extends DialogFragment implements View.OnClickListener{
     private ChoiceListener listener;
     private ViewGroup rootView;
-    private Uri priorFileUri;
     private String backupKey;
 
     static final int BACKUP_TO_PREVIOUS = 10;
@@ -72,7 +71,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                     }
                 });
                 final Button sameLocale = (Button) rootView.findViewById(R.id.backup_same_location);
-                if (!backupKey.equals(null)) {
+                if (backupKey != null) {
                     sameLocale.setText(backupKey.contains("google") ? "Backup to Google Drive" : "Backup to File System");
                     sameLocale.setVisibility(View.VISIBLE);
                     sameLocale.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +84,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                 }
                 break;
             case R.id.restore_button:
-                if (!backupKey.equals(null)) {
+                if (backupKey != null) {
                     final Button lastLocale = (Button) rootView.findViewById(R.id.restore_last_location);
                     lastLocale.setText(backupKey.contains("google") ? "Restore from Google Drive" : "Restore from File System");
                     lastLocale.setVisibility(View.VISIBLE);

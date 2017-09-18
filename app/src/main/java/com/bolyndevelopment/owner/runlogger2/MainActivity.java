@@ -208,8 +208,8 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 t.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                        String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                        final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
                         Bundle b = new Bundle();
                         b.putString("backupKey", backupKey);
                         BackupRestoreDialog brd = new BackupRestoreDialog();
