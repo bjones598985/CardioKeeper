@@ -33,12 +33,13 @@
                 android:layout_width="30dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/jog_cardio"
-                android:background="@drawable/semi_circle"/>
+                android:background="@drawable/semi_circle"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:paddingStart="35dp"
+                android:paddingStart="5dp"
                 android:orientation="vertical"
                 android:layout_gravity="center_vertical">
 
@@ -62,14 +63,15 @@
 
         </FrameLayout>
 
-        <TextView
-            android:text="Sep 3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/list_date_input"
-            android:padding="4dp"
-            android:layout_alignTop="@+id/column_icon"
-            android:layout_alignParentEnd="true" />
+    <TextView
+        android:id="@+id/list_date_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/column_icon"
+        android:padding="4dp"
+        android:text="Sep 3"
+        android:textColor="@android:color/white" />
 
 
     <TextView
@@ -79,8 +81,8 @@
         android:layout_alignBottom="@+id/column_icon"
         android:layout_alignParentEnd="true"
         android:padding="4dp"
-        android:text="500 cal" />
-
+        android:text="500 cal"
+        android:textColor="@android:color/white" />
 
 
         <ImageView

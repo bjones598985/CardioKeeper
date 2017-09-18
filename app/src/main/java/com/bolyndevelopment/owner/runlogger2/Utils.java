@@ -7,9 +7,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -237,38 +240,75 @@ class Utils {
         }
     }
 
-    static void writeDb(final Uri uri, final Handler handler) {
+    static void backupDb(final Uri uri, final Handler handler, final View coord) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 final File currentDB = new File(Environment.getDataDirectory(), "data/com.bolyndevelopment.owner.runlogger2/databases/log.db");
-                final FileChannel source, destination;
                 try {
-                    source = new FileInputStream(currentDB).getChannel();
-                    ParcelFileDescriptor pfd = MyApplication.appContext.getContentResolver().
-                            openFileDescriptor(uri, "w");
-                    destination = new FileOutputStream(pfd.getFileDescriptor()).getChannel();
-                    destination.transferFrom(source, 0, source.size());
-                    source.close();
-                    destination.close();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MyApplication.appContext, "DB Exported Successfully", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    //fileOutputStream.write(("Overwritten by MyCloud at " + System.currentTimeMillis() + "\n").getBytes());
-                    // Let the document provider know you're done by closing the stream.
-                    //fileOutputStream.close();
-                    pfd.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    final ParcelFileDescriptor pfd = MyApplication.appContext.getContentResolver().openFileDescriptor(uri, "w");
+                    if (pfd != null) {
+                        final FileChannel destination = new FileOutputStream(pfd.getFileDescriptor()).getChannel();
+                        final FileChannel source = new FileInputStream(currentDB).getChannel();
+                        destination.transferFrom(source, 0, source.size());
+                        source.close();
+                        destination.close();
+                        pfd.close();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(coord, "Sweet, you records are successfully backed up!", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(coord, "Oh no, I couldn't back up your records", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
 
+    }
+
+    static void restoreDb(final Uri restoreUri, final Handler handler) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final File applicationDb = new File(Environment.getDataDirectory(), "data/com.bolyndevelopment.owner.runlogger2/databases/log.db");
+                try {
+                    final FileChannel source = ((FileInputStream) MyApplication.appContext.getContentResolver().openInputStream(restoreUri)).getChannel();
+                    if (source != null) {
+                        final FileChannel destination = new FileOutputStream(applicationDb).getChannel();
+                        destination.transferFrom(source, 0, source.size());
+                        source.close();
+                        destination.close();
+                        handler.dispatchMessage(handler.obtainMessage(6));
+                        //handler.post(new Runnable() {
+                            //@Override
+                            //public void run() {
+                                //Snackbar.make(coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
+                            //}
+                        //});
+                    } else {
+                        handler.dispatchMessage(handler.obtainMessage(9));
+                        //handler.post(new Runnable() {
+                            //@Override
+                            //public void run() {
+                                //Snackbar.make(coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
+                            //}
+                        //});
+                    }
+                } catch (IOException e) {
+                    Log.d(TAG, "Error writing DB " + e.toString());
+                }
+            }
+        }).start();
     }
 
     static void exportData(final Handler handler) {

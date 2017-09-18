@@ -20,8 +20,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -68,17 +71,19 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     static final int CODE_TIMER = 100;
 
     public static final int WRITE_REQUEST_CODE = 1;
+    static final int CREATE_FILE_CODE = 57;
+    static final int SEARCH_FILE_CODE = 43;
+
+    static final String DB_MIME_TYPE = "application/x-sqlite3";
 
     private ActionBarDrawerToggle drawerToggle;
 
     List<ListItem> recordsList = new ArrayList<>();
-    Handler handler = new Handler();
+    Handler handler;
     MyAdapter mAdapter;
     ArrayList<String> lapDataFromTimer;
     ActivityMainBinding binder;
     boolean isAddDialogOpen = false;
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -89,11 +94,15 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             Log.d("TEST", "lapdata size: " + lapDataFromTimer.size());
             initAddDialog(totalTime);
         }
-        if (requestCode == 57 && resultCode == Activity.RESULT_OK) {
-            Uri uri = data.getData();
-
-            Utils.writeDb(uri, handler);
-            saveUriPathToSharedPreferences(uri.toString());
+        if (requestCode == CREATE_FILE_CODE && resultCode == Activity.RESULT_OK) {
+            final Uri backupUri = data.getData();
+            Utils.backupDb(backupUri, handler, binder.coord);
+            saveUriPathToSharedPreferences(backupUri.toString());
+        }
+        if (requestCode == SEARCH_FILE_CODE && resultCode == Activity.RESULT_OK) {
+            Log.d(TAG, "Search result ok");
+            final Uri restoreUri = data.getData();
+            Utils.restoreDb(restoreUri, handler);
         }
     }
 
@@ -122,6 +131,19 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 initAddDialog(null);
             }
         }
+
+        handler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 6) {
+                    queryForRecords();
+                    Snackbar.make(binder.coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
+                }
+                if (msg.what == 9) {
+                    Snackbar.make(binder.coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
+                }
+            }
+        };
 
     }
 
@@ -273,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     }
 
     private void addRandomData() {
+        final List<String> cardioList = Arrays.asList(getResources().getStringArray(R.array.cardio_types));
         for (int y=1; y<8; y++) {
             for (int x = 1; x < 31; x += 3) {
                 String date = String.format(Locale.US, "%02d/%02d/%04d", y, x, 2017);
@@ -286,7 +309,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 list.add(Utils.getTimeStringMillis(String.valueOf(min) + ":" + String.valueOf(sec)));
                 list.add(String.valueOf(miles));
                 list.add(String.valueOf(calories));
-                list.add("Biking");
+                int index = random.nextInt(13);
+                if (index == 0) index++;
+                list.add(cardioList.get(index));
                 long l = DataModel.getInstance().addRecords(list, null);
                 Log.d(TAG, "Row: " + l);
             }
@@ -303,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 ListItem item;
                 while (!cursor.isAfterLast()) {
                     item = new ListItem();
-                    //item.order = cursor.getInt(0);
                     item.cType = cursor.getString(4);
                     item.calories = cursor.getInt(3);
                     item.distance = cursor.getFloat(2);
@@ -338,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -373,11 +397,11 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
                 if (backupKey == null) {
                     Log.d(TAG, "backup key null");
-                    createFile("application/x-sqlite3", "log.db");
+                    createFile(DB_MIME_TYPE, DataModel.DATABASE_NAME);
                 } else {
                     Log.d(TAG, "backup key not null");
                     Uri u = Uri.parse(backupKey);
-                    Utils.writeDb(u, handler);
+                    Utils.backupDb(u, handler, binder.coord);
                 }
                 break;
             case R.id.run_adm:
@@ -405,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         // Create a file with the requested MIME type.
         intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
-        startActivityForResult(intent, 57);
+        startActivityForResult(intent, CREATE_FILE_CODE);
     }
 
     @Override
@@ -492,7 +516,56 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     @Override
     public void onChoiceSelected(int choice) {
-        Log.d(TAG, "onChoiceSelected: " + choice);
+        final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+
+        switch (choice) {
+            case BackupRestoreDialog.BACKUP_TO_NEW:
+                createFile(DB_MIME_TYPE, DataModel.DATABASE_NAME);
+                break;
+            case BackupRestoreDialog.BACKUP_TO_PREVIOUS:
+                final Uri backupUri = Uri.parse(backupKey);
+                Utils.backupDb(backupUri, handler, binder.coord);
+                break;
+            case BackupRestoreDialog.RESTORE_FROM_NEW:
+                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) searchForBackup();
+                break;
+            case BackupRestoreDialog.RESTORE_FROM_PREVIOUS:
+                final Uri restoreUri = Uri.parse(backupKey);
+                Utils.restoreDb(restoreUri, handler);
+                break;
+        }
+    }
+
+    private Handler getMainHandler() {
+        return new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 6) {
+                    mAdapter.notifyDataSetChanged();
+                    Snackbar.make(binder.coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
+                }
+                if (msg.what == 9) {
+                    Snackbar.make(binder.coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
+                }
+            }
+        };
+    }
+
+
+    private void searchForBackup() {
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
+        // browser.
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        // Filter to only show results that can be "opened", such as a
+        // file (as opposed to a list of contacts or timezones)
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers,
+        // it would be "*/*".
+        intent.setType(DB_MIME_TYPE);
+        startActivityForResult(intent, SEARCH_FILE_CODE);
     }
 
     private class ListItem {
@@ -552,8 +625,12 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 bHolder.name.setText(item.cType);
                 bHolder.icon.setImageResource(Utils.getCardioIcon(item.cType));
                 int color = ColorUtils.pickColor();
-                bHolder.fl.setBackgroundColor(color);
                 Drawable circle = getResources().getDrawable(R.drawable.circle);
+                Drawable semiCircleBanner = getResources().getDrawable(R.drawable.semi_circle_banner);
+                semiCircleBanner.mutate();
+                semiCircleBanner.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                bHolder.fl.setBackground(semiCircleBanner);
+
                 circle.mutate();
                 circle.setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 bHolder.icon.setBackground(circle);
