@@ -1,8 +1,11 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -11,6 +14,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -233,7 +237,42 @@ class Utils {
         }
     }
 
+    static void writeDb(final Uri uri, final Handler handler) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final File currentDB = new File(Environment.getDataDirectory(), "data/com.bolyndevelopment.owner.runlogger2/databases/log.db");
+                final FileChannel source, destination;
+                try {
+                    source = new FileInputStream(currentDB).getChannel();
+                    ParcelFileDescriptor pfd = MyApplication.appContext.getContentResolver().
+                            openFileDescriptor(uri, "w");
+                    destination = new FileOutputStream(pfd.getFileDescriptor()).getChannel();
+                    destination.transferFrom(source, 0, source.size());
+                    source.close();
+                    destination.close();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MyApplication.appContext, "DB Exported Successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    //fileOutputStream.write(("Overwritten by MyCloud at " + System.currentTimeMillis() + "\n").getBytes());
+                    // Let the document provider know you're done by closing the stream.
+                    //fileOutputStream.close();
+                    pfd.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
     static void exportData(final Handler handler) {
+        Log.d(TAG, "export data");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -246,8 +285,10 @@ class Utils {
                 final String backupDBPath = "log.db";
                 final File currentDB = new File(data, currentDBPath);
                 final File backupDB = new File(sd, backupDBPath);
+                Log.d(TAG, "export data - inside thread");
 
                 try {
+                    Log.d(TAG, "export data");
                     source = new FileInputStream(currentDB).getChannel();
                     destination = new FileOutputStream(backupDB).getChannel();
                     destination.transferFrom(source, 0, source.size());

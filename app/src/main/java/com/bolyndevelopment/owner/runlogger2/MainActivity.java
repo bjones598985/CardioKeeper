@@ -6,8 +6,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -15,11 +17,11 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -29,7 +31,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +49,7 @@ import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,15 +59,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import es.dmoral.toasty.Toasty;
 
-public class MainActivity extends AppCompatActivity implements LogActivityDialogFragment.LogActivityListener{
+public class MainActivity extends AppCompatActivity implements BackupRestoreDialog.ChoiceListener {
     public static final String TAG = "MainActivity";
     static final int CODE_TIMER = 100;
 
     public static final int WRITE_REQUEST_CODE = 1;
-    public static final int INTERNET_REQUEST_CODE = 2;
 
     private ActionBarDrawerToggle drawerToggle;
 
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     ActivityMainBinding binder;
     boolean isAddDialogOpen = false;
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -83,9 +87,21 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
             Log.d("TEST", "lapdata size: " + lapDataFromTimer.size());
-            //showDialog(totalTime);
             initAddDialog(totalTime);
         }
+        if (requestCode == 57 && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+
+            Utils.writeDb(uri, handler);
+            saveUriPathToSharedPreferences(uri.toString());
+        }
+    }
+
+    private void saveUriPathToSharedPreferences(String path) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getResources().getString(R.string.db_backup_key), path);
+        editor.apply();
     }
 
     @Override
@@ -93,13 +109,13 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
-        setSupportActionBar(binder.toolbar);
-
         initRecyclerView();
         //addRandomData();
         queryForRecords();
+        setupToolbar();
+        setupDrawer();
+        setupFabs();
+
         if (savedInstanceState != null) {
             isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
             if (isAddDialogOpen) {
@@ -107,6 +123,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             }
         }
 
+    }
+
+    private void setupFabs() {
         binder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,8 +145,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
             }
         });
+    }
 
-
+    private void setupToolbar() {
         setSupportActionBar(binder.toolbar);
         binder.toolbar.setTitleTextColor(Color.WHITE);//check styles.xml to change hamburger color
         binder.toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_24dp));
@@ -137,7 +157,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 Toast.makeText(getBaseContext(), "Nav touched...", Toast.LENGTH_LONG).show();
             }
         });
+    }
 
+    private void setupDrawer() {
         binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         binder.mainDrawerLayout.addDrawerListener(drawerToggle);
         drawerToggle = new ActionBarDrawerToggle(this,
@@ -156,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 super.onDrawerClosed(drawerView);
             }
         };
-
     }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -171,27 +193,56 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
     }
 
     public void onNavClick(View v) {
+        Timer t = new Timer(true);
         switch (v.getId()) {
             case R.id.nav_menu_graph:
-                startActivity(new Intent(this, HelloGraph.class));
+                t.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getBaseContext(), HelloGraph.class));
+                    }
+                }, 200);
                 break;
             case R.id.nav_menu_backup:
-                Toasty.info(this, "Back Up", Toast.LENGTH_SHORT).show();
+                //Toasty.info(getBaseContext(), "Back Up", Toast.LENGTH_SHORT).show();
+                t.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                        Bundle b = new Bundle();
+                        b.putString("backupKey", backupKey);
+                        BackupRestoreDialog brd = new BackupRestoreDialog();
+                        brd.setArguments(b);
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.add(brd, "backup");
+                        ft.commitAllowingStateLoss();
+                    }
+                }, 200);
                 break;
             case R.id.nav_menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                Toasty.info(this, "Settings", Toast.LENGTH_SHORT).show();
+                t.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getBaseContext(), SettingsActivity.class));
+                    }
+                }, 200);
+                //Toasty.info(this, "Settings", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_menu_about:
-                AboutDialog sd = new AboutDialog();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.add(sd, "about");
-                ft.commitAllowingStateLoss();
+                t.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        AboutDialog sd = new AboutDialog();
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.add(sd, "about");
+                        ft.commitAllowingStateLoss();
+                    }
+                }, 200);
                 break;
         }
         binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
     }
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -205,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
             ad.time = time;
         }
         ad.date = Utils.convertDateToString(new Date(), "MM/dd/yyyy");
-        Cursor c = DatabaseAccess.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
+        Cursor c = DataModel.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
         c.moveToFirst();
         String type = null;
         if (c.getCount() > 0) {
@@ -236,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
                 list.add(String.valueOf(miles));
                 list.add(String.valueOf(calories));
                 list.add("Biking");
-                long l = DatabaseAccess.getInstance().addRecords(list, null);
+                long l = DataModel.getInstance().addRecords(list, null);
                 Log.d(TAG, "Row: " + l);
             }
         }
@@ -247,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final Cursor cursor = DatabaseAccess.getInstance().getAllRecords();
+                final Cursor cursor = DataModel.getInstance().getAllRecords();
                 cursor.moveToFirst();
                 ListItem item;
                 while (!cursor.isAfterLast()) {
@@ -291,17 +342,47 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         return true;
     }
 
+    private void logPaths() {
+        String p = getFilesDir().getAbsolutePath();
+        String pp = getFilesDir().getPath();
+        //Toasty.info(this, "Absolute Path: " + p + ", Path: " + pp, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Absolute Path: " + p + ", Path: " + pp);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            String x = getDataDir().getAbsolutePath();
+            Log.d(TAG, "Data Dir Path: " + x);
+        }
+        String e = getCacheDir().getAbsolutePath();
+        Log.d(TAG, "Cache Dir Path: " + e);
+        String y = getDatabasePath(DataModel.DATABASE_NAME).getAbsolutePath();
+        Log.d(TAG, "DB Absolute Path: " + y);
+        try {
+            String yy = getDatabasePath(DataModel.DATABASE_NAME).getCanonicalPath();
+            Log.d(TAG, "DB Canonical Path: " + yy);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        String yyy = getDatabasePath(DataModel.DATABASE_NAME).getPath();
+        Log.d(TAG, "DB Path: " + yyy);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.about_app:
-                AboutDialog sd = new AboutDialog();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.add(sd, "about");
-                ft.commitAllowingStateLoss();
+                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                if (backupKey == null) {
+                    Log.d(TAG, "backup key null");
+                    createFile("application/x-sqlite3", "log.db");
+                } else {
+                    Log.d(TAG, "backup key not null");
+                    Uri u = Uri.parse(backupKey);
+                    Utils.writeDb(u, handler);
+                }
                 break;
             case R.id.run_adm:
-                startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
+                //startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
+                //new DatabaseBackup(this).dumpBackupFile();
                 break;
             case R.id.dump_db_log:
                 //DatabaseBackup dbb = new DatabaseBackup(this);
@@ -312,19 +393,34 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         return super.onOptionsItemSelected(item);
     }
 
+    /*
+    this is where we create the file and then get the Uri and write to it
+     */
+    private void createFile(String mimeType, String fileName) {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        // Filter to only show results that can be "opened", such as
+        // a file (as opposed to a list of contacts or timezones).
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        // Create a file with the requested MIME type.
+        intent.setType(mimeType);
+        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        startActivityForResult(intent, 57);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case WRITE_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //isThereExternalWriteAccess = true;
-                    Toast.makeText(this, "You can now export the database.", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case INTERNET_REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //isThereInternetAccess = true;
-                    //Snackbar.make(mainLayout, "You can now access the internet.", Snackbar.LENGTH_SHORT).show();
+                    Utils.exportData(handler);
+                    //Toast.makeText(this, "You can now export the database.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toasty.error(this, "The database can be exported without permission", Toast.LENGTH_SHORT).show();
+                    /*
+                    this is where we should put in something to advise of the problem and give chance to redo it
+                     */
                 }
                 break;
         }
@@ -357,44 +453,11 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         }
     }
 
-    @Override
-    public void onDialogPositiveClick(Bundle bundle) {
-        final ArrayList<String> list = bundle.getStringArrayList("data");
-        if (list != null) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    long id = DatabaseAccess.getInstance().addRecords(list, lapDataFromTimer);
-                    if (id > -1) {
-                        ListItem item = new ListItem();
-                        //item.order = (int) id;
-                        item.date = list.get(0);
-                        item.time = Utils.convertMillisToHms(Long.parseLong(list.get(1)));
-                        item.distance = Float.parseFloat(list.get(2));
-                        item.calories = list.get(3).equals("") ? 0 : Integer.parseInt(list.get(3));
-                        item.cType = list.get(4);
-                        recordsList.add(0, item);
-                        //final int index = recordsList.indexOf(item);
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.notifyItemInserted(0);
-                            }
-                        });
-                    }
-                }
-            }).start();
-        } else {
-            //alert to their being a problem
-        }
-        //new DatabaseBackup(this).dumpBackupFile();
-    }
-
     private void saveEnteredData(final ArrayList<String> list) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    long id = DatabaseAccess.getInstance().addRecords(list, lapDataFromTimer);
+                    long id = DataModel.getInstance().addRecords(list, lapDataFromTimer);
                     if (id > -1) {
                         ListItem item = new ListItem();
                         //item.order = (int) id;
@@ -427,23 +490,9 @@ public class MainActivity extends AppCompatActivity implements LogActivityDialog
         startActivity(i);
     }
 
-    public void showDialog(@Nullable String time) {
-        Cursor c = DatabaseAccess.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
-        c.moveToFirst();
-        Bundle b = new Bundle();
-        if (c.getCount() > 0) {
-            b.putString("type", c.getString(1));
-        }
-        if (time != null) {
-            b.putString("totalTime", time);
-        }
-        //if (lapData != null) {
-            //b.putStringArrayList("lapData", lapData);
-        //}
-        c.close();
-        final LogActivityDialogFragment frag = new LogActivityDialogFragment();
-        frag.setArguments(b);
-        frag.show(getFragmentManager(), "dialog");
+    @Override
+    public void onChoiceSelected(int choice) {
+        Log.d(TAG, "onChoiceSelected: " + choice);
     }
 
     private class ListItem {

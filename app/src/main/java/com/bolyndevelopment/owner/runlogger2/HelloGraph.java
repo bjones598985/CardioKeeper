@@ -6,9 +6,6 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +21,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
 
 import es.dmoral.toasty.Toasty;
 import lecho.lib.hellocharts.animation.ChartAnimationListener;
@@ -214,7 +210,7 @@ public class HelloGraph extends AppCompatActivity {
                 public void run() {
                     String query = getQuery();
                     Log.d(TAG, "Query: " + query);
-                    Cursor c = DatabaseAccess.getInstance().rawQuery(query, null);
+                    Cursor c = DataModel.getInstance().rawQuery(query, null);
                     dumpCursorToScreen(c);
                     if (initialDataLoaded) {
                         //updateColumnData(c);
@@ -318,7 +314,7 @@ public class HelloGraph extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Cursor c = DatabaseAccess.getInstance().rawQuery(query, args);
+                Cursor c = DataModel.getInstance().rawQuery(query, args);
                 if (initialDataLoaded) {
                     updateColumnData(c);
                 } else {

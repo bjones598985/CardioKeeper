@@ -189,4 +189,7 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
 
     <string name="pref_title_vibrate">Vibrate</string>
 
+    <string name="db_backup_key">db_backup_key</string>
+    <string name="db_backup_location">db_backup_location</string>
+
 </resources>

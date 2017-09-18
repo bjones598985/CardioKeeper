@@ -53,7 +53,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
     //in the below line Change the text 'yourCustomSqlHelper' with your custom sqlitehelper class name.
     //Do not change the variable name
     //Model.ModelHelper modelHelper;
-    DatabaseAccess.SQLDatabaseHelper modelHelper;
+    DataModel.SQLDatabaseHelper modelHelper;
     TableLayout tableLayout;
     TableRow.LayoutParams tableRowParams;
     HorizontalScrollView hsv;
@@ -73,7 +73,7 @@ public class AndroidDatabaseManager extends Activity implements AdapterView.OnIt
 
         //in the below line Change the text 'yourCustomSqlHelper' with your custom sqlitehelper class name
 
-        modelHelper = new DatabaseAccess.SQLDatabaseHelper(AndroidDatabaseManager.this);
+        modelHelper = new DataModel.SQLDatabaseHelper(AndroidDatabaseManager.this);
         mainscrollview = new ScrollView(AndroidDatabaseManager.this);
 
         //the main linear layout to which all tables spinners etc will be added.In this activity every element is created dynamically  to avoid using xml file

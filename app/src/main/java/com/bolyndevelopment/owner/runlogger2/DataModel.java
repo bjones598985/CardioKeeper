@@ -1,21 +1,14 @@
 package com.bolyndevelopment.owner.runlogger2;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -28,10 +21,10 @@ import java.util.Locale;
  * Created by Owner on 11/18/2015.
  */
 
-class DatabaseAccess {
-    public final static String TAG = "DatabaseAccess";
+class DataModel {
+    public final static String TAG = "DataModel";
 
-    private static volatile DatabaseAccess instance = null;
+    private static volatile DataModel instance = null;
 
     private static final int DATABASE_VERSION = 1;
     static final String DATABASE_NAME = "log.db";
@@ -60,16 +53,16 @@ class DatabaseAccess {
             COL_CALORIES, //3
             COL_CARDIO_TYPE}; //4
 
-    private DatabaseAccess() {
+    private DataModel() {
         helper = new SQLDatabaseHelper(MyApplication.appContext);
         helper.getWritableDatabase();
     }
 
-    static DatabaseAccess getInstance() {
+    static DataModel getInstance() {
         if (instance == null) {
-            synchronized(DatabaseAccess.class) {
+            synchronized(DataModel.class) {
                 if (instance == null) {
-                    instance = new DatabaseAccess();
+                    instance = new DataModel();
                 }
             }
         }
