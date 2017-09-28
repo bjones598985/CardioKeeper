@@ -127,10 +127,8 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         addRandomData();
         queryForRecords();
 
-        setupToolbar();
+        setSupportActionBar(binder.toolbar);
         setupDrawer();
-
-
         setupFabs();
 
         if (savedInstanceState != null) {
@@ -176,22 +174,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         });
     }
 
-    private void setupToolbar() {
-        setSupportActionBar(binder.toolbar);
-        //binder.toolbar.setTitleTextColor(Color.WHITE);//check styles.xml to change hamburger color
-        /*
-        binder.toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_24dp));
-
-binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "nav clicked");
-            }
-        });
-        */
-
-    }
-
     private void setupDrawer() {
         binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerToggle = new ActionBarDrawerToggle(this,
@@ -229,7 +211,7 @@ binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
         Timer t = new Timer(true);
         switch (v.getId()) {
             case R.id.nav_menu_graph:
-                t.schedule(new TimerTask() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         startActivity(new Intent(getBaseContext(), HelloGraph.class));
@@ -237,8 +219,7 @@ binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 }, 200);
                 break;
             case R.id.nav_menu_backup:
-                //Toasty.info(getBaseContext(), "Back Up", Toast.LENGTH_SHORT).show();
-                t.schedule(new TimerTask() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -254,7 +235,7 @@ binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 }, 200);
                 break;
             case R.id.nav_menu_settings:
-                t.schedule(new TimerTask() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         Intent i = new Intent(getBaseContext(), SettingsActivity.class);
@@ -262,10 +243,9 @@ binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                         startActivity(i);
                     }
                 }, 200);
-                //Toasty.info(this, "Settings", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_menu_about:
-                t.schedule(new TimerTask() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         DialogAbout sd = new DialogAbout();
