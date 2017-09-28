@@ -43,4 +43,37 @@ public class ColorUtils {
         return Color.argb(alpha, Color.red(tempColor), Color.green(tempColor), Color.blue(tempColor));
     }
 
+    static int getCardioColor(String exercise) {
+        switch (exercise) {
+            case "Biking":
+                return R.drawable.bike_cardio;
+            case "Elliptical":
+                return R.drawable.elliptical_cardio;
+            case "Exercise Bike":
+                return R.drawable.exercise_bike_cardio;
+            case "Hiking":
+                return R.drawable.hike_cardio;
+            case "Jogging":
+                return R.drawable.jog_cardio;
+            case "Jump Rope":
+                return R.drawable.jump_rope_cardio;
+            case "Rowing":
+                return R.drawable.row_cardio;
+            case "Rowing Machine":
+                return R.drawable.row_machine;
+            case "Running":
+                return R.drawable.run_cardio;
+            case "Stair Master":
+                return R.drawable.swim_cardio;
+            case "Swimming":
+                return R.drawable.swim_cardio;
+            case "Treadmill":
+                return R.drawable.treadmill_cardio;
+            case "Walking":
+                return R.drawable.walk_cardio;
+            default:
+                return R.drawable.walk_cardio;
+        }
+    }
+
 }

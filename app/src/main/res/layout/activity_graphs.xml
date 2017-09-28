@@ -80,6 +80,7 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             <TextView
+                android:id="@+id/chart_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
@@ -87,18 +88,6 @@
                 android:gravity="center"
                 android:textColor="@android:color/white"
                 android:layout_marginTop="58dp"/>
-
-            <TextView
-                android:id="@+id/no_graph_data_tv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/no_graph_data"
-                android:textAlignment="center"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                android:textStyle="bold|italic"
-                android:visibility="invisible"/>
 
         </android.support.design.widget.CoordinatorLayout>
 

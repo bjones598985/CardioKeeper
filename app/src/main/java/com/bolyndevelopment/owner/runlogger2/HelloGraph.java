@@ -80,8 +80,6 @@ public class HelloGraph extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
 
-
-
         initVars();
         initSpinners();
         initGraph();
@@ -219,6 +217,7 @@ public class HelloGraph extends AppCompatActivity {
                         generateColumnData(c);
                         initialDataLoaded = true;
                     }
+                    binding.chartTitle.setText(cardioType);
                     setAxesAndDisplay();
                 }
             }).start();

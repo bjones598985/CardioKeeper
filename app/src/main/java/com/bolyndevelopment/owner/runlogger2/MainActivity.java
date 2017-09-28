@@ -22,11 +22,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.AppLaunchChecker;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -118,11 +121,16 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+
         initRecyclerView();
-        //addRandomData();
+        addRandomData();
         queryForRecords();
+
         setupToolbar();
         setupDrawer();
+
+
         setupFabs();
 
         if (savedInstanceState != null) {
@@ -144,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 }
             }
         };
-
     }
 
     private void setupFabs() {
@@ -171,19 +178,22 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     private void setupToolbar() {
         setSupportActionBar(binder.toolbar);
-        binder.toolbar.setTitleTextColor(Color.WHITE);//check styles.xml to change hamburger color
+        //binder.toolbar.setTitleTextColor(Color.WHITE);//check styles.xml to change hamburger color
+        /*
         binder.toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_24dp));
-        binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+binder.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getBaseContext(), "Nav touched...", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "nav clicked");
             }
         });
+        */
+
     }
 
     private void setupDrawer() {
         binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        binder.mainDrawerLayout.addDrawerListener(drawerToggle);
         drawerToggle = new ActionBarDrawerToggle(this,
                 binder.mainDrawerLayout,
                 binder.toolbar,
@@ -200,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 super.onDrawerClosed(drawerView);
             }
         };
+        binder.mainDrawerLayout.addDrawerListener(drawerToggle);
     }
 
     @Override
@@ -246,7 +257,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 t.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        startActivity(new Intent(getBaseContext(), SettingsActivity.class));
+                        Intent i = new Intent(getBaseContext(), SettingsActivity.class);
+                        i.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
+                        startActivity(i);
                     }
                 }, 200);
                 //Toasty.info(this, "Settings", Toast.LENGTH_SHORT).show();
@@ -255,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 t.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        AboutDialog sd = new AboutDialog();
+                        DialogAbout sd = new DialogAbout();
                         FragmentTransaction ft = getFragmentManager().beginTransaction();
                         ft.add(sd, "about");
                         ft.commitAllowingStateLoss();
@@ -432,6 +445,21 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         startActivityForResult(intent, CREATE_FILE_CODE);
     }
 
+    private void searchForBackup() {
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
+        // browser.
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        // Filter to only show results that can be "opened", such as a
+        // file (as opposed to a list of contacts or timezones)
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers,
+        // it would be "*/*".
+        intent.setType(DB_MIME_TYPE);
+        startActivityForResult(intent, SEARCH_FILE_CODE);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -535,37 +563,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 Utils.restoreDb(restoreUri, handler);
                 break;
         }
-    }
-
-    private Handler getMainHandler() {
-        return new Handler(Looper.getMainLooper()){
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == 6) {
-                    mAdapter.notifyDataSetChanged();
-                    Snackbar.make(binder.coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
-                }
-                if (msg.what == 9) {
-                    Snackbar.make(binder.coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
-                }
-            }
-        };
-    }
-
-
-    private void searchForBackup() {
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-        // browser.
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        // Filter to only show results that can be "opened", such as a
-        // file (as opposed to a list of contacts or timezones)
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // Filter to show only images, using the image MIME data type.
-        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
-        // To search for all documents available via installed storage providers,
-        // it would be "*/*".
-        intent.setType(DB_MIME_TYPE);
-        startActivityForResult(intent, SEARCH_FILE_CODE);
     }
 
     private class ListItem {
@@ -839,6 +836,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         }
     }
 
+    /*
     public static class AboutDialog extends DialogFragment {
 
         @NonNull
@@ -854,4 +852,5 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             return builder.create();
         }
     }
+    */
 }
