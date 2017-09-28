@@ -203,6 +203,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private void presentChart() {
         if (canPresentChart()) {
+            binding.chartTitle.setText(cardioType);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -217,7 +218,7 @@ public class HelloGraph extends AppCompatActivity {
                         generateColumnData(c);
                         initialDataLoaded = true;
                     }
-                    binding.chartTitle.setText(cardioType);
+
                     setAxesAndDisplay();
                 }
             }).start();

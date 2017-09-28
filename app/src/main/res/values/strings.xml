@@ -226,4 +226,8 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="db_backup_key">db_backup_key</string>
     <string name="db_backup_location">db_backup_location</string>
 
+    <string name="sync_dialog_notice">You can change this at any time by going to Settings in the side menu\u2026</string>
+    <string name="about_dialog_title">Q29 Creations</string>
+    <string name="sync_dialog_title">Enable Auto Sync?</string>
+
 </resources>

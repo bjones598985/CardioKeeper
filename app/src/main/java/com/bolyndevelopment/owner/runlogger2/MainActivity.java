@@ -14,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -29,11 +28,9 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.AppLaunchChecker;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,8 +38,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -65,12 +60,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import es.dmoral.toasty.Toasty;
 
-public class MainActivity extends AppCompatActivity implements BackupRestoreDialog.ChoiceListener {
+public class MainActivity extends AppCompatActivity implements BackupRestoreDialog.ChoiceListener, GeneralDialog.GeneralDialogListener {
     public static final String TAG = "MainActivity";
+
+    static final int DIALOG_ENABLE_BACKUP = 1;
+    static final int DIALOG_ABOUT = 2;
+    static final String DIALOG_TYPE = "dialogType";
+
     static final int CODE_TIMER = 100;
 
     public static final int WRITE_REQUEST_CODE = 1;
@@ -87,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     ArrayList<String> lapDataFromTimer;
     ActivityMainBinding binder;
     boolean isAddDialogOpen = false;
+    boolean isFirstBackup;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -101,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             final Uri backupUri = data.getData();
             Utils.backupDb(backupUri, handler, binder.coord);
             saveUriPathToSharedPreferences(backupUri.toString());
+            if (isFirstBackup) {
+                showGeneralDialog(DIALOG_ENABLE_BACKUP);
+            }
         }
         if (requestCode == SEARCH_FILE_CODE && resultCode == Activity.RESULT_OK) {
             Log.d(TAG, "Search result ok");
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 
         initRecyclerView();
-        addRandomData();
+        //addRandomData();
         queryForRecords();
 
         setSupportActionBar(binder.toolbar);
@@ -248,10 +251,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        DialogAbout sd = new DialogAbout();
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.add(sd, "about");
-                        ft.commitAllowingStateLoss();
+                        showGeneralDialog(DIALOG_ABOUT);
                     }
                 }, 200);
                 break;
@@ -353,61 +353,14 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         //binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    private void logPaths() {
-        String p = getFilesDir().getAbsolutePath();
-        String pp = getFilesDir().getPath();
-        //Toasty.info(this, "Absolute Path: " + p + ", Path: " + pp, Toast.LENGTH_LONG).show();
-        Log.d(TAG, "Absolute Path: " + p + ", Path: " + pp);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            String x = getDataDir().getAbsolutePath();
-            Log.d(TAG, "Data Dir Path: " + x);
-        }
-        String e = getCacheDir().getAbsolutePath();
-        Log.d(TAG, "Cache Dir Path: " + e);
-        String y = getDatabasePath(DataModel.DATABASE_NAME).getAbsolutePath();
-        Log.d(TAG, "DB Absolute Path: " + y);
-        try {
-            String yy = getDatabasePath(DataModel.DATABASE_NAME).getCanonicalPath();
-            Log.d(TAG, "DB Canonical Path: " + yy);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        String yyy = getDatabasePath(DataModel.DATABASE_NAME).getPath();
-        Log.d(TAG, "DB Path: " + yyy);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.about_app:
-                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
-                if (backupKey == null) {
-                    Log.d(TAG, "backup key null");
-                    createFile(DB_MIME_TYPE, DataModel.DATABASE_NAME);
-                } else {
-                    Log.d(TAG, "backup key not null");
-                    Uri u = Uri.parse(backupKey);
-                    Utils.backupDb(u, handler, binder.coord);
-                }
-                break;
-            case R.id.run_adm:
-                //startActivity(new Intent(MainActivity.this, AndroidDatabaseManager.class));
-                //new DatabaseBackup(this).dumpBackupFile();
-                break;
-            case R.id.dump_db_log:
-                //DatabaseBackup dbb = new DatabaseBackup(this);
-                //dbb.dumpBackupFile();
-                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) Utils.exportData(handler);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
+    private void showGeneralDialog(int type) {
+        GeneralDialog sd = new GeneralDialog();
+        Bundle b = new Bundle();
+        b.putInt(DIALOG_TYPE, type);
+        sd.setArguments(b);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(sd, "general");
+        ft.commitAllowingStateLoss();
     }
 
     /*
@@ -526,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     public void onChoiceSelected(int choice) {
         final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+        isFirstBackup = backupKey == null;
 
         switch (choice) {
             case BackupRestoreDialog.BACKUP_TO_NEW:
@@ -542,6 +496,17 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 final Uri restoreUri = Uri.parse(backupKey);
                 Utils.restoreDb(restoreUri, handler);
                 break;
+        }
+    }
+
+    @Override
+    public void onGeneralDialogButtonClicked(int buttonId) {
+        if (buttonId == DialogInterface.BUTTON_POSITIVE) {
+            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("pref_sync", true);
+            editor.apply();
+            //need to schedule back up to occur at the interval specified
         }
     }
 
@@ -816,21 +781,4 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         }
     }
 
-    /*
-    public static class AboutDialog extends DialogFragment {
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("About Cardio Keeper").setView(R.layout.about_layout)
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            getDialog().dismiss();
-                        }
-                    });
-            return builder.create();
-        }
-    }
-    */
 }
