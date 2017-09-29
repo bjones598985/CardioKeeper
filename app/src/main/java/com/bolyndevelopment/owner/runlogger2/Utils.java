@@ -240,7 +240,7 @@ class Utils {
         }
     }
 
-    static void backupDb(final Uri uri, final Handler handler, final View coord) {
+    static void backupDb(final Uri uri, final Handler handler, @Nullable final View coord) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -254,19 +254,27 @@ class Utils {
                         source.close();
                         destination.close();
                         pfd.close();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Snackbar.make(coord, "Sweet, you records are successfully backed up!", Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
+                        if (coord != null) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Snackbar.make(coord, "Sweet, you records are successfully backed up!", Snackbar.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US).format(new Date());
+                        handler.dispatchMessage(handler.obtainMessage(12, date));
+                        Log.d(TAG, "db backed up successfully");
                     } else {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Snackbar.make(coord, "Oh no, I couldn't back up your records", Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
+                        if (coord != null) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Snackbar.make(coord, "Oh no, I couldn't back up your records", Snackbar.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        Log.d(TAG, "db not backed up successfully");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

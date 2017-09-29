@@ -50,6 +50,10 @@ import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     ActivityMainBinding binder;
     boolean isAddDialogOpen = false;
     boolean isFirstBackup;
+    boolean isAutoBackupEnabled;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -125,6 +130,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        final SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(this);
+        isAutoBackupEnabled = sharedPref.getBoolean("pref_sync", false);
+        Log.d(TAG, "isAutoBackupEnabled: " + isAutoBackupEnabled);
+        Log.d(TAG, "last backed up: " + sharedPref.getString(getResources().getString(R.string.db_backup_date_time), null));
 
         initRecyclerView();
         //addRandomData();
@@ -150,6 +159,13 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 }
                 if (msg.what == 9) {
                     Snackbar.make(binder.coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
+                }
+                if (msg.what ==12) {
+                    SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(getResources().getString(R.string.db_backup_date_time), msg.obj.toString());
+                    editor.apply();
+                    Log.d(TAG, "Msg: " + msg.obj.toString());
                 }
             }
         };
@@ -353,6 +369,18 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         //binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
     private void showGeneralDialog(int type) {
         GeneralDialog sd = new GeneralDialog();
         Bundle b = new Bundle();
@@ -507,6 +535,19 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             editor.putBoolean("pref_sync", true);
             editor.apply();
             //need to schedule back up to occur at the interval specified
+        }
+    }
+
+    //this updates the calendar after a workout is logged
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onDatabaseEvent(DataModel.DatabaseEvent event) {
+        if (event.getEvent() == DataModel.DatabaseEvent.DATA_ADDED) {
+            if (isAutoBackupEnabled) {
+                final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                final Uri backupUri = Uri.parse(backupKey);
+                Utils.backupDb(backupUri, handler, null);
+            }
         }
     }
 

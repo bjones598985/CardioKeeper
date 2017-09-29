@@ -11,6 +11,8 @@ import android.provider.BaseColumns;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,7 +115,10 @@ class DataModel {
                 }
             }
         }
-        new DatabaseBackup(MyApplication.appContext).updateDbLog(inserts);
+        if (dataId > -1) {
+            new DatabaseBackup(MyApplication.appContext).updateDbLog(inserts);
+            EventBus.getDefault().post(new DatabaseEvent(DatabaseEvent.DATA_ADDED));
+        }
         return dataId;
     }
 
@@ -225,6 +230,19 @@ class DataModel {
                 alc.set(1,Cursor2);
                 return alc;
             }
+        }
+    }
+
+    static class DatabaseEvent {
+        static int DATA_ADDED = 1;
+        private int event;
+
+        DatabaseEvent(int event) {
+            this.event = event;
+        }
+
+        public int getEvent() {
+            return event;
         }
     }
 }

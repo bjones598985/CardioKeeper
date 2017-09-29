@@ -18,7 +18,8 @@
         android:text="@string/about_intro"
         android:padding="12dp"
         android:textSize="18sp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/textView2"
