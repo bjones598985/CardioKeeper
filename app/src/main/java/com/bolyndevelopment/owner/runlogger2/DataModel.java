@@ -13,41 +13,35 @@ import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
 
-/**
- * Created by Owner on 11/18/2015.
- */
+ //Created by Owner on 11/18/2015.
 
 class DataModel {
-    public final static String TAG = "DataModel";
+    private final static String TAG = "DataModel";
 
     private static volatile DataModel instance = null;
 
     private static final int DATABASE_VERSION = 1;
     static final String DATABASE_NAME = "log.db";
 
-    static final String COL_ID = "_id";
+    private static final String COL_ID = "_id";
 
-    static final String COL_DATE = "date";
-    static final String COL_TIME = "time";
-    static final String COL_DISTANCE = "distance";
-    static final String COL_CALORIES = "calories";
-    static final String COL_CARDIO_TYPE = "cardio_type";
-    static final String DATA_TABLE = "Data";
-    static final String COL_NOTES = "notes";
-    static final String COL_SEQUENCE = "sequence";
+    private static final String COL_DATE = "date";
+    private static final String COL_TIME = "time";
+    private static final String COL_DISTANCE = "distance";
+    private static final String COL_CALORIES = "calories";
+    private static final String COL_CARDIO_TYPE = "cardio_type";
+    private static final String DATA_TABLE = "Data";
+    private static final String COL_NOTES = "notes";
+    private static final String COL_SEQUENCE = "sequence";
 
-    static final String LAP_TABLE = "Lap";
-    static final String COL_WORKOUT_ID = "workout_id";
-    static final String COL_LAP_NUMBER = "lap_num";
+    private static final String LAP_TABLE = "Lap";
+    private static final String COL_WORKOUT_ID = "workout_id";
+    private static final String COL_LAP_NUMBER = "lap_num";
 
-    SQLDatabaseHelper helper;
-    private SQLiteDatabase database;
+    private SQLDatabaseHelper helper;
 
     public String[] from = new String[]{COL_DATE, //0
             COL_TIME, //1
@@ -131,22 +125,7 @@ class DataModel {
         return helper.getWritableDatabase().rawQuery(query, arguments);
     }
 
-    Cursor getRecords(String[] columns) {
-        return helper.getReadableDatabase().query(DATA_TABLE, columns, null,null,null,null,null);
-    }
-
-    int generateSequenceNumber(long currentTime) {
-        Date d = new Date(currentTime);
-        String formattedDate = new SimpleDateFormat("MM/dd/yyyy", Locale.US).format(d);
-        Cursor c = rawQuery("Select max(" + COL_SEQUENCE + ") from "
-                + DATA_TABLE + " where " + COL_DATE + " =?", new String[]{formattedDate});
-        c.moveToFirst();
-        int seq = c.getInt(0) + 1;
-        c.close();
-        return seq;
-    }
-
-    int generateSequenceNumber(String date) {
+    private int generateSequenceNumber(String date) {
         Cursor c = rawQuery("Select max(" + COL_SEQUENCE + ") from "
                 + DATA_TABLE + " where " + COL_DATE + " =?", new String[]{date});
         c.moveToFirst();
@@ -241,7 +220,7 @@ class DataModel {
             this.event = event;
         }
 
-        public int getEvent() {
+        int getEvent() {
             return event;
         }
     }
