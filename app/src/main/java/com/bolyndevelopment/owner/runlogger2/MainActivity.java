@@ -54,7 +54,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
-            Log.d("TEST", "lapdata size: " + lapDataFromTimer.size());
             initAddDialog(totalTime);
         }
         if (requestCode == CREATE_FILE_CODE && resultCode == Activity.RESULT_OK) {
@@ -111,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             }
         }
         if (requestCode == SEARCH_FILE_CODE && resultCode == Activity.RESULT_OK) {
-            Log.d(TAG, "Search result ok");
             final Uri restoreUri = data.getData();
             Utils.restoreDb(restoreUri, handler);
         }
@@ -132,8 +129,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         final SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(this);
         isAutoBackupEnabled = sharedPref.getBoolean("pref_sync", false);
-        Log.d(TAG, "isAutoBackupEnabled: " + isAutoBackupEnabled);
-        Log.d(TAG, "last backed up: " + sharedPref.getString(getResources().getString(R.string.db_backup_date_time), null));
 
         initRecyclerView();
         //addRandomData();
@@ -165,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(getResources().getString(R.string.db_backup_date_time), msg.obj.toString());
                     editor.apply();
-                    Log.d(TAG, "Msg: " + msg.obj.toString());
                 }
             }
         };
@@ -175,13 +169,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         binder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //showDialog(null);
-                Log.d(TAG, "dialogopen: " + isAddDialogOpen);
                 if (!isAddDialogOpen) {
                     initAddDialog(null);
                     isAddDialogOpen = true;
-                    float dps = Utils.convertPixelsToDp((float)binder.fab.getHeight());
-                    Log.d(TAG, "fab height: " + dps);
                 }
             }
         });
@@ -271,6 +261,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     }
                 }, 200);
                 break;
+            case R.id.nav_menu_adm:
+                startActivity(new Intent(this, AndroidDatabaseManager.class));
+                break;
         }
         binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
     }
@@ -322,7 +315,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 if (index == 0) index++;
                 list.add(cardioList.get(index));
                 long l = DataModel.getInstance().addRecords(list, null);
-                Log.d(TAG, "Row: " + l);
             }
         }
     }
@@ -340,9 +332,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     item.cType = cursor.getString(4);
                     item.calories = cursor.getInt(3);
                     item.distance = cursor.getFloat(2);
-                    String date = Utils.convertDateToString(Utils.convertStringToDate(cursor.getString(0), "MM/dd/yyyy"), "MMM d");
                     item.date = cursor.getString(0);
-                    //item.date = date;
                     item.time = Utils.convertMillisToHms(cursor.getLong(1));
                     recordsList.add(item);
                     cursor.moveToNext();
@@ -364,9 +354,14 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         binder.mainRecyclerview.setHasFixedSize(true);
         mAdapter = new MyAdapter();
         binder.mainRecyclerview.setAdapter(mAdapter);
+
+        /*
+        used to add decoration onto recyclerview
+
         Drawable right = getResources().getDrawable(R.drawable.right_divider);
         Drawable left = getResources().getDrawable(R.drawable.left_divider);
-        //binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
+        binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
+        */
     }
 
     @Override
@@ -442,7 +437,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     public boolean checkForPermission(String permission, int requestCode) {
         // Here, thisActivity is the current activity
-        Log.d(TAG, "checkForPermission");
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
@@ -534,11 +528,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("pref_sync", true);
             editor.apply();
-            //need to schedule back up to occur at the interval specified
         }
     }
 
-    //this updates the calendar after a workout is logged
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onDatabaseEvent(DataModel.DatabaseEvent event) {
         if (event.getEvent() == DataModel.DatabaseEvent.DATA_ADDED) {
@@ -600,9 +592,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
                 String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, "MM/dd/yyyy"), "MMM d");
                 bHolder.date.setText(date);
-                //bHolder.time.setText(item.time);
                 String distTime = item.distance + " mi in " + item.time;
-                //bHolder.distance.setText(String.valueOf(item.distance));
                 bHolder.distance.setText(distTime);
                 bHolder.calories.setText(String.valueOf(item.calories) + " cals");
                 bHolder.name.setText(item.cType);
@@ -682,13 +672,11 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                         newFragment.show(getFragmentManager(), "datePicker");
                         break;
                     case R.id.cancel_button:
-                        //Toast.makeText(getBaseContext(), "Cancel button", Toast.LENGTH_SHORT).show();
                         recordsList.remove(0);
                         binder.mainRecyclerview.getAdapter().notifyItemRemoved(0);
                         isAddDialogOpen = false;
                         break;
                     case R.id.confirm_button:
-                        //Toast.makeText(getBaseContext(), "Confirm button", Toast.LENGTH_SHORT).show();
                         int validation = validateFields();
                         if (validation > -1) {
                             highlightField(validation);
@@ -744,11 +732,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             }
 
             private void highlightField(int field) {
-                Log.d("TEST", "highlightField");
                 final Drawable background = getResources().getDrawable(R.drawable.error_rectangle);
                 switch (field) {
                     case CARDIO_SPINNER:
-                        Log.d("TEST", "CardioSpinner");
                         cardioSpinner.setBackground(background);
                         break;
                     case TIME_EDITTEXT:
@@ -814,11 +800,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         public void onDateSet(DatePicker view, int year, int month, int day) {
             month++;
             String formattedDate = String.format(Locale.US, "%02d/%02d/%04d", month, day, year);
-            Log.d("LADF", "formatted date: " + formattedDate);
             //String datePicked = month + "/" + day + "/" + year;
             // Do something with the date chosen by the user
             avh.dateInput.setText(formattedDate);
-            //((LogActivityDialogFragment)getFragmentManager().findFragmentByTag("dialog")).setDateInput(formattedDate);
         }
     }
 

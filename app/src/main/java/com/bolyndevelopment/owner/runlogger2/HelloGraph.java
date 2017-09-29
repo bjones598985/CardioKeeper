@@ -74,15 +74,25 @@ public class HelloGraph extends AppCompatActivity {
     int dataType, timeFrame = 1;
     String cardioType, yAxisLabel, initialDate;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
+        initialDate = getIntent().getStringExtra("date");
+        Log.d(TAG, "Initial date: " + initialDate);
+        final String cType = getIntent().getStringExtra("cType");
 
         initVars();
+
         initSpinners();
         initGraph();
+        if (initialDate == null) {
+            //binding.spinnerCardioType.performClick();
+        } else {
+            overrideInitVars(cType);
+            presentChart();
+        }
+
         binding.runQueryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,14 +100,14 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
 
-        initialDate = getIntent().getStringExtra("date");
-        Log.d(TAG, "Initial date: " + initialDate);
-        String cType = getIntent().getStringExtra("cType");
+
+        /*
         if (initialDate != null) {
             overrideInitVars(cType);
             //presentGeneralStatsChart(query, new String[]{date});
             presentChart();
         }
+        */
     }
 
     private void overrideInitVars(String cType) {
@@ -110,7 +120,6 @@ public class HelloGraph extends AppCompatActivity {
         isCardioTypeSet = true;
         isDataTypeSet = true;
     }
-
 
     private void initVars() {
 
@@ -143,6 +152,8 @@ public class HelloGraph extends AppCompatActivity {
         final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_data_type, R.layout.spinner_item);
         dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerData.setAdapter(dataAdapter);
+        //this is necessary so that on layout it doesnt fire
+        binding.spinnerData.setSelection(0, false);
         binding.spinnerData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -176,6 +187,7 @@ public class HelloGraph extends AppCompatActivity {
         final ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.cardio_types, R.layout.spinner_item);
         typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerCardioType.setAdapter(typeAdapter);
+        binding.spinnerCardioType.setSelection(0, false);
         binding.spinnerCardioType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
