@@ -1,6 +1,8 @@
 package com.bolyndevelopment.owner.runlogger2;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -14,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +27,7 @@ import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -399,12 +403,11 @@ class Utils {
         }
     }
 
-    /*
     static void writeDbToCsvFile() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Cursor cursor = Model.getInstance().rawQuery("select Workout.date, " +
+                Cursor cursor = DataModel.getInstance().rawQuery("select Workout.date, " +
                         "Exercise.exercise, Set_Record.weight, Set_Record.reps, " +
                         "Set_Record.date_time, Set_Record.notes, Set_Record.set_id, " +
                         "Set_Record.ex_order_num from Set_Record, Workout, " +
@@ -438,5 +441,59 @@ class Utils {
             }
         }).start();
     }
-    */
+
+    static class ColorUtils {
+
+        static List<Integer> makeNNumberOfColors(int color, int numOfShades) {
+            List<Integer> colorList = new ArrayList<>();
+            float[] hsv = new float[3];
+            Color.colorToHSV(color, hsv);
+            float luminosity = hsv[2];
+            float[] luminArray = new float[5];
+            luminArray[0] = luminosity * .6f;
+            luminArray[1] = luminosity * .8f;
+            luminArray[2] = luminosity * 1.0f;
+            luminArray[3] = luminosity * 1.2f;
+            luminArray[4] = luminosity * 1.4f;
+            for (float f : luminArray) {
+                hsv[2] = f;
+                colorList.add(Color.HSVToColor(hsv));
+            }
+            return colorList;
+        }
+
+        static int getCardioColor(String exercise) {
+            switch (exercise) {
+                case "Biking":
+                    return Color.parseColor("#ff0000");
+                case "Elliptical":
+                    return Color.parseColor("#ff6680");
+                case "Exercise Bike":
+                    return Color.parseColor("#cc2100");
+                case "Hiking":
+                    return Color.parseColor("#008888");
+                case "Jogging":
+                    return Color.parseColor("#ff00ff");
+                case "Jump Rope":
+                    return Color.parseColor("#dd00a0");
+                case "Rowing":
+                    return Color.parseColor("#ffa500");
+                case "Rowing Machine":
+                    return Color.parseColor("#2aa900");
+                case "Running":
+                    return Color.parseColor("#999999");
+                case "Stair Master":
+                    return Color.parseColor("#666666");
+                case "Swimming":
+                    return Color.parseColor("#00cc00");
+                case "Treadmill":
+                    return Color.parseColor("#0088ff");
+                case "Walking":
+                    return Color.parseColor("#0000ff");
+                default:
+                    return Color.parseColor("#008888");
+            }
+        }
+    }
+
 }

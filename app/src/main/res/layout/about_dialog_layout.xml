@@ -1,53 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/general_dialog_background"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
 
     <LinearLayout
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:padding="8dp">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_intro"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_intro"
-        android:padding="12dp"
-        android:textSize="18sp"
-        android:gravity="center"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/copyright"
+            android:padding="12dp"
+            android:textSize="10sp"
+            android:typeface="monospace"
+            android:background="@android:color/white"/>
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/copyright"
-        android:padding="12dp"
-        android:textSize="10sp"
-        android:typeface="monospace"
-        android:background="#cccccc"/>
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:text="@string/other_software_clause"
+            android:textColor="@android:color/white"
+            android:background="@color/colorPrimary"/>
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:textSize="18sp"
-        android:text="@string/other_software_clause" />
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:typeface="monospace"
+            android:textSize="10sp"
+            android:text="@string/hello_charts_license"
+            android:background="@android:color/white"/>
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:typeface="monospace"
-        android:textSize="10sp"
-        android:text="@string/hello_charts_license"
-        android:background="#cccccc"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary">
+
+            <ImageView
+                android:id="@+id/toasty_icon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:textSize="18sp"
+                android:text="@string/toasty"
+                android:textColor="@android:color/white"
+                android:linksClickable="true"
+                android:autoLink="web"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/flaticon_icon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_vertical"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:textSize="18sp"
+                android:text="@string/flaticon"
+                android:linksClickable="true"
+                android:autoLink="web"
+                android:textColor="@android:color/white"
+                android:background="@color/colorPrimary"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:text="@string/author_freepik"
+            android:textColor="@android:color/white"
+            android:background="@color/colorPrimary"
+            android:linksClickable="true"
+            android:autoLink="web"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/run_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/hike_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/row_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/jump_rope_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/jog_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/treadmill_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/bike_cardio"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:src="@drawable/swim_cardio"/>
+
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:background="@color/colorPrimary"
+            android:text="@string/author_scott_de_jonge"
+            android:drawableStart="@drawable/walk_cardio"
+            android:linksClickable="true"
+            android:autoLink="web"/>
+
 </LinearLayout>
 
 </ScrollView>

@@ -1,39 +1,75 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 /**
  * Created by Bobby Jones on 9/27/2017.
  */
 
 public class GeneralDialog extends DialogFragment {
+    static final String TAG = "GeneralDialog";
+    View root;
+
     private GeneralDialogListener listener;
 
     interface GeneralDialogListener {
         void onGeneralDialogButtonClicked(int buttonId);
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments().getInt(MainActivity.DIALOG_TYPE) == MainActivity.DIALOG_ABOUT) {
+            root = LayoutInflater.from(getActivity()).inflate(R.layout.about_dialog_layout, null);
+            ImageView icon = (ImageView) root.findViewById(R.id.toasty_icon);
+            ImageView flatIcon = (ImageView) root.findViewById(R.id.flaticon_icon);
+            Glide.with(this)
+                    .load("https://raw.githubusercontent.com/GrenderG/Toasty/master/art/web_hi_res_512.png")
+                    .into(icon);
+            Glide.with(this).asDrawable()
+                    .load("https://media.freepik.com/flaticon/img/flaticon-logo.svg")
+                    .into(flatIcon);
+        }
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         listener = (GeneralDialogListener) getActivity();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
         //get int dialogType to determine which dialog to show
         int type = getArguments().getInt(MainActivity.DIALOG_TYPE);
 
         if (type == MainActivity.DIALOG_ABOUT) {
-            builder.setTitle(getResources().getString(R.string.about_dialog_title)).setView(R.layout.about_dialog_layout)
+            builder.setTitle(null).setView(root)
                     .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             getDialog().dismiss();
                         }
                     });
+
         } else {
             builder.setTitle(getResources().getString(R.string.sync_dialog_title)).setView(R.layout.sync_dialog_layout)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -51,6 +87,8 @@ public class GeneralDialog extends DialogFragment {
                         }
                     });
         }
-        return builder.create();
+        AlertDialog ad = builder.create();
+        ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        return ad;
     }
 }

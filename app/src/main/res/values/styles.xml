@@ -41,13 +41,21 @@
 
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" >
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <!--<item name="colorBackgroundFloating">@color/colorPrimary</item>-->
-        <item name="colorControlHighlight">@color/colorAccent</item>
-        </style>
+        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+    </style>
 
-    <style name="NavTheme" parent="AppTheme" >
+    <style name="NavTheme" parent="AppTheme">
         <item name="colorControlHighlight">@color/colorPrimary</item>
+    </style>
+
+    <style name="HelloGraphGoButton" parent="AppTheme">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="AddWorkoutDetailOkButton" parent="AppTheme">
+        <item name="colorAccent">@color/colorPrimary</item>
     </style>
 
 
@@ -56,16 +64,20 @@
         <item name="android:textColor">@android:color/white</item>
         <item name="colorControlHighlight">@android:color/white</item>
     </style>
+
     <style name="DialogButtons" parent="DialogStyle">
         <item name="colorAccent">@color/colorPrimary</item>
     </style>
+
     <style name="DialogButtons.Mini">
         <item name="colorAccent">@color/colorPrimaryDark</item>
     </style>
-    <style name="DialogButtons.Restore" >
+
+    <style name="DialogButtons.Restore">
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-    <style name="DialogButtons.Restore.Mini" >
+
+    <style name="DialogButtons.Restore.Mini">
         <item name="colorAccent">@color/colorAccentDark</item>
     </style>
 </resources>

@@ -1,11 +1,16 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
@@ -41,21 +47,11 @@ public class HelloGraph extends AppCompatActivity {
     public static final String TAG = "HelloGraph";
 
     boolean initialDataLoaded = false;
+    String distUnit;
 
-    int[] colors = new int[]{Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff"),
-            Color.parseColor("#002b80"), Color.parseColor("#b3ccff"), Color.parseColor("#003cb3"), Color.parseColor("#80aaff"), Color.parseColor("#004de6"), Color.parseColor("#4d88ff")};
+    int colorIndex = 0;
+
+    List<Integer> columnColorList;
 
     Handler handler = new Handler();
     List<Float> rawData;
@@ -72,35 +68,84 @@ public class HelloGraph extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
+        Log.d(TAG, "oncreate Timeframe: " + timeFrame);
+
+        setInitialPrefs();
+
+
+
         initialDate = getIntent().getStringExtra("date");
         final String cType = getIntent().getStringExtra("cType");
+
+        final int cardioColor = Utils.ColorUtils.getCardioColor(cType);
+        setChartTitleBackground(cardioColor);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Drawable d = binding.runQueryButton.getBackground();
+            d.setTint(cardioColor);
+        }
+
 
         initVars();
 
         initSpinners();
         initGraph();
         if (initialDate == null) {
+            if (savedInstanceState != null) {
+                //timeFrame = binding.spinnerTimeFrame.getSelectedItemPosition();
+                //initialDataLoaded = savedInstanceState.getBoolean("initialDataLoaded");
+                overrideInitVars(savedInstanceState.getString("cardioType"));
+                //presentChart();
+                Log.d(TAG, "savedinstance != null timeframe: " + timeFrame);
+            }
             //binding.spinnerCardioType.performClick();
         } else {
             overrideInitVars(cType);
+            columnColorList = Utils.ColorUtils.makeNNumberOfColors(cardioColor, 0);
             presentChart();
         }
-
         binding.runQueryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 presentChart();
             }
         });
+    }
 
+    private void setChartTitleBackground(int color) {
+        GradientDrawable gradBack = (GradientDrawable) getResources().getDrawable(R.drawable.gradient_drawable);
+        gradBack.setColors(new int[]{color, Color.WHITE});
+        binding.chartTitle.setBackground(gradBack);
+    }
 
-        /*
-        if (initialDate != null) {
-            overrideInitVars(cType);
-            //presentGeneralStatsChart(query, new String[]{date});
+    private void setInitialPrefs() {
+        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
+        distUnit = distPref.equals("-1") ? getResources().getString(R.string.miles) : getResources().getString(R.string.kilos);
+    }
+
+    private int getNextColor() {
+        if (colorIndex >= columnColorList.size()) {
+            colorIndex = 0;
+        }
+        return columnColorList.get(colorIndex++);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (initialDate == null) {
+            timeFrame = binding.spinnerTimeFrame.getSelectedItemPosition();
             presentChart();
         }
-        */
+        Log.d(TAG, "restoreinstance != null timeframe: " + timeFrame);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("cardioType", cardioType);
+        outState.putBoolean("initialDataLoaded", initialDataLoaded);
+        super.onSaveInstanceState(outState);
     }
 
     private void overrideInitVars(String cType) {
@@ -115,14 +160,10 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void initVars() {
-        timeFrame = 1;
-
         axisValues = new ArrayList<>();
         rawData = new ArrayList<>();
-
         columnData = new ColumnChartData();
         columnData.setStacked(true);
-
         lineData = new LineChartData();
     }
 
@@ -193,6 +234,8 @@ public class HelloGraph extends AppCompatActivity {
     private void presentChart() {
         if (canPresentChart()) {
             binding.chartTitle.setText(cardioType);
+            //graphColor = Utils.ColorUtils.getCardioColor(cardioType);
+            //binding.helloGraph.setBackgroundColor(graphColor);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -206,7 +249,6 @@ public class HelloGraph extends AppCompatActivity {
                         generateColumnData(c);
                         initialDataLoaded = true;
                     }
-
                     setAxesAndDisplay();
                 }
             }).start();
@@ -227,7 +269,7 @@ public class HelloGraph extends AppCompatActivity {
                 break;
             case 3:
                 query = "select date, distance from Data where cardio_type=" + midQueryPart + " order by date asc";
-                yAxisLabel = "Distance";
+                yAxisLabel = distUnit;
                 break;
             case 4:
                 query = "select date, calories from Data where cardio_type=" + midQueryPart + " order by date asc";
@@ -243,7 +285,7 @@ public class HelloGraph extends AppCompatActivity {
                 break;
             case 7:
                 query = "select date, calories / distance from Data where cardio_type=" + midQueryPart + " order by date asc";
-                yAxisLabel = "Calories / Distance";
+                yAxisLabel = "Calories / " + distUnit;
                 break;
         }
         return query;
@@ -271,6 +313,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private String getSecondDate() {
         Calendar cal = Calendar.getInstance();
+        Log.d(TAG, "getseconddate timeframe: " + timeFrame);
         switch (timeFrame) {
             case 1:
                 cal.add(Calendar.DAY_OF_MONTH, -7);
@@ -295,7 +338,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private void generateColumnData(Cursor results) {
         results.moveToFirst();
-        rawData.clear();
+        //rawData.clear();
         List<SubcolumnValue> subcolumnValues;
         List<Column> columns = new ArrayList<>();
         axisValues.clear();
@@ -307,7 +350,7 @@ public class HelloGraph extends AppCompatActivity {
             setAxisValues(colCount, results.getString(0));
             while (!results.isAfterLast() && date.equals(results.getString(0))) {
                 float raw = results.getFloat(1);
-                subcolumnValues.add(new SubcolumnValue(raw, colors[count]));
+                subcolumnValues.add(new SubcolumnValue(raw).setColor(getNextColor()));
                 results.moveToNext();
                 count++;
             }
@@ -331,12 +374,12 @@ public class HelloGraph extends AppCompatActivity {
         final List<Column> columns = oldData.getColumnChartData().getColumns();
         int sublistSize = 0;
         if (columns.size() > 0) {
-            //sublistSize = columns.get(colCount).getValues().size();
-            Log.d(TAG, "Line 572 - sublistsize: " + sublistSize);
+            sublistSize = columns.get(colCount).getValues().size();
+            //Log.d(TAG, "Line 572 - sublistsize: " + sublistSize);
         }
         int oldColumnCount = columns.size();
 
-        rawData.clear();
+        //rawData.clear();
         if (newColCount == 0) {
             handler.post(new Runnable() {
                 @Override
@@ -361,9 +404,9 @@ public class HelloGraph extends AppCompatActivity {
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw = results.getFloat(1);
                     if (subColCount >= sublistSize) {
-                        columns.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(colors[subColCount]));
+                        columns.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(getNextColor()));
                     } else {
-                        columns.get(colCount).getValues().get(subColCount).setTarget(raw).setColor(colors[subColCount]);
+                        columns.get(colCount).getValues().get(subColCount).setTarget(raw).setColor(getNextColor());
                     }
                     results.moveToNext();
                     subColCount++;
@@ -393,7 +436,7 @@ public class HelloGraph extends AppCompatActivity {
                 List<SubcolumnValue> sublist = new ArrayList<>();
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw = results.getFloat(1);
-                    sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(colors[count]));
+                    sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(getNextColor()));
                     results.moveToNext();
                     count++;
                 }
@@ -431,11 +474,11 @@ public class HelloGraph extends AppCompatActivity {
                         }
                         binding.helloGraph.setDataAnimationListener(null);
                         //see if we can't animate the viewport here
-                        binding.helloGraph.startDataAnimation(3000);
+                        binding.helloGraph.startDataAnimation(1500);
 
                     }
                 });
-                binding.helloGraph.startDataAnimation(3000);
+                binding.helloGraph.startDataAnimation(1500);
             }
         });
     }
@@ -461,10 +504,11 @@ public class HelloGraph extends AppCompatActivity {
 
     private void setAxesAndDisplay() {
         boolean hasTiltedLabels = axisValues.size() > 5;
-        final Axis axis = new Axis(axisValues).setTextColor(Color.WHITE).setHasTiltedLabels(hasTiltedLabels).setName(" ");
+        final Axis axis = new Axis(axisValues).setTextColor(Color.BLACK).setHasTiltedLabels(hasTiltedLabels).setName(" ");
         final ComboLineColumnChartData data = new ComboLineColumnChartData(columnData, lineData);
         data.setAxisXBottom(axis);
-        final Axis axisY = new Axis().setHasLines(true).setTextColor(Color.WHITE).setName(yAxisLabel).setTextSize(16);
+        final Axis axisY = new Axis().setHasLines(true).setLineColor(Color.BLACK)
+                .setTextColor(Color.BLACK).setName(yAxisLabel).setTextSize(16);
         data.setAxisYLeft(axisY);
         handler.post(new Runnable() {
             @Override
@@ -486,8 +530,8 @@ public class HelloGraph extends AppCompatActivity {
             setAxisValues(colCount, c.getString(0));
             subs = new ArrayList<>();
             while (!c.isAfterLast() && date.equals(c.getString(0))) {
-                SubcolumnValue scv = new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1));
-                subs.add(new SubcolumnValue(c.getLong(2), colors[count]).setLabel("Lap " + c.getInt(1)));
+                SubcolumnValue scv = new SubcolumnValue(c.getLong(2), getNextColor()).setLabel("Lap " + c.getInt(1));
+                subs.add(new SubcolumnValue(c.getLong(2), getNextColor()).setLabel("Lap " + c.getInt(1)));
                 c.moveToNext();
                 count++;
             }
@@ -509,7 +553,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private void dumpCursorToScreen(Cursor c) {
         String s = DatabaseUtils.dumpCursorToString(c);
-        Log.d(TAG, "Dump: " + s);
+        //Log.d(TAG, "Dump: " + s);
     }
 
     private void generateAverageLine() {
@@ -631,6 +675,11 @@ public class HelloGraph extends AppCompatActivity {
 
         @Override
         public void onColumnValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
+            final AxisValue av = axisValues.get(columnIndex);
+            String label = String.valueOf(av.getLabelAsChars());
+            Toasty.Config.getInstance().setTextSize(24).apply();
+            Toasty.normal(getBaseContext(), "" + label + " - " + value.getValue() + " " + yAxisLabel,
+                    Toast.LENGTH_SHORT).show();
 
         }
 

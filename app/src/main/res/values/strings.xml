@@ -98,8 +98,6 @@
     <string name="run_query_button_text">GO</string>
 
 
-
-
     <!-- Shared Preferences Keys -->
 
     <string name="db_backup_key">db_backup_key</string>
@@ -107,15 +105,21 @@
 
     <!-- Strings related to Settings -->
 
+    <string name="title_activity_settings">Settings</string>
+
     <!-- 1st setting -->
 
     <string name="pref_distance_title">Distance Units</string>
     <!-- key -->
     <string name="pref_distance">pref_distance</string>
+    <string name="miles">Mile(s)</string>
+    <string name="short_miles">Mi</string>
+    <string name="kilos">Kilometer(s)</string>
+    <string name="short_kilos">Km</string>
 
     <string-array name="pref_distance_type">
-        <item>Miles</item>
-        <item>Kilometers</item>
+        <item>@string/miles</item>
+        <item>@string/kilos</item>
     </string-array>
 
     <string-array name="pref_distance_values">
@@ -160,6 +164,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.\n\nHelloCharts library uses code from InteractiveChart sample available
  on Android Developers page:\n\n\thttp://developer.android.com/training/gestures/scale.html\n</string>
-    <string name="title_activity_settings">Settings</string>
+    <string name="toasty">Toasty\nThe usual Toast, but with steroids.\n<a href="https://github.com/GrenderG/Toasty">github.com/GrenderG/Toasty</a></string>
+    <string name="flaticon">The following icon creators at <a href="http://www.flaticon.com">Flaticon.com</a></string>
+    <string name="author_freepik">Icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a></string><!-- running, hiking, rowboat, jump rope, jogging, treadmill, bike, swimming -->
+    <string name="author_scott_de_jonge">Icon made by Scott de Jonge from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
+    <string name="title_activity_main2">Main2Activity</string>
 
 </resources>

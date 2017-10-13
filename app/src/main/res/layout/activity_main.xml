@@ -8,7 +8,8 @@
         android:id="@+id/main_drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        tools:context=".MainActivity"
+        android:background="@android:color/transparent">
 
         <android.support.design.widget.CoordinatorLayout
             android:id="@+id/coord"
@@ -37,8 +38,9 @@
                 android:id="@+id/main_recyclerview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@android:color/white"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
 
 
             <!-- fabs -->
@@ -80,7 +82,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="left|start"
             android:maxWidth="250dp"
-            android:background="@android:color/white"
+            android:background="@android:color/transparent"
             android:fitsSystemWindows="true"
             tools:context=".MainActivity"
             android:theme="@style/NavTheme"
@@ -89,18 +91,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@android:color/transparent">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
-                    android:background="@color/colorPrimary"
+                    android:background="#4064ffda"
                     android:orientation="vertical"
                     android:paddingBottom="@dimen/activity_vertical_margin"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin"
                     android:paddingTop="@dimen/activity_vertical_margin"
                     android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_gravity="center"
+                        android:src="@mipmap/ic_ck_launcher_final"/>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -110,7 +119,7 @@
                         android:paddingTop="16dp"
                         android:text="@string/app_name"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-                </LinearLayout>
+                </FrameLayout>
 
                 <LinearLayout
                     android:id="@+id/nav_menu_graph"

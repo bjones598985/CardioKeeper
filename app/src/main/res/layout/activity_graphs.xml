@@ -62,8 +62,9 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="@string/run_query_button_text"
-                        android:textColor="@color/colorPrimaryDark"
+                        android:textColor="@android:color/white"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:theme="@style/HelloGraphGoButton"
                         android:textSize="10sp" />
 
                 </LinearLayout>
@@ -74,20 +75,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/hello_graph"
-                android:paddingTop="64dp"
-                android:paddingBottom="8dp"
-                android:paddingEnd="8dp"
-                android:background="@color/colorPrimaryDark"
+                android:paddingTop="@dimen/chart_top_padding"
+                android:paddingBottom="@dimen/chart_other_padding"
+                android:paddingEnd="@dimen/chart_other_padding"
+                android:paddingStart="@dimen/chart_other_padding"
+                android:background="@android:color/white"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             <TextView
                 android:id="@+id/chart_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:layout_marginTop="58dp"/>
+                android:textSize="24sp"
+                android:padding="@dimen/chart_title_padding"
+                android:background="@drawable/gradient_drawable"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         </android.support.design.widget.CoordinatorLayout>
 

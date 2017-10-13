@@ -2,7 +2,9 @@ package com.bolyndevelopment.owner.runlogger2;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +19,8 @@ import android.view.MenuItem;
 import java.util.List;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    static boolean isDataChanged = false;
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -71,9 +75,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
+        isDataChanged = sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                PreferenceManager.getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
     }
 
@@ -87,6 +90,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) // Press Back Icon
         {
+            Intent i = new Intent();
+            i.putExtra("isDataChanged", isDataChanged);
+            setResult(Activity.RESULT_OK, i);
             finish();
         }
         return super.onOptionsItemSelected(item);

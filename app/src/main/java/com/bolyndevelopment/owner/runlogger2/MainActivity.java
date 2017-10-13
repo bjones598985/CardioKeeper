@@ -39,6 +39,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -49,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
+import com.bumptech.glide.Glide;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -76,8 +78,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     static final int CODE_TIMER = 100;
 
     public static final int WRITE_REQUEST_CODE = 1;
+
     static final int CREATE_FILE_CODE = 57;
     static final int SEARCH_FILE_CODE = 43;
+    static final int SETTINGS_CODE = 36;
 
     static final String DB_MIME_TYPE = "application/x-sqlite3";
 
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     boolean isAddDialogOpen = false;
     boolean isFirstBackup;
     boolean isAutoBackupEnabled;
+    String distUnit;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -111,11 +116,19 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         if (requestCode == SEARCH_FILE_CODE && resultCode == Activity.RESULT_OK) {
             final Uri restoreUri = data.getData();
             Utils.restoreDb(restoreUri, handler);
+            saveUriPathToSharedPreferences(restoreUri.toString());
+        }
+        if (requestCode == SETTINGS_CODE && resultCode == Activity.RESULT_OK) {
+            boolean isDataChanged = data.getBooleanExtra("isDataChanged", false);
+            if (isDataChanged) {
+                setInitialPreferences();
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 
     private void saveUriPathToSharedPreferences(String path) {
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getResources().getString(R.string.db_backup_key), path);
         editor.apply();
@@ -125,26 +138,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_main);
-
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-        final SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(this);
-        isAutoBackupEnabled = sharedPref.getBoolean("pref_sync", false);
-
-        initRecyclerView();
-        //addRandomData();
-        queryForRecords();
-
-        setSupportActionBar(binder.toolbar);
-        setupDrawer();
-        setupFabs();
-
-        if (savedInstanceState != null) {
-            isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
-            if (isAddDialogOpen) {
-                initAddDialog(null);
-            }
-        }
-
         handler = new Handler(Looper.getMainLooper()){
             @Override
             public void handleMessage(Message msg) {
@@ -163,6 +157,32 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 }
             }
         };
+        //final SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(this);
+        //isAutoBackupEnabled = sharedPref.getBoolean(getResources().getString(R.string.pref_sync), false);
+
+        initRecyclerView();
+        //addRandomData();
+        queryForRecords();
+        setSupportActionBar(binder.toolbar);
+        setupDrawer();
+        setupFabs();
+
+        if (savedInstanceState != null) {
+            isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
+            if (isAddDialogOpen) {
+                initAddDialog(null);
+            }
+        }
+
+
+        setInitialPreferences();
+    }
+
+    private void setInitialPreferences() {
+        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
+        distUnit = distPref.equals("-1") ? getResources().getString(R.string.short_miles).toLowerCase() : getResources().getString(R.string.short_kilos).toLowerCase();
+        isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
     }
 
     private void setupFabs() {
@@ -185,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     private void setupDrawer() {
         binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
         drawerToggle = new ActionBarDrawerToggle(this,
                 binder.mainDrawerLayout,
                 binder.toolbar,
@@ -202,6 +223,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             }
         };
         binder.mainDrawerLayout.addDrawerListener(drawerToggle);
+        //binder.mainDrawerLayout.setDrawerListener(drawerToggle);
+        //drawerToggle.syncState();
+
     }
 
     @Override
@@ -214,10 +238,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         drawerToggle.syncState();
+
     }
 
-    public void onNavClick(View v) {
-        Timer t = new Timer(true);
+    public void onNavClick(final View v) {
         switch (v.getId()) {
             case R.id.nav_menu_graph:
                 handler.postDelayed(new Runnable() {
@@ -228,20 +252,22 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 }, 200);
                 break;
             case R.id.nav_menu_backup:
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                        final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
-                        Bundle b = new Bundle();
-                        b.putString("backupKey", backupKey);
-                        BackupRestoreDialog brd = new BackupRestoreDialog();
-                        brd.setArguments(b);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.add(brd, "backup");
-                        ft.commitAllowingStateLoss();
-                    }
-                }, 200);
+                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(v.getContext());
+                            final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                            Bundle b = new Bundle();
+                            b.putString("backupKey", backupKey);
+                            BackupRestoreDialog brd = new BackupRestoreDialog();
+                            brd.setArguments(b);
+                            FragmentTransaction ft = getFragmentManager().beginTransaction();
+                            ft.add(brd, "backup");
+                            ft.commitAllowingStateLoss();
+                        }
+                    }, 200);
+                }
                 break;
             case R.id.nav_menu_settings:
                 handler.postDelayed(new Runnable() {
@@ -249,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     public void run() {
                         Intent i = new Intent(getBaseContext(), SettingsActivity.class);
                         i.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
-                        startActivity(i);
+                        startActivityForResult(i, SETTINGS_CODE);
                     }
                 }, 200);
                 break;
@@ -350,10 +376,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     }
 
     private void initRecyclerView() {
-        binder.mainRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         binder.mainRecyclerview.setHasFixedSize(true);
         mAdapter = new MyAdapter();
         binder.mainRecyclerview.setAdapter(mAdapter);
+
 
         /*
         used to add decoration onto recyclerview
@@ -390,10 +416,11 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     this is where we create the file and then get the Uri and write to it
      */
     private void createFile(String mimeType, String fileName) {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         // Filter to only show results that can be "opened", such as
         // a file (as opposed to a list of contacts or timezones).
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        //intent.putExtra(Intent.EXTRA_INITIAL_INTENTS, Intent.ACTION_GET_CONTENT);
 
         // Create a file with the requested MIME type.
         intent.setType(mimeType);
@@ -418,11 +445,22 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult");
         switch (requestCode) {
             case WRITE_REQUEST_CODE:
+                Log.d(TAG, "Write request");
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                    final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                    Bundle b = new Bundle();
+                    b.putString("backupKey", backupKey);
+                    BackupRestoreDialog brd = new BackupRestoreDialog();
+                    brd.setArguments(b);
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.add(brd, "backup");
+                    ft.commitAllowingStateLoss();
                     //isThereExternalWriteAccess = true;
-                    Utils.exportData(handler);
+                    //Utils.exportData(handler);
                     //Toast.makeText(this, "You can now export the database.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toasty.error(this, "The database can be exported without permission", Toast.LENGTH_SHORT).show();
@@ -499,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     @Override
     public void onChoiceSelected(int choice) {
-        final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
         isFirstBackup = backupKey == null;
 
@@ -512,7 +550,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 Utils.backupDb(backupUri, handler, binder.coord);
                 break;
             case BackupRestoreDialog.RESTORE_FROM_NEW:
-                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) searchForBackup();
+                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) {
+                    searchForBackup();
+                }
                 break;
             case BackupRestoreDialog.RESTORE_FROM_PREVIOUS:
                 final Uri restoreUri = Uri.parse(backupKey);
@@ -526,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         if (buttonId == DialogInterface.BUTTON_POSITIVE) {
             final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putBoolean("pref_sync", true);
+            editor.putBoolean(getResources().getString(R.string.pref_sync), true);
             editor.apply();
         }
     }
@@ -535,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     public void onDatabaseEvent(DataModel.DatabaseEvent event) {
         if (event.getEvent() == DataModel.DatabaseEvent.DATA_ADDED) {
             if (isAutoBackupEnabled) {
-                final SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
                 final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
                 final Uri backupUri = Uri.parse(backupKey);
                 Utils.backupDb(backupUri, handler, null);
@@ -592,14 +632,16 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
                 String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, "MM/dd/yyyy"), "MMM d");
                 bHolder.date.setText(date);
-                String distTime = item.distance + " mi in " + item.time;
+                String distTime = item.distance + " " + distUnit + " in " + item.time;
                 bHolder.distance.setText(distTime);
                 bHolder.calories.setText(String.valueOf(item.calories) + " cals");
                 bHolder.name.setText(item.cType);
                 bHolder.icon.setImageResource(Utils.getCardioIcon(item.cType));
-                int color = ColorUtils.pickColor();
+                int color = Utils.ColorUtils.getCardioColor(item.cType);
+
                 Drawable circle = getResources().getDrawable(R.drawable.circle);
                 Drawable semiCircleBanner = getResources().getDrawable(R.drawable.semi_circle_banner);
+
                 semiCircleBanner.mutate();
                 semiCircleBanner.setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 bHolder.fl.setBackground(semiCircleBanner);
@@ -644,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             EditText timeInput, distInput, calsInput;
             TextInputLayout timeLayout;
 
-            public AddViewHolder(View itemView) {
+            public AddViewHolder(final View itemView) {
                 super(itemView);
                 cardioSpinner = (Spinner) itemView.findViewById(R.id.cardio_type_spinner);
                 dateInput = (TextView) itemView.findViewById(R.id.date_input);
@@ -659,7 +701,24 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                         R.array.cardio_types, android.R.layout.simple_spinner_item);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 cardioSpinner.setAdapter(adapter);
+                cardioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        distInput.setEnabled(position != 6);
+                        if (position == 11) {
+                            ((TextView) itemView.findViewById(R.id.miles)).setText("Laps:");
+                        } else {
+                            ((TextView)itemView.findViewById(R.id.miles)).setText("Distance:");
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
             }
+
 
             @Override
             public void onClick(View v) {

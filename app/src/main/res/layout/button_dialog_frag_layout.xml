@@ -125,7 +125,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Miles: "
+            android:text="Distance: "
             android:id="@+id/miles" />
 
         <android.support.design.widget.TextInputLayout
@@ -194,6 +194,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:theme="@style/AddWorkoutDetailOkButton"
             android:text="OK" />
 
     </LinearLayout>
