@@ -21,7 +21,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:onClick">onNavClick</item>
         <item name="android:padding">16dp</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:background">@drawable/nav_view_bg_ripple</item>
 
     </style>
 

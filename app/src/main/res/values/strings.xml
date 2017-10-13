@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Cardio Keeper</string>
+    <string name="app_name">Cardio\nKeeper</string>
     <string name="action_graph">About</string>
     <string name="duration">Duration</string>
     <string name="distance">Distance</string>
