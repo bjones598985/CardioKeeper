@@ -5,15 +5,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/coord_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
+
             tools:context="com.bolyndevelopment.owner.runlogger2.HelloGraph">
 
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:theme="@style/AppTheme.AppBarOverlay"
+                android:background="@android:color/transparent"
                 android:visibility="visible">
 
                 <android.support.v7.widget.Toolbar
@@ -79,7 +82,7 @@
                 android:paddingBottom="@dimen/chart_other_padding"
                 android:paddingEnd="@dimen/chart_other_padding"
                 android:paddingStart="@dimen/chart_other_padding"
-                android:background="@android:color/white"
+                android:background="@android:color/transparent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             <TextView
@@ -90,7 +93,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="24sp"
                 android:padding="@dimen/chart_title_padding"
-                android:background="@drawable/gradient_drawable"
+                android:background="@android:color/transparent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         </android.support.design.widget.CoordinatorLayout>

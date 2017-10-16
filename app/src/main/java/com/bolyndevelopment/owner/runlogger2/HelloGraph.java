@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -51,7 +52,7 @@ public class HelloGraph extends AppCompatActivity {
 
     int colorIndex = 0;
 
-    List<Integer> columnColorList;
+    List<Integer> columnColorList = new ArrayList<>();
 
     Handler handler = new Handler();
     List<Float> rawData;
@@ -67,6 +68,7 @@ public class HelloGraph extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
         Log.d(TAG, "oncreate Timeframe: " + timeFrame);
 
@@ -74,11 +76,15 @@ public class HelloGraph extends AppCompatActivity {
 
 
 
+
         initialDate = getIntent().getStringExtra("date");
         final String cType = getIntent().getStringExtra("cType");
 
-        final int cardioColor = Utils.ColorUtils.getCardioColor(cType);
-        setChartTitleBackground(cardioColor);
+        int cardioColor = getResources().getColor(R.color.colorPrimary);
+        if (cType != null) {
+            cardioColor = Utils.ColorUtils.getCardioColor(cType);
+            setChartTitleBackground(cardioColor);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Drawable d = binding.runQueryButton.getBackground();
@@ -113,9 +119,17 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void setChartTitleBackground(int color) {
+        Log.d(TAG, "setChartTitleBackground");
+        columnColorList.clear();
+        columnColorList = Utils.ColorUtils.makeNNumberOfColors(color, 0);
         GradientDrawable gradBack = (GradientDrawable) getResources().getDrawable(R.drawable.gradient_drawable);
         gradBack.setColors(new int[]{color, Color.WHITE});
-        binding.chartTitle.setBackground(gradBack);
+        binding.coordLayout.setBackground(gradBack);
+        binding.spinnerCardioType.setPopupBackgroundDrawable(new ColorDrawable(color));
+        binding.spinnerData.setPopupBackgroundDrawable(new ColorDrawable(color));
+        binding.spinnerTimeFrame.setPopupBackgroundDrawable(new ColorDrawable(color));
+
+        //binding.chartTitle.setBackground(gradBack);
     }
 
     private void setInitialPrefs() {
@@ -234,8 +248,8 @@ public class HelloGraph extends AppCompatActivity {
     private void presentChart() {
         if (canPresentChart()) {
             binding.chartTitle.setText(cardioType);
-            //graphColor = Utils.ColorUtils.getCardioColor(cardioType);
-            //binding.helloGraph.setBackgroundColor(graphColor);
+            int newColor = Utils.ColorUtils.getCardioColor(cardioType);
+            setChartTitleBackground(newColor);
             new Thread(new Runnable() {
                 @Override
                 public void run() {

@@ -686,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             EditText timeInput, distInput, calsInput;
             TextInputLayout timeLayout;
 
-            public AddViewHolder(final View itemView) {
+            AddViewHolder(final View itemView) {
                 super(itemView);
                 cardioSpinner = (Spinner) itemView.findViewById(R.id.cardio_type_spinner);
                 dateInput = (TextView) itemView.findViewById(R.id.date_input);
@@ -809,7 +809,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 ArrayList<String> runData = new ArrayList<>();
                 runData.add(dateInput.getText().toString());
                 runData.add(getTimeMillis());
-                runData.add(distInput.getText().toString());
+                if (distInput.isEnabled()) {
+                    runData.add(distInput.getText().toString());
+                }
+                //runData.add(distInput.isEnabled() ? distInput.getText().toString() : "-1"); possibility
                 runData.add(calsInput.getText().toString());
                 String cardio = (String)cardioSpinner.getSelectedItem();
                 runData.add(cardio); //how we'll add in the cardio type

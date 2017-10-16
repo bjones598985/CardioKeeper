@@ -13,10 +13,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Spinners" parent="AppTheme">
-        <item name="colorControlHighlight">@android:color/white</item>
-    </style>
-
     <style name="HelloGraphNavTextView" parent="AppTheme">
         <item name="android:gravity">center_vertical</item>
         <item name="android:onClick">onNavClick</item>
