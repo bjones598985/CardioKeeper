@@ -15,8 +15,9 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
- //Created by Owner on 11/18/2015.
+//Created by Owner on 11/18/2015.
 
 class DataModel {
     private final static String TAG = "DataModel";
@@ -66,24 +67,37 @@ class DataModel {
     }
 
     long addRecords(ArrayList<String> data, @Nullable ArrayList<String> lapData) {
+        HashMap<String, String> map = new HashMap<>();
         ArrayList<String> inserts = new ArrayList<>();
         int cals = 0;
         ContentValues values = new ContentValues();
         values.put(COL_DATE, data.get(0));
+        //values.put(COL_DATE, map.get(MainActivity.DATE));
         values.put(COL_SEQUENCE, generateSequenceNumber(data.get(0)));
+        //values.put(COL_SEQUENCE, generateSequenceNumber(map.get(MainActivity.DATE)));
         values.put(COL_TIME, Long.parseLong(data.get(1)));
+        //values.put(COL_TIME, Long.parseLong(map.get(MainActivity.TIME)));
         values.put(COL_DISTANCE, Float.parseFloat(data.get(2)));
+        //values.put(COL_DISTANCE, Float.parseFloat(map.get(MainActivity.DISTANCE)));
         if (!data.get(3).equals("")) {
             cals = Integer.parseInt(data.get(3));
             values.put(COL_CALORIES, cals);
         } else {
             values.put(COL_CALORIES, cals);
         }
+        /*
+        if (!map.get(MainActivity.CALORIES).equals("")) {
+            cals = Integer.parseInt(map.get(MainActivity.CALORIES));
+            values.put(COL_CALORIES, cals);
+        } else {
+            values.put(COL_CALORIES, cals);
+        }
+        */
         values.put(COL_CARDIO_TYPE, data.get(4));
+        //values.put(COL_CARDIO_TYPE, map.get(MainActivity.CARDIO_TYPE));
         long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
         String sqlInsert = "insert into " + DATA_TABLE + " values(" + data.get(0) + ", " + Long.parseLong(data.get(1)) + ", " +
                 Float.parseFloat(data.get(2)) + ", " + cals + ", " + data.get(4) + ");";
-        Log.d(TAG, "SQL: " + sqlInsert);
         if (dataId > -1) {
             inserts.add(sqlInsert + ":success");
         } else {
@@ -147,8 +161,8 @@ class DataModel {
                     COL_DATE + " text not null, " +
                     COL_SEQUENCE + " integer not null, " +
                     COL_TIME + " integer not null, " +
-                    COL_DISTANCE + " real not null, " +
-                    COL_CALORIES + " integer not null, " +
+                    COL_DISTANCE + " real, " +
+                    COL_CALORIES + " integer, " +
                     COL_CARDIO_TYPE + " text not null, " +
                     COL_NOTES + " text);");
 

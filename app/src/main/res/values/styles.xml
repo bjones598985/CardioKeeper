@@ -39,7 +39,7 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <!--<item name="colorBackgroundFloating">@color/colorPrimary</item>-->
-        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="colorControlHighlight">@android:color/white</item>
     </style>
 
     <style name="NavTheme" parent="AppTheme">
@@ -47,7 +47,7 @@
     </style>
 
     <style name="HelloGraphGoButton" parent="AppTheme">
-        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@android:color/white</item>
     </style>
 
     <style name="AddWorkoutDetailOkButton" parent="AppTheme">

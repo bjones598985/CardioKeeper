@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
@@ -68,14 +67,10 @@ public class HelloGraph extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
         Log.d(TAG, "oncreate Timeframe: " + timeFrame);
 
         setInitialPrefs();
-
-
-
 
         initialDate = getIntent().getStringExtra("date");
         final String cType = getIntent().getStringExtra("cType");
@@ -83,14 +78,8 @@ public class HelloGraph extends AppCompatActivity {
         int cardioColor = getResources().getColor(R.color.colorPrimary);
         if (cType != null) {
             cardioColor = Utils.ColorUtils.getCardioColor(cType);
-            setChartTitleBackground(cardioColor);
+            setActivityColorScheme(cardioColor);
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Drawable d = binding.runQueryButton.getBackground();
-            d.setTint(cardioColor);
-        }
-
 
         initVars();
 
@@ -118,8 +107,7 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
-    private void setChartTitleBackground(int color) {
-        Log.d(TAG, "setChartTitleBackground");
+    private void setActivityColorScheme(int color) {
         columnColorList.clear();
         columnColorList = Utils.ColorUtils.makeNNumberOfColors(color, 0);
         GradientDrawable gradBack = (GradientDrawable) getResources().getDrawable(R.drawable.gradient_drawable);
@@ -128,8 +116,6 @@ public class HelloGraph extends AppCompatActivity {
         binding.spinnerCardioType.setPopupBackgroundDrawable(new ColorDrawable(color));
         binding.spinnerData.setPopupBackgroundDrawable(new ColorDrawable(color));
         binding.spinnerTimeFrame.setPopupBackgroundDrawable(new ColorDrawable(color));
-
-        //binding.chartTitle.setBackground(gradBack);
     }
 
     private void setInitialPrefs() {
@@ -177,7 +163,6 @@ public class HelloGraph extends AppCompatActivity {
         axisValues = new ArrayList<>();
         rawData = new ArrayList<>();
         columnData = new ColumnChartData();
-        columnData.setStacked(true);
         lineData = new LineChartData();
     }
 
@@ -192,6 +177,8 @@ public class HelloGraph extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 dataType = position;
                 isDataTypeSet = position != 0;
+                //only stack columns when displaying lap data
+                columnData.setStacked(position == 1);
             }
 
             @Override
@@ -249,13 +236,13 @@ public class HelloGraph extends AppCompatActivity {
         if (canPresentChart()) {
             binding.chartTitle.setText(cardioType);
             int newColor = Utils.ColorUtils.getCardioColor(cardioType);
-            setChartTitleBackground(newColor);
+            setActivityColorScheme(newColor);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     String query = getQuery();
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
-                    dumpCursorToScreen(c);
+                    //dumpCursorToScreen(c);
                     if (initialDataLoaded) {
                         //updateColumnData(c);
                         updateColumnValues(c);
@@ -399,6 +386,11 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toasty.info(getBaseContext(), "Uh oh, your search turned up no results", Toast.LENGTH_LONG, true).show();
+                    for (Column col : columns) {
+                        for (SubcolumnValue sc : col.getValues()) {
+                            sc.setTarget(0);
+                        }
+                    }
                 }
             });
         }
