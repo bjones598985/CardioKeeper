@@ -170,4 +170,8 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="author_scott_de_jonge">Icon made by Scott de Jonge from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
     <string name="title_activity_main2">Main2Activity</string>
 
+    <string name="title_activity_graph">Graph Activity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
 </resources>

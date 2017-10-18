@@ -1,5 +1,6 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -12,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -60,9 +62,35 @@ public class HelloGraph extends AppCompatActivity {
     LineChartData lineData;
     ActivityGraphsBinding binding;
 
-    boolean isDataTypeSet = false, isCardioTypeSet = false;
+    boolean isDataTypeSet = false, isCardioTypeSet = false, isStatusBarVisible;
     int dataType, timeFrame = 1;
     String cardioType, yAxisLabel, initialDate;
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        delayedHide(100);
+    }
+
+    private void delayedHide(int delayMillis) {
+        handler.postDelayed(new Runnable() {
+            @SuppressLint("InlinedApi")
+            @Override
+            public void run() {
+                // Delayed removal of status and navigation bar
+
+                // Note that some of these constants are new as of API 16 (Jelly Bean)
+                // and API 19 (KitKat). It is safe to use them, as they are inlined
+                // at compile-time and do nothing on earlier devices.
+                binding.coordLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+            }
+        }, delayMillis);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +98,16 @@ public class HelloGraph extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
         Log.d(TAG, "oncreate Timeframe: " + timeFrame);
 
-        setInitialPrefs();
+        binding.coordLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if (visibility == View.VISIBLE){
+                    delayedHide(500);
+                }
+            }
+        });
 
+        setInitialPrefs();
         initialDate = getIntent().getStringExtra("date");
         final String cType = getIntent().getStringExtra("cType");
 

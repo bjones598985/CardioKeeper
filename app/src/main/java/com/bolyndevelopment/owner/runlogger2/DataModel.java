@@ -130,6 +130,80 @@ class DataModel {
         return dataId;
     }
 
+    long addRecords(HashMap<String, String> map, @Nullable ArrayList<String> lapData) {
+        ArrayList<String> inserts = new ArrayList<>();
+        int cals = 0;
+        float distance = 0;
+        ContentValues values = new ContentValues();
+        //values.put(COL_DATE, data.get(0));
+        values.put(COL_DATE, map.get(MainActivity.DATE));
+        //values.put(COL_SEQUENCE, generateSequenceNumber(data.get(0)));
+        values.put(COL_SEQUENCE, generateSequenceNumber(map.get(MainActivity.DATE)));
+        //values.put(COL_TIME, Long.parseLong(data.get(1)));
+        values.put(COL_TIME, Long.parseLong(map.get(MainActivity.TIME)));
+        //values.put(COL_DISTANCE, Float.parseFloat(data.get(2)));
+        //values.put(COL_DISTANCE, Float.parseFloat(map.get(MainActivity.DISTANCE)));
+        /*
+        if (!data.get(3).equals("")) {
+            cals = Integer.parseInt(data.get(3));
+            values.put(COL_CALORIES, cals);
+        } else {
+            values.put(COL_CALORIES, cals);
+        }
+        */
+        if (!map.get(MainActivity.DISTANCE).isEmpty()) {
+            distance = Float.parseFloat(map.get(MainActivity.DISTANCE));
+            values.put(COL_DISTANCE, distance);
+        } else {
+            values.put(COL_DISTANCE,  distance);
+        }
+
+        if (!map.get(MainActivity.CALORIES).isEmpty()) {
+            cals = Integer.parseInt(map.get(MainActivity.CALORIES));
+            values.put(COL_CALORIES, cals);
+        } else {
+            values.put(COL_CALORIES, cals);
+        }
+
+        //values.put(COL_CARDIO_TYPE, data.get(4));
+        values.put(COL_CARDIO_TYPE, map.get(MainActivity.CARDIO_TYPE));
+        long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
+        String sqlInsert = "insert into " + DATA_TABLE + " values(" + map.get(MainActivity.DATE)
+                + ", " + Long.parseLong(map.get(MainActivity.TIME)) + ", "
+                + distance + ", "
+                + cals + ", " + map.get(MainActivity.CARDIO_TYPE) + ");";
+        if (dataId > -1) {
+            inserts.add(sqlInsert + ":success");
+        } else {
+            inserts.add(sqlInsert + ":fail");
+        }
+
+        int ids = 0;
+        if (lapData != null) {
+            Collections.reverse(lapData);
+            for (int l = 0; l < lapData.size(); l++) {
+                ContentValues lapValues = new ContentValues();
+                lapValues.put(COL_WORKOUT_ID, dataId);
+                lapValues.put(COL_LAP_NUMBER, l + 1);
+                lapValues.put(COL_TIME, Long.valueOf(lapData.get(l)));
+                ids += helper.getWritableDatabase().insert(LAP_TABLE, null, lapValues);
+                long ll = l + 1;
+                String sql = "insert into " + LAP_TABLE + " values(" + dataId + ", " + ll + ", " + lapData.get(l) + ");";
+                Log.d(TAG, "SQL: " + sql);
+                if (ids > -1) {
+                    inserts.add(sql + ":success");
+                } else {
+                    inserts.add(sql + ":fail");
+                }
+            }
+        }
+        if (dataId > -1) {
+            new DatabaseBackup(MyApplication.appContext).updateDbLog(inserts);
+            EventBus.getDefault().post(new DatabaseEvent(DatabaseEvent.DATA_ADDED));
+        }
+        return dataId;
+    }
+
     Cursor getAllRecords() {
         return helper.getReadableDatabase().query(DATA_TABLE, from, null, null, null, null, COL_DATE + " desc");
     }

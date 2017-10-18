@@ -501,38 +501,71 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         }
     }
 
-    private void saveEnteredData(final ArrayList<String> list, final HashMap<String, String> map) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    long id = DataModel.getInstance().addRecords(list, lapDataFromTimer);
-                    if (id > -1) {
-                        ListItem item = new ListItem();
-                        //item.order = (int) id;
-                        item.date = list.get(0);
-                        //item.date = map.get(DATE);
-                        item.time = Utils.convertMillisToHms(Long.parseLong(list.get(1)));
-                        //item.time = Utils.convertMillisToHms(Long.parseLong(map.get(TIME)));
-                        item.distance = list.get(2).equals("") ? 0 : Float.parseFloat(list.get(2));
-                        //item.distance = map.get(DISTANCE).equals("") ? 0 : Float.parseFloat(map.get(DISTANCE));
-                        item.calories = list.get(3).equals("") ? 0 : Integer.parseInt(list.get(3));
-                        //item.calories = map.get(CALORIES).equals("") ? 0 : Integer.parseInt(map.get(CALORIES));
-                        item.cType = list.get(4);
-                        //item.cType = map.get(CARDIO_TYPE);
-                        recordsList.add(0, item);
-                        recordsList.remove(1);
-                        //final int index = recordsList.indexOf(item);
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.notifyItemChanged(0);
-                                binder.mainRecyclerview.scrollToPosition(0);
-                                isAddDialogOpen = false;
-                            }
-                        });
-                    }
+    private void saveEnteredData(final ArrayList<String> list) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long id = DataModel.getInstance().addRecords(list, lapDataFromTimer);
+                //long id = 0;
+                if (id > -1) {
+                    ListItem item = new ListItem();
+                    //item.order = (int) id;
+                    item.date = list.get(0);
+                    //item.date = map.get(DATE);
+                    item.time = Utils.convertMillisToHms(Long.parseLong(list.get(1)));
+                    //item.time = Utils.convertMillisToHms(Long.parseLong(map.get(TIME)));
+                    item.distance = list.get(2).equals("") ? 0 : Float.parseFloat(list.get(2));
+                    Log.d(TAG, "distance: " + item.distance);
+                    //item.distance = map.get(DISTANCE).equals("") ? 0 : Float.parseFloat(map.get(DISTANCE));
+                    item.calories = list.get(3).equals("") ? 0 : Integer.parseInt(list.get(3));
+                    Log.d(TAG, "calories: " + item.calories);
+                    //item.calories = map.get(CALORIES).equals("") ? 0 : Integer.parseInt(map.get(CALORIES));
+                    item.cType = list.get(4);
+                    //item.cType = map.get(CARDIO_TYPE);
+                    recordsList.add(0, item);
+                    recordsList.remove(1);
+                    //final int index = recordsList.indexOf(item);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.notifyItemChanged(0);
+                            binder.mainRecyclerview.scrollToPosition(0);
+                            isAddDialogOpen = false;
+                        }
+                    });
                 }
-            }).start();
+            }
+        }).start();
+        //new DatabaseBackup(this).dumpBackupFile();
+    }
+
+    private void saveEnteredData(final HashMap<String, String> map) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long id = DataModel.getInstance().addRecords(map, lapDataFromTimer);
+                if (id > -1) {
+                    ListItem item = new ListItem();
+                    item.date = map.get(DATE);
+                    item.time = Utils.convertMillisToHms(Long.parseLong(map.get(TIME)));
+                    Log.d(TAG, "distance: " + item.distance);
+                    item.distance = map.get(DISTANCE).equals("") ? 0 : Float.parseFloat(map.get(DISTANCE));
+                    Log.d(TAG, "calories: " + item.calories);
+                    item.calories = map.get(CALORIES).equals("") ? 0 : Integer.parseInt(map.get(CALORIES));
+                    item.cType = map.get(CARDIO_TYPE);
+                    recordsList.add(0, item);
+                    recordsList.remove(1);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.notifyItemChanged(0);
+                            binder.mainRecyclerview.scrollToPosition(0);
+                            isAddDialogOpen = false;
+                        }
+                    });
+                }
+            }
+        }).start();
         //new DatabaseBackup(this).dumpBackupFile();
     }
 
@@ -748,7 +781,8 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                         if (validation > -1) {
                             highlightField(validation);
                         } else if (validateTimeFormattedProper()){
-                            saveEnteredData(addInfoToArray(), new HashMap<String, String>());
+                            //saveEnteredData(addInfoToArray());
+                            saveEnteredData(addInfoToMap());
                         }
                         break;
                 }
@@ -793,8 +827,8 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
             private int validateFields() {
                 if (cardioSpinner.getSelectedItemPosition() == 0) return CARDIO_SPINNER;
-                if (timeInput.getText().toString().equals("")) return TIME_EDITTEXT;
-                if (distInput.getText().toString().equals("")) return DIST_EDITTEXT;
+                if (timeInput.getText().toString().isEmpty()) return TIME_EDITTEXT;
+                if (distInput.isEnabled() && distInput.getText().toString().isEmpty()) return DIST_EDITTEXT;
                 return -1;
             }
 
@@ -820,10 +854,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 //cardioData.put(DATE, dateInput.getText().toString());
                 runData.add(getTimeMillis());
                 //cardioData.put(TIME, getTimeMillis());
-                if (distInput.isEnabled()) {
-                    runData.add(distInput.getText().toString());
+                //if (distInput.isEnabled()) {
+                runData.add(distInput.getText().toString());
                     //cardioData.put(DISTANCE, distInput.getText().toString());
-                }
+                //}
                 //runData.add(distInput.isEnabled() ? distInput.getText().toString() : "-1"); possibility
                 runData.add(calsInput.getText().toString());
                 //cardioData.put(CALORIES, calsInput.getText().toString());
@@ -831,6 +865,17 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 runData.add(cardio); //how we'll add in the cardio type
                 //cardioData.put(CARDIO_TYPE, cardio);
                 return runData;
+            }
+
+            private HashMap<String, String> addInfoToMap() {
+                HashMap<String, String> cardioData = new HashMap<>();
+                cardioData.put(DATE, dateInput.getText().toString());
+                cardioData.put(TIME, getTimeMillis());
+                cardioData.put(DISTANCE, distInput.getText().toString());
+                cardioData.put(CALORIES, calsInput.getText().toString());
+                String cardio = (String) cardioSpinner.getSelectedItem();
+                cardioData.put(CARDIO_TYPE, cardio);
+                return cardioData;
             }
 
             private String getTimeMillis() {
