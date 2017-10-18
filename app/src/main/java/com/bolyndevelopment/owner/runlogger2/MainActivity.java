@@ -34,7 +34,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     static final String CARDIO_TYPE = "cardio_type";
 
     static final int CODE_TIMER = 100;
+
+    static final int MIN_DELAY_MILLIS = 200;
 
     public static final int WRITE_REQUEST_CODE = 1;
 
@@ -201,7 +205,18 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         binder.fabTimeRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
+                if (isAddDialogOpen) {
+                    recordsList.remove(0);
+                    binder.mainRecyclerview.getAdapter().notifyItemRemoved(0);
+                    isAddDialogOpen = false;
+                }
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
+                    }
+                }, MIN_DELAY_MILLIS);
+
             }
         });
     }
@@ -252,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     public void run() {
                         startActivity(new Intent(getBaseContext(), HelloGraph.class));
                     }
-                }, 200);
+                }, MIN_DELAY_MILLIS);
                 break;
             case R.id.nav_menu_backup:
                 if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) {
@@ -269,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                             ft.add(brd, "backup");
                             ft.commitAllowingStateLoss();
                         }
-                    }, 200);
+                    }, MIN_DELAY_MILLIS);
                 }
                 break;
             case R.id.nav_menu_settings:
@@ -280,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                         i.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
                         startActivityForResult(i, SETTINGS_CODE);
                     }
-                }, 200);
+                }, MIN_DELAY_MILLIS);
                 break;
             case R.id.nav_menu_about:
                 handler.postDelayed(new Runnable() {
@@ -288,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     public void run() {
                         showGeneralDialog(DIALOG_ABOUT);
                     }
-                }, 200);
+                }, MIN_DELAY_MILLIS);
                 break;
             case R.id.nav_menu_adm:
                 startActivity(new Intent(this, AndroidDatabaseManager.class));
@@ -419,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     this is where we create the file and then get the Uri and write to it
      */
     private void createFile(String mimeType, String fileName) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         // Filter to only show results that can be "opened", such as
         // a file (as opposed to a list of contacts or timezones).
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -434,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     private void searchForBackup() {
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
         // browser.
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         // Filter to only show results that can be "opened", such as a
         // file (as opposed to a list of contacts or timezones)
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -548,9 +563,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     ListItem item = new ListItem();
                     item.date = map.get(DATE);
                     item.time = Utils.convertMillisToHms(Long.parseLong(map.get(TIME)));
-                    Log.d(TAG, "distance: " + item.distance);
                     item.distance = map.get(DISTANCE).equals("") ? 0 : Float.parseFloat(map.get(DISTANCE));
-                    Log.d(TAG, "calories: " + item.calories);
                     item.calories = map.get(CALORIES).equals("") ? 0 : Integer.parseInt(map.get(CALORIES));
                     item.cType = map.get(CARDIO_TYPE);
                     recordsList.add(0, item);
@@ -673,10 +686,18 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
                 String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, "MM/dd/yyyy"), "MMM d");
                 bHolder.date.setText(date);
-                String distTime = item.distance + " " + distUnit + " in " + item.time;
-                bHolder.distance.setText(distTime);
-                bHolder.calories.setText(String.valueOf(item.calories) + " cals");
+                String cal = String.valueOf(item.calories) + " cals";
+                bHolder.calories.setText(cal);
                 bHolder.name.setText(item.cType);
+                String distTime;
+                if (bHolder.name.getText().equals(getResources().getString(R.string.jump_rope))) {
+                    distTime = item.time;
+                } else if (bHolder.name.getText().equals(getResources().getString(R.string.swimming))){
+                    distTime = item.distance + " laps in " + item.time;
+                } else {
+                    distTime = item.distance + " " + distUnit + " in " + item.time;
+                }
+                bHolder.distance.setText(distTime);
                 bHolder.icon.setImageResource(Utils.getCardioIcon(item.cType));
                 int color = Utils.ColorUtils.getCardioColor(item.cType);
 
