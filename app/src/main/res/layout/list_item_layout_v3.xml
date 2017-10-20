@@ -66,7 +66,6 @@
         android:text="Sep 3"
         android:textColor="@android:color/white" />
 
-
     <TextView
         android:id="@+id/list_calories_input"
         android:layout_width="wrap_content"
@@ -77,7 +76,6 @@
         android:text="500 cal"
         android:textColor="@android:color/white" />
 
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="24dp"
@@ -86,6 +84,5 @@
         android:layout_below="@+id/list_date_input"
         android:visibility="gone"
         app:srcCompat="@android:drawable/btn_star" />
-
 
 </RelativeLayout>

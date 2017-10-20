@@ -14,8 +14,11 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +50,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     static final int CODE_TIMER = 100;
 
     static final int MIN_DELAY_MILLIS = 200;
+    static final int ALPHA_25 = 63;
 
     public static final int WRITE_REQUEST_CODE = 1;
 
@@ -322,18 +327,19 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         AddDialog ad = new AddDialog();
         if (time != null) {
             ad.time = time;
+            Cursor c = DataModel.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
+            c.moveToFirst();
+            String type = null;
+            if (c.getCount() > 0) {
+                type = c.getString(1);
+                c.close();
+            }
+            if (type != null) {
+                final List<String> list = Arrays.asList(getResources().getStringArray(R.array.cardio_types));
+                ad.spinnerPosition = list.indexOf(type);
+            }
         }
         ad.date = Utils.convertDateToString(new Date(), "MM/dd/yyyy");
-        Cursor c = DataModel.getInstance().rawQuery("select date, cardio_type from Data limit 1", null);
-        c.moveToFirst();
-        String type = null;
-        if (c.getCount() > 0) {
-            type = c.getString(1);
-        }
-        if (type != null) {
-            final List<String> list = Arrays.asList(getResources().getStringArray(R.array.cardio_types));
-            ad.spinnerPosition = list.indexOf(type);
-        }
         recordsList.add(0, ad);
         binder.mainRecyclerview.getAdapter().notifyItemInserted(0);
         binder.mainRecyclerview.scrollToPosition(0);
@@ -743,6 +749,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         }
 
         class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable{
+            ViewGroup mainLayout;
             Spinner cardioSpinner;
             TextView dateInput;
             EditText timeInput, distInput, calsInput;
@@ -750,6 +757,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
             AddViewHolder(final View itemView) {
                 super(itemView);
+                mainLayout = (ViewGroup) itemView.findViewById(R.id.btn_dialog_frag_rel_layout);
                 cardioSpinner = (Spinner) itemView.findViewById(R.id.cardio_type_spinner);
                 dateInput = (TextView) itemView.findViewById(R.id.date_input);
                 timeInput = (EditText) itemView.findViewById(R.id.time_input);
@@ -771,6 +779,18 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                             ((TextView) itemView.findViewById(R.id.miles)).setText("Laps:");
                         } else {
                             ((TextView)itemView.findViewById(R.id.miles)).setText("Distance:");
+                        }
+                        GradientDrawable sd = (GradientDrawable)getResources().getDrawable(R.drawable.rounded_corner_background);
+                        if (position != 0) {
+                            sd.mutate();
+                            int color = Utils.ColorUtils.getCardioColor(((TextView) view).getText().toString());
+                            int chgColor = Utils.ColorUtils.changeAlpha(color, ALPHA_25);
+                            sd.setColor(chgColor);
+                            mainLayout.setBackground(sd);
+                        } else {
+                            sd.mutate();
+                            sd.setColor(Color.parseColor("#e6e6e6"));
+                            mainLayout.setBackground(sd);
                         }
                     }
 

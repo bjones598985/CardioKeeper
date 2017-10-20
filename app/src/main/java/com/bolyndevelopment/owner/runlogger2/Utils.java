@@ -462,6 +462,13 @@ class Utils {
             return colorList;
         }
 
+        static int changeAlpha(int color, int alphaValue) {
+            final float[] hsv = new float[3];
+            Color.colorToHSV(color, hsv);
+            int tempColor = Color.HSVToColor(hsv);
+            return Color.argb(alphaValue, Color.red(tempColor), Color.green(tempColor), Color.blue(tempColor));
+        }
+
         static int getCardioColor(String exercise) {
             switch (exercise) {
                 case "Biking":
