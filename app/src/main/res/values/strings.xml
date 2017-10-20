@@ -174,4 +174,8 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
+    <!-- TimerActivity dialog strings -->
+    <string name="dialog_save_exit_msg">Are you done recording your cardio session?</string>
+    <string name="dialog_back_press_exit_running_msg">The timer is still running...\nAny data recorded will be lost\nDo you still want to exit?</string>
+
 </resources>

@@ -9,9 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.app.FragmentTransaction;
@@ -42,31 +40,47 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     long lastTime = 0;
     long base;
     long timeWhenStopped = 0;
-    boolean isRunning;
+    boolean isTimerRunning;
     NotificationCompat.Builder builder;
     NotificationManager notiMgr;
     final int NOTI_ID = 1000;
+
+    static final int DIALOG_SAVE_AND_EXIT = 1;
+    static final int DIALOG_CANCEL_TIMER = 2;
+    static final String DIALOG_TYPE = "dialogType";
+
+    @Override
+    public void onBackPressed() {
+        SaveDialog sd = new SaveDialog();
+        Bundle b = new Bundle();
+        b.putInt(DIALOG_TYPE, DIALOG_CANCEL_TIMER);
+        b.putBoolean("isRunning", isTimerRunning);
+        sd.setArguments(b);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(sd, "save");
+        ft.commitAllowingStateLoss();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
         //getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        isRunning = false;
+        isTimerRunning = false;
         lapList = new ArrayList<>();
         if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
             timeWhenStopped = savedInstanceState.getLong("time");
-            isRunning = savedInstanceState.getBoolean("isRunning");
+            isTimerRunning = savedInstanceState.getBoolean("isTimerRunning");
             long runningTime = savedInstanceState.getLong("runningTime");
             lastTime = savedInstanceState.getLong("lastTime");
-            if (isRunning) {
+            if (isTimerRunning) {
                 binder.chronometer.setBase(SystemClock.elapsedRealtime() - runningTime);
             } else {
                 binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
             }
         }
-        if (isRunning) {
+        if (isTimerRunning) {
             binder.chronometer.start();
             hideButtons(binder.startTimer);
             showButtons(binder.stopTimer, binder.lap);
@@ -84,7 +98,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         outState.putStringArrayList("list", lapList);
         outState.putLong("time", timeWhenStopped);
         outState.putLong("runningTime", SystemClock.elapsedRealtime() - binder.chronometer.getBase());
-        outState.putBoolean("isRunning", isRunning);
+        outState.putBoolean("isTimerRunning", isTimerRunning);
         outState.putLong("lastTime", lastTime);
         super.onSaveInstanceState(outState);
     }
@@ -134,7 +148,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.chronometer.start();
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
-                isRunning = true;
+                isTimerRunning = true;
                 //createNotification();
                 break;
             case R.id.stop_timer:
@@ -142,7 +156,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 timeWhenStopped = SystemClock.elapsedRealtime() - binder.chronometer.getBase();
                 hideButtons(binder.stopTimer, binder.lap);
                 showButtons(binder.resumeTimer, binder.resetTimer);
-                isRunning = false;
+                isTimerRunning = false;
                 break;
             case R.id.lap:
                 long time =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
@@ -157,10 +171,13 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.chronometer.start();
                 hideButtons(binder.resumeTimer, binder.resetTimer);
                 showButtons(binder.stopTimer, binder.lap);
-                isRunning = true;
+                isTimerRunning = true;
                 break;
             case R.id.reset_timer:
                 SaveDialog sd = new SaveDialog();
+                Bundle b = new Bundle();
+                b.putInt(DIALOG_TYPE, DIALOG_SAVE_AND_EXIT);
+                sd.setArguments(b);
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.add(sd, "save");
                 ft.commitAllowingStateLoss();
@@ -229,17 +246,43 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("You want to save and exit?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            ((TimerActivity)getActivity()).onSavePositiveClick();
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //onSaveCancelClick();
-                        }
-                    });
+            int dialogType = getArguments().getInt(DIALOG_TYPE);
+            if (dialogType == DIALOG_SAVE_AND_EXIT) {
+                builder.setMessage(getResources().getString(R.string.dialog_save_exit_msg))
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                ((TimerActivity) getActivity()).onSavePositiveClick();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //onSaveCancelClick();
+                            }
+                        });
+            } else {
+                final boolean isRunning = getArguments().getBoolean("isRunning");
+                String msg = isRunning ? getResources().getString(R.string.dialog_back_press_exit_running_msg) :
+                        getResources().getString(R.string.dialog_save_exit_msg);
+                builder.setMessage(msg)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (isRunning) {
+                                    getActivity().finish();
+                                } else {
+                                    ((TimerActivity) getActivity()).onSavePositiveClick();
+                                }
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (isRunning) {
+                                    //getDialog().dismiss();
+                                }
+                            }
+                        });
+            }
             return builder.create();
         }
     }

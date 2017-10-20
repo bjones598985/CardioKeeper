@@ -277,8 +277,9 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     String query = getQuery();
+                    Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
-                    //dumpCursorToScreen(c);
+                    dumpCursorToScreen(c);
                     if (initialDataLoaded) {
                         //updateColumnData(c);
                         updateColumnValues(c);
@@ -595,7 +596,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private void dumpCursorToScreen(Cursor c) {
         String s = DatabaseUtils.dumpCursorToString(c);
-        //Log.d(TAG, "Dump: " + s);
+        Log.d(TAG, "Dump: " + s);
     }
 
     private void generateAverageLine() {
