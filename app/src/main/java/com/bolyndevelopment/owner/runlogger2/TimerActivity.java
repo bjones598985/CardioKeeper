@@ -33,14 +33,13 @@ import java.util.ArrayList;
 
 public class TimerActivity extends AppCompatActivity implements View.OnClickListener {
     static final String TAG = TimerActivity.class.getSimpleName();
+
     ActivityTimerBinding binder;
-    long timeStopped;
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
     long lastTime = 0;
-    long base;
     long timeWhenStopped = 0;
-    boolean isTimerRunning;
+    boolean isTimerRunning, hasStartBtnBeenPressedOnce = false;
     NotificationCompat.Builder builder;
     NotificationManager notiMgr;
     final int NOTI_ID = 1000;
@@ -51,21 +50,24 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onBackPressed() {
-        SaveDialog sd = new SaveDialog();
-        Bundle b = new Bundle();
-        b.putInt(DIALOG_TYPE, DIALOG_CANCEL_TIMER);
-        b.putBoolean("isRunning", isTimerRunning);
-        sd.setArguments(b);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(sd, "save");
-        ft.commitAllowingStateLoss();
+        if (hasStartBtnBeenPressedOnce) {
+            SaveDialog sd = new SaveDialog();
+            Bundle b = new Bundle();
+            b.putInt(DIALOG_TYPE, DIALOG_CANCEL_TIMER);
+            b.putBoolean("isRunning", isTimerRunning);
+            sd.setArguments(b);
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(sd, "save");
+            ft.commitAllowingStateLoss();
+        } else {
+            finish();
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
-        //getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         isTimerRunning = false;
         lapList = new ArrayList<>();
         if (savedInstanceState != null) {
@@ -149,6 +151,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
                 isTimerRunning = true;
+                hasStartBtnBeenPressedOnce = true;
                 //createNotification();
                 break;
             case R.id.stop_timer:
