@@ -42,6 +42,7 @@ import android.text.TextUtils;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -251,18 +252,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        drawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
-
-    }
 
     public void onNavClick(final View v) {
         switch (v.getId()) {
@@ -315,6 +304,17 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 break;
         }
         binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Log.d(TAG, "home button touched");
+            binder.mainDrawerLayout.openDrawer(GravityCompat.START);  // OPEN DRAWER
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -435,6 +435,19 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         ft.add(sd, "general");
         ft.commitAllowingStateLoss();
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
 
     /*
     this is where we create the file and then get the Uri and write to it

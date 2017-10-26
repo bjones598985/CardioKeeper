@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2196f3</color>
-    <color name="colorPrimaryDark">#1565c0</color>
+    <color name="colorPrimary">#424242</color>
+    <color name="colorPrimaryDark">#212121</color>
     <color name="colorAccent_alt">#ffea00</color>
     <!--<color name="colorAccent">#ff3d00</color>-->
     <color name="colorAccentDark">#64ffda</color>
@@ -10,5 +10,8 @@
     <color name="menu_icon_color">#999999</color>
 
     <color name="black_overlay">#66000000</color>
+
+    <color name="colorPrimary2">#2196f3</color>
+    <color name="colorPrimaryDark2">#1565c0</color>
 
 </resources>
