@@ -21,6 +21,7 @@ import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -50,6 +51,10 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onBackPressed() {
+        decideHowToFinish();
+    }
+
+    private void decideHowToFinish() {
         if (hasStartBtnBeenPressedOnce) {
             SaveDialog sd = new SaveDialog();
             Bundle b = new Bundle();
@@ -65,9 +70,19 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) {
+            decideHowToFinish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         isTimerRunning = false;
         lapList = new ArrayList<>();
         if (savedInstanceState != null) {
