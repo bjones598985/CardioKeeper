@@ -100,6 +100,7 @@
                     android:textSize="24sp"
                     android:padding="@dimen/chart_title_padding"
                     android:background="@android:color/transparent"
+                    android:transitionName="cardioName"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             </FrameLayout>

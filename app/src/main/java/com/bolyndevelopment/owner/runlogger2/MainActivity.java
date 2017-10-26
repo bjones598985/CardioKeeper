@@ -2,6 +2,7 @@ package com.bolyndevelopment.owner.runlogger2;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -601,11 +602,17 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         //new DatabaseBackup(this).dumpBackupFile();
     }
 
-    public void graphIt(String date, String cType) {
+    public void graphIt(String date, String cType, View view) {
         Intent i = new Intent(this, HelloGraph.class);
         i.putExtra("date", date);
         i.putExtra("cType", cType);
-        startActivity(i);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, view, "cardioName");
+            startActivity(i, options.toBundle());
+        } else {
+            startActivity(i);
+        }
+
     }
 
     @Override
@@ -757,7 +764,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
             @Override
             public void onClick(View v) {
-                graphIt(recordsList.get(getAdapterPosition()).date, recordsList.get(getAdapterPosition()).cType);
+                graphIt(recordsList.get(getAdapterPosition()).date, recordsList.get(getAdapterPosition()).cType, name);
             }
         }
 
