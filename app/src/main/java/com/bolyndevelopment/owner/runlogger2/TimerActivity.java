@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +41,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     Typeface digital, digitalItalic;
     long lastTime = 0;
     long timeWhenStopped = 0;
-    boolean isTimerRunning, hasStartBtnBeenPressedOnce = false;
+    boolean isTimerRunning, hasStartBtnBeenPressedOnce = false, isPaused;
     NotificationCompat.Builder builder;
     NotificationManager notiMgr;
     final int NOTI_ID = 1000;
@@ -83,6 +84,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        isPaused = false;
         isTimerRunning = false;
         lapList = new ArrayList<>();
         if (savedInstanceState != null) {
@@ -91,16 +93,26 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             isTimerRunning = savedInstanceState.getBoolean("isTimerRunning");
             long runningTime = savedInstanceState.getLong("runningTime");
             lastTime = savedInstanceState.getLong("lastTime");
+            isPaused = savedInstanceState.getBoolean("isPaused");
             if (isTimerRunning) {
                 binder.chronometer.setBase(SystemClock.elapsedRealtime() - runningTime);
+                binder.chronometer.start();
+                hideButtons(binder.startTimer);
+                showButtons(binder.stopTimer, binder.lap);
             } else {
                 binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
             }
+            Log.d(TAG, "isPaused: " + isPaused);
+            if (isPaused) {
+                Log.d(TAG, "isPaused = true");
+                hideButtons(binder.startTimer, binder.stopTimer, binder.lap);
+                showButtons(binder.resumeTimer, binder.resetTimer);
+            }
         }
         if (isTimerRunning) {
-            binder.chronometer.start();
-            hideButtons(binder.startTimer);
-            showButtons(binder.stopTimer, binder.lap);
+            //binder.chronometer.start();
+            //hideButtons(binder.startTimer);
+            //showButtons(binder.stopTimer, binder.lap);
         }
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
         digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
@@ -117,6 +129,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         outState.putLong("runningTime", SystemClock.elapsedRealtime() - binder.chronometer.getBase());
         outState.putBoolean("isTimerRunning", isTimerRunning);
         outState.putLong("lastTime", lastTime);
+        outState.putBoolean("isPaused", isPaused);
         super.onSaveInstanceState(outState);
     }
 
@@ -138,7 +151,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_timer)
                 .setContentTitle("Cardio Keeper - Timer")
-                .setContentText("Content Text")
+                //.setContentText("Content Text")
                 .setAutoCancel(true);
         Intent i = new Intent(this, TimerActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -151,7 +164,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         binder.chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
-                builder.setContentText(String.format("Time elapsed: %s", chronometer.getText().toString()));
+                builder.setContentTitle(String.format("Cardio Keeper - Time elapsed: %s", chronometer.getText().toString()));
                 notiMgr.notify(NOTI_ID, builder.build());
             }
         });
@@ -175,6 +188,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 hideButtons(binder.stopTimer, binder.lap);
                 showButtons(binder.resumeTimer, binder.resetTimer);
                 isTimerRunning = false;
+                isPaused = true;
                 break;
             case R.id.lap:
                 long time =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
@@ -190,6 +204,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 hideButtons(binder.resumeTimer, binder.resetTimer);
                 showButtons(binder.stopTimer, binder.lap);
                 isTimerRunning = true;
+                isPaused = false;
                 break;
             case R.id.reset_timer:
                 SaveDialog sd = new SaveDialog();

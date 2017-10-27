@@ -1,19 +1,15 @@
 <resources>
     <string name="app_name">Cardio\nKeeper</string>
     <string name="action_graph">About</string>
-    <string name="duration">Duration</string>
-    <string name="distance">Distance</string>
-    <string name="cal_burned">Calories</string>
-    <string name="laps">Laps</string>
-    <string name="dph">Speed</string>
-    <string name="cals_per_time">Cals per Hr</string>
-    <string name="cals_per_dist">Cals per Dist.</string>
 
+
+    <!-- Navigation drawer strings -->
     <string name="graph">Graph</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
     <string name="backup">Backup \u0026 Restore</string>
 
+    <!-- MainActivity strings -->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
@@ -31,6 +27,14 @@
     <string name="treadmill">Treadmill</string>
     <string name="walking">Walking</string>
     <string name="swimming">Swimming</string>
+
+    <string name="duration">Duration</string>
+    <string name="distance">Distance</string>
+    <string name="cal_burned">Calories</string>
+    <string name="laps">Laps</string>
+    <string name="dph">Speed</string>
+    <string name="cals_per_time">Cals per Hr</string>
+    <string name="cals_per_dist">Cals per Dist.</string>
 
     <string-array name="graph_data_type">
         <item>@string/select_</item>
@@ -76,11 +80,14 @@
         <item>@string/walking</item>
     </string-array>
 
-    <string name="column_date">Date</string>
-    <string name="column_time">Time</string>
-    <string name="column_distance">Dist.</string>
-    <string name="column_calories">Cals.</string>
     <string name="cardio_icon_description">Cardio Icon</string>
+
+    <!-- Timer Activity strings -->
+    <string name="start_btn">Start</string>
+    <string name="pause_btn">Pause</string>
+    <string name="lap_btn">Lap</string>
+    <string name="resume_btn">Resume</string>
+    <string name="end_record_btn">End and\nRecord</string>
 
     <!-- HelloGraph Strings -->
 
@@ -90,13 +97,17 @@
     <string name="years">Years</string>
     <string name="no_graph_data">Nothing to show\nfor those selections</string>
 
-    <string name="start">Start</string>
-    <string name="pause">Pause</string>
-    <string name="lap">Lap</string>
-    <string name="resume">Resume</string>
-    <string name="end_reset">Save and\nExit</string>
     <string name="run_query_button_text">GO</string>
 
+    <!-- Button Dialog Frag Layout Strings -->
+    <string name="cardio_label">Cardio: </string>
+    <string name="date_label">Date: </string>
+    <string name="time_label">Time: </string>
+    <string name="time_input_hint">hh:mm:ss</string>
+    <string name="distance_label">Distance: </string>
+    <string name="calories_label">Calories: </string>
+    <string name="ok_btn">OK</string>
+    <string name="cancel_btn">Cancel</string>
 
     <!-- Shared Preferences Keys -->
 
@@ -168,20 +179,10 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="flaticon">The following icon creators at <a href="http://www.flaticon.com">Flaticon.com</a></string>
     <string name="author_freepik">Icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a></string><!-- running, hiking, rowboat, jump rope, jogging, treadmill, bike, swimming -->
     <string name="author_scott_de_jonge">Icon made by Scott de Jonge from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
-    <string name="title_activity_main2">Main2Activity</string>
-
-    <string name="title_activity_graph">Graph Activity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <!-- TimerActivity dialog strings -->
     <string name="dialog_save_exit_msg">Are you done recording your cardio session?</string>
     <string name="dialog_back_press_exit_running_msg">The timer is still running...\nAny data recorded will be lost\nDo you still want to exit?</string>
     <string name="title_activity_opening">OpeningActivity</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_settings">Settings</string>
 
 </resources>

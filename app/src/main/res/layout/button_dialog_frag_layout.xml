@@ -14,7 +14,6 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/cardio_type_layout">
 
@@ -41,7 +40,6 @@
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:layout_below="@+id/cardio_type_layout"
         android:id="@+id/date_info_layout"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
         <TextView
@@ -49,7 +47,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Date: "
+            android:text="@string/date_label"
             android:id="@+id/date" />
 
         <LinearLayout
@@ -66,9 +64,8 @@
                 android:background="?attr/selectableItemBackground"/>
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="3"
                 android:inputType="date"
                 android:ems="10"
                 android:gravity="center_vertical"
@@ -83,7 +80,6 @@
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:layout_below="@+id/date_info_layout"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/time_info_layout">
 
@@ -92,7 +88,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Time: "
+            android:text="@string/time_label"
             android:id="@+id/time" />
 
         <android.support.design.widget.TextInputLayout
@@ -105,7 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="time"
-                android:hint="hh:mm:ss"
+                android:hint="@string/time_input_hint"
                 android:ems="10"
                 android:id="@+id/time_input" />
 
@@ -117,7 +113,6 @@
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:layout_below="@+id/time_info_layout"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/linearLayout3">
 
@@ -126,7 +121,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Distance: "
+            android:text="@string/distance_label"
             android:id="@+id/miles" />
 
         <android.support.design.widget.TextInputLayout
@@ -149,7 +144,6 @@
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:layout_below="@+id/linearLayout3"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/linearLayout4">
 
@@ -158,7 +152,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Calories: "
+            android:text="@string/calories_label"
             android:id="@+id/calories" />
 
         <android.support.design.widget.TextInputLayout
@@ -188,7 +182,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="CANCEL" />
+            android:text="@string/cancel_btn" />
 
         <Button
             android:id="@+id/confirm_button"
@@ -196,7 +190,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:theme="@style/AddWorkoutDetailOkButton"
-            android:text="OK" />
+            android:text="@string/ok_btn" />
 
     </LinearLayout>
 

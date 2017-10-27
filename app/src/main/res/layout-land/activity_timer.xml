@@ -23,7 +23,10 @@
                 android:layout_height="0dp"
                 android:layout_weight="4"
                 app:cardElevation="2dp"
-                android:layout_margin="8dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="8dp">
 
                 <Chronometer
                     android:id="@+id/chronometer"
@@ -40,6 +43,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="8dp"
                 android:background="@android:color/transparent">
 
                 <Button
@@ -47,7 +54,7 @@
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="200dp"
                     android:layout_height="match_parent"
-                    android:text="Start"
+                    android:text="@string/start_btn"
                     android:layout_gravity="center"
                     android:visibility="visible"/>
 
@@ -63,7 +70,7 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Pause"
+                        android:text="@string/pause_btn"
                         android:alpha="0"
                         android:visibility="invisible"/>
 
@@ -73,7 +80,7 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Lap"
+                        android:text="@string/lap_btn"
                         android:alpha="0"
                         android:visibility="invisible"/>
 
@@ -91,7 +98,7 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Resume"
+                        android:text="@string/resume_btn"
                         android:alpha="0"
                         android:visibility="invisible"/>
 
@@ -101,7 +108,7 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="End and\nRecord"
+                        android:text="@string/end_record_btn"
                         android:alpha="0"
                         android:visibility="invisible"/>
 
@@ -118,7 +125,10 @@
             app:cardElevation="2dp"
             app:contentPaddingBottom="8dp"
             app:contentPaddingTop="8dp"
-            android:layout_margin="8dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="4dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/list"
