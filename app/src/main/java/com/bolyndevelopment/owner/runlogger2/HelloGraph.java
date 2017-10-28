@@ -138,20 +138,12 @@ public class HelloGraph extends AppCompatActivity {
          */
         initGraph();
 
-        if (initialDate == null) { //entered from nav view or configuration chg
-            Log.d(TAG, "initial date is null");
-            Log.d(TAG, "initial date is not null");
-
-
-        } else { //entered from clicking a list item
+        if (initialDate != null) { //entered from clicking a list item
             if (savedInstanceState != null) { //from configuration chg
-                //timeFrame = binding.spinnerTimeFrame.getSelectedItemPosition();
-                //initialDataLoaded = savedInstanceState.getBoolean("initialDataLoaded");
                 cardioType = savedInstanceState.getString("cardioType");
                 overrideInitVarsOnConfigChange(savedInstanceState);
                 setActivityColorScheme();
                 presentChart();
-                Log.d(TAG, "savedinstance != null timeframe: " + timeFrame);
             } else {
                 overrideInitVars();
                 presentChart();
@@ -276,14 +268,11 @@ public class HelloGraph extends AppCompatActivity {
         outState.putBoolean("initialDataLoaded", initialDataLoaded);
         outState.putInt(SPINNER_CARDIO, binding.spinnerCardioType.getSelectedItemPosition());
         outState.putInt(SPINNER_DATA, binding.spinnerData.getSelectedItemPosition());
-        int tf = binding.spinnerTimeFrame.getSelectedItemPosition();
-        Log.d(TAG, "onsaveinstancestate: time - " + tf);
         outState.putInt(SPINNER_TIME, binding.spinnerTimeFrame.getSelectedItemPosition());
         super.onSaveInstanceState(outState);
     }
 
     private void overrideInitVarsOnConfigChange(final Bundle inState) {
-        //initialDataLoaded = inState.getBoolean("initialDataLoaded");
         binding.spinnerCardioType.setSelection(inState.getInt(SPINNER_CARDIO));
         dataType = inState.getInt(SPINNER_DATA);
         binding.spinnerData.setSelection(dataType);
@@ -298,20 +287,14 @@ public class HelloGraph extends AppCompatActivity {
         binding.spinnerCardioType.setSelection(pos);
         dataType = 2;
         binding.spinnerData.setSelection(dataType);
-        //timeFrame = 0;
-        //binding.spinnerTimeFrame.setSelection(timeFrame);
         isCardioTypeSet = true;
         isDataTypeSet = true;
     }
-
-
 
     //validate that cardioType and dataType have been chosen before trying to display the chart
     private boolean canPresentChart() {
         return isDataTypeSet && isCardioTypeSet;
     }
-
-
 
     private void presentChart() {
         if (canPresentChart()) {
@@ -323,6 +306,7 @@ public class HelloGraph extends AppCompatActivity {
                     String query = getQuery();
                     Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
+                    Log.d(TAG, "Cursor count: " + c.getCount());
                     dumpCursorToScreen(c);
                     Log.d(TAG, "initdataloaded: " + initialDataLoaded);
                     if (initialDataLoaded) {
@@ -425,7 +409,7 @@ public class HelloGraph extends AppCompatActivity {
         List<Column> columns = new ArrayList<>();
         axisValues.clear();
         int colCount = 0;
-        //int count = 0;
+        int count = 0;
         while (!results.isAfterLast()) {
             String date = results.getString(0);
             subcolumnValues = new ArrayList<>();
@@ -434,13 +418,15 @@ public class HelloGraph extends AppCompatActivity {
                 float raw = results.getFloat(1);
                 subcolumnValues.add(new SubcolumnValue(raw).setColor(getNextColor()));
                 results.moveToNext();
-                //count++;
+                Log.d(TAG, "Count: " + count);
+                count++;
             }
             Column col = new Column(subcolumnValues);
             col.setHasLabels(true);
             col.setHasLabelsOnlyForSelected(true);
             columns.add(col);
-            results.moveToNext();
+            //results.moveToNext();
+            Log.d(TAG, "colCount: " + colCount);
             colCount++;
         }
         results.close();
@@ -641,7 +627,7 @@ public class HelloGraph extends AppCompatActivity {
 
     private void dumpCursorToScreen(Cursor c) {
         String s = DatabaseUtils.dumpCursorToString(c);
-        Log.d(TAG, "Dump: " + s);
+        //Log.d(TAG, "Dump: " + s);
     }
 
     private void generateAverageLine() {

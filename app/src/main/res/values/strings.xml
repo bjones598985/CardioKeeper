@@ -47,7 +47,7 @@
         <item>@string/cals_per_dist</item>
     </string-array>
 
-    <string name="day">Day</string>
+    <string name="all">All</string>
     <string name="week">Week</string>
     <string name="one_mo">1 Month</string>
     <string name="three_mo">3 Months</string>
@@ -60,6 +60,7 @@
         <item>@string/three_mo</item>
         <item>@string/six_mo</item>
         <item>@string/one_yr</item>
+        <item>@string/all</item>
     </string-array>
 
     <string-array name="cardio_types">
