@@ -55,7 +55,6 @@
     <string name="one_yr">1 Year</string>
 
     <string-array name="time_frame">
-        <item>@string/day</item>
         <item>@string/week</item>
         <item>@string/one_mo</item>
         <item>@string/three_mo</item>

@@ -47,6 +47,10 @@ import lecho.lib.hellocharts.model.SubcolumnValue;
 public class HelloGraph extends AppCompatActivity {
     //Created by Bobby Jones on 8/11/2017
     public static final String TAG = "HelloGraph";
+    private static final String SPINNER_CARDIO = "spinner_cardio";
+    private static final String SPINNER_DATA = "spinner_data";
+    private static final String SPINNER_TIME = "spinner_time";
+
 
     boolean initialDataLoaded = false;
     String distUnit;
@@ -63,7 +67,7 @@ public class HelloGraph extends AppCompatActivity {
     ActivityGraphsBinding binding;
 
     boolean isDataTypeSet = false, isCardioTypeSet = false, isStatusBarVisible;
-    int dataType, timeFrame = 1;
+    int dataType, timeFrame = 0;
     String cardioType, yAxisLabel, initialDate;
 
     @Override
@@ -96,8 +100,7 @@ public class HelloGraph extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
-        Log.d(TAG, "oncreate Timeframe: " + timeFrame);
-
+        /*
         binding.coordLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
@@ -107,34 +110,54 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
 
+        /*
+         * set distance variable to miles or kilometerss
+         */
         setInitialPrefs();
-        initialDate = getIntent().getStringExtra("date");
-        final String cType = getIntent().getStringExtra("cType");
 
-        int cardioColor = getResources().getColor(R.color.colorPrimary);
-        if (cType != null) {
-            cardioColor = Utils.ColorUtils.getCardioColor(cType);
-            setActivityColorScheme(cardioColor);
-        }
+        initialDate = getIntent().getStringExtra("date"); //null if entered through nav view
+        cardioType = getIntent().getStringExtra("cType"); //null if entered through nav view
 
+        /*
+         * initialize the activity color scheme based on cardio type or null if entering from nav view
+         */
+        setActivityColorScheme();
+
+        /*
+         * initializes rawData, axisValues, lineChartData, and columnChartData
+         */
         initVars();
 
+        /*
+         * initialize the spinners to their defaults
+         */
         initSpinners();
+
+        /*
+         * initialize graph settings - zoom and touch
+         */
         initGraph();
-        if (initialDate == null) {
-            if (savedInstanceState != null) {
+
+        if (initialDate == null) { //entered from nav view or configuration chg
+            Log.d(TAG, "initial date is null");
+            Log.d(TAG, "initial date is not null");
+
+
+        } else { //entered from clicking a list item
+            if (savedInstanceState != null) { //from configuration chg
                 //timeFrame = binding.spinnerTimeFrame.getSelectedItemPosition();
                 //initialDataLoaded = savedInstanceState.getBoolean("initialDataLoaded");
-                overrideInitVars(savedInstanceState.getString("cardioType"));
-                //presentChart();
+                cardioType = savedInstanceState.getString("cardioType");
+                overrideInitVarsOnConfigChange(savedInstanceState);
+                setActivityColorScheme();
+                presentChart();
                 Log.d(TAG, "savedinstance != null timeframe: " + timeFrame);
+            } else {
+                overrideInitVars();
+                presentChart();
             }
-            //binding.spinnerCardioType.performClick();
-        } else {
-            overrideInitVars(cType);
-            columnColorList = Utils.ColorUtils.makeNNumberOfColors(cardioColor, 0);
-            presentChart();
         }
+
         binding.runQueryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,8 +165,19 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
     }
+    private void setInitialPrefs() {
+        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
+        distUnit = distPref.equals("-1") ? getResources().getString(R.string.miles) : getResources().getString(R.string.kilos);
+    }
 
-    private void setActivityColorScheme(int color) {
+    private void setActivityColorScheme() {
+        int color;
+        if (cardioType == null) {
+            color = getResources().getColor(R.color.colorPrimary);
+        } else {
+            color = Utils.ColorUtils.getCardioColor(cardioType);
+        }
         columnColorList.clear();
         columnColorList = Utils.ColorUtils.makeNNumberOfColors(color, 0);
         GradientDrawable gradBack = (GradientDrawable) getResources().getDrawable(R.drawable.gradient_drawable);
@@ -152,47 +186,6 @@ public class HelloGraph extends AppCompatActivity {
         binding.spinnerCardioType.setPopupBackgroundDrawable(new ColorDrawable(color));
         binding.spinnerData.setPopupBackgroundDrawable(new ColorDrawable(color));
         binding.spinnerTimeFrame.setPopupBackgroundDrawable(new ColorDrawable(color));
-    }
-
-    private void setInitialPrefs() {
-        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
-        distUnit = distPref.equals("-1") ? getResources().getString(R.string.miles) : getResources().getString(R.string.kilos);
-    }
-
-    private int getNextColor() {
-        if (colorIndex >= columnColorList.size()) {
-            colorIndex = 0;
-        }
-        return columnColorList.get(colorIndex++);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (initialDate == null) {
-            timeFrame = binding.spinnerTimeFrame.getSelectedItemPosition();
-            presentChart();
-        }
-        Log.d(TAG, "restoreinstance != null timeframe: " + timeFrame);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putString("cardioType", cardioType);
-        outState.putBoolean("initialDataLoaded", initialDataLoaded);
-        super.onSaveInstanceState(outState);
-    }
-
-    private void overrideInitVars(String cType) {
-        int i = Arrays.asList(getResources().getStringArray(R.array.cardio_types)).indexOf(cType);
-        binding.spinnerCardioType.setSelection(i);
-        cardioType = cType;
-        binding.spinnerData.setSelection(2);
-        dataType = 2;
-        binding.spinnerTimeFrame.setSelection(0);
-        isCardioTypeSet = true;
-        isDataTypeSet = true;
     }
 
     private void initVars() {
@@ -226,7 +219,7 @@ public class HelloGraph extends AppCompatActivity {
         final ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this, R.array.time_frame, R.layout.spinner_item);
         timeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerTimeFrame.setAdapter(timeAdapter);
-        binding.spinnerTimeFrame.setSelection(1); //default
+        binding.spinnerTimeFrame.setSelection(0); //default
         binding.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -257,22 +250,73 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
-    //validate that cardioType and dataType have been chosen before trying to display the chart
-    private boolean canPresentChart() {
-        return isDataTypeSet && isCardioTypeSet;
-    }
-
     private void initGraph() {
         binding.helloGraph.setValueTouchEnabled(true);
         binding.helloGraph.setOnValueTouchListener(new ComboTouchListener());
         binding.helloGraph.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
     }
 
+
+
+    private int getNextColor() {
+        if (colorIndex >= columnColorList.size()) {
+            colorIndex = 0;
+        }
+        return columnColorList.get(colorIndex++);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("cardioType", cardioType);
+        outState.putBoolean("initialDataLoaded", initialDataLoaded);
+        outState.putInt(SPINNER_CARDIO, binding.spinnerCardioType.getSelectedItemPosition());
+        outState.putInt(SPINNER_DATA, binding.spinnerData.getSelectedItemPosition());
+        int tf = binding.spinnerTimeFrame.getSelectedItemPosition();
+        Log.d(TAG, "onsaveinstancestate: time - " + tf);
+        outState.putInt(SPINNER_TIME, binding.spinnerTimeFrame.getSelectedItemPosition());
+        super.onSaveInstanceState(outState);
+    }
+
+    private void overrideInitVarsOnConfigChange(final Bundle inState) {
+        //initialDataLoaded = inState.getBoolean("initialDataLoaded");
+        binding.spinnerCardioType.setSelection(inState.getInt(SPINNER_CARDIO));
+        dataType = inState.getInt(SPINNER_DATA);
+        binding.spinnerData.setSelection(dataType);
+        timeFrame = inState.getInt(SPINNER_TIME);
+        binding.spinnerTimeFrame.setSelection(timeFrame);
+        isCardioTypeSet = true;
+        isDataTypeSet = true;
+    }
+
+    private void overrideInitVars() {
+        int pos = Arrays.asList(getResources().getStringArray(R.array.cardio_types)).indexOf(cardioType);
+        binding.spinnerCardioType.setSelection(pos);
+        dataType = 2;
+        binding.spinnerData.setSelection(dataType);
+        //timeFrame = 0;
+        //binding.spinnerTimeFrame.setSelection(timeFrame);
+        isCardioTypeSet = true;
+        isDataTypeSet = true;
+    }
+
+
+
+    //validate that cardioType and dataType have been chosen before trying to display the chart
+    private boolean canPresentChart() {
+        return isDataTypeSet && isCardioTypeSet;
+    }
+
+
+
     private void presentChart() {
         if (canPresentChart()) {
             binding.chartTitle.setText(cardioType);
-            int newColor = Utils.ColorUtils.getCardioColor(cardioType);
-            setActivityColorScheme(newColor);
+            setActivityColorScheme();
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -280,8 +324,8 @@ public class HelloGraph extends AppCompatActivity {
                     Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
                     dumpCursorToScreen(c);
+                    Log.d(TAG, "initdataloaded: " + initialDataLoaded);
                     if (initialDataLoaded) {
-                        //updateColumnData(c);
                         updateColumnValues(c);
                     } else {
                         generateColumnData(c);
@@ -332,14 +376,14 @@ public class HelloGraph extends AppCompatActivity {
     private String buildAndRetrieveMidQueryPart() {
         String endOfQuery = null;
         String ex = "\'" + cardioType + "\'";
-        String today, secondDate;
-        if (initialDate != null && !initialDataLoaded) {
+        String today;
+        if (initialDate != null) {
             today = initialDate;
-            secondDate = initialDate;
+            //secondDate = initialDate;
         } else {
             today = Utils.convertDateToString(new Date(), Utils.DB_DATE_FORMAT);
-            secondDate = getSecondDate();
         }
+        String secondDate = getSecondDate();
 
         if (dataType == 1) {
             endOfQuery = ex + " and Data.date between \'" + secondDate + "\' and \'" + today + "\'";
@@ -353,20 +397,20 @@ public class HelloGraph extends AppCompatActivity {
         Calendar cal = Calendar.getInstance();
         Log.d(TAG, "getseconddate timeframe: " + timeFrame);
         switch (timeFrame) {
-            case 1:
+            case 0:
                 cal.add(Calendar.DAY_OF_MONTH, -7);
                 break;
-            case 2:
+            case 1:
                 cal.add(Calendar.MONTH, -1);
                 break;
-            case 3:
+            case 2:
                 cal.add(Calendar.MONTH, -3);
                 break;
-            case 4:
+            case 3:
                 cal.add(Calendar.MONTH, -6);
                 break;
-            case 5:
-                cal.set(Calendar.MONTH, 1);
+            case 4:
+                cal.set(Calendar.MONTH, 0);
                 cal.set(Calendar.DAY_OF_MONTH, 1);
                 break;
             default:
@@ -381,7 +425,7 @@ public class HelloGraph extends AppCompatActivity {
         List<Column> columns = new ArrayList<>();
         axisValues.clear();
         int colCount = 0;
-        int count = 0;
+        //int count = 0;
         while (!results.isAfterLast()) {
             String date = results.getString(0);
             subcolumnValues = new ArrayList<>();
@@ -390,7 +434,7 @@ public class HelloGraph extends AppCompatActivity {
                 float raw = results.getFloat(1);
                 subcolumnValues.add(new SubcolumnValue(raw).setColor(getNextColor()));
                 results.moveToNext();
-                count++;
+                //count++;
             }
             Column col = new Column(subcolumnValues);
             col.setHasLabels(true);
@@ -401,6 +445,7 @@ public class HelloGraph extends AppCompatActivity {
         }
         results.close();
         columnData.setColumns(columns);
+        Log.d(TAG, "Num cols: " +columnData.getColumns().size());
     }
 
     private void updateColumnValues(Cursor results) {
