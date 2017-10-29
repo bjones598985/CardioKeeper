@@ -216,10 +216,20 @@ class Utils {
     }
 
     static String convertMillisToHms(long millis) {
-        return String.format(Locale.US, "%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(millis) -
-                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-                TimeUnit.MILLISECONDS.toSeconds(millis) -
-                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+        long hour = TimeUnit.MILLISECONDS.toHours(millis);
+        long min = TimeUnit.MILLISECONDS.toMinutes(millis) -
+                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
+        long sec = TimeUnit.MILLISECONDS.toSeconds(millis) -
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
+        if (hour > 0) {
+            return String.format(Locale.US, "%02d:%02d:%02d", hour, min, sec);
+        } else if (min > 0){
+            return String.format(Locale.US, "%02d:%02d", min, sec);
+        } else if (sec > 0) {
+            return String.format(Locale.US, "%02d secs", sec);
+        } else {
+            return "No time";
+        }
     }
 
     static boolean readInternalFile() {

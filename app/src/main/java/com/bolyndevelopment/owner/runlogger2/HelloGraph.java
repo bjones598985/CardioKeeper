@@ -304,6 +304,7 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     String query = getQuery();
+                    Log.d(TAG, "Query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
                     if (initialDataLoaded) {
                         updateColumnValues(c);
@@ -378,6 +379,9 @@ public class HelloGraph extends AppCompatActivity {
 
     private String getSecondDate() {
         Calendar cal = Calendar.getInstance();
+        if (initialDate != null) {
+            cal.setTime(Utils.convertStringToDate(initialDate, "MM/dd/yyyy"));
+        }
         switch (timeFrame) {
             case 0:
                 cal.add(Calendar.DAY_OF_MONTH, -7);

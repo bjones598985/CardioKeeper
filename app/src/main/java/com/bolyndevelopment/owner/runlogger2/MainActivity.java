@@ -662,7 +662,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 if (ad.time != null) {
                     avh.timeInput.setText(ad.time);
                 }
-
             } else {
                 final ListItem item = recordsList.get(position);
                 BaseViewHolder bHolder = (BaseViewHolder) holder;
