@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,21 +33,20 @@ import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
 import java.util.ArrayList;
 
 public class TimerActivity extends AppCompatActivity implements View.OnClickListener {
-    static final String TAG = TimerActivity.class.getSimpleName();
+    static final int DIALOG_SAVE_AND_EXIT = 1;
+    static final int DIALOG_CANCEL_TIMER = 2;
+    static final String DIALOG_TYPE = "dialogType";
+
+    final int NOTI_ID = 1000;
+    long lastTime = 0;
+    long timeWhenStopped = 0;
+    boolean isTimerRunning, hasStartBtnBeenPressedOnce = false, isPaused;
 
     ActivityTimerBinding binder;
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
-    long lastTime = 0;
-    long timeWhenStopped = 0;
-    boolean isTimerRunning, hasStartBtnBeenPressedOnce = false, isPaused;
     NotificationCompat.Builder builder;
     NotificationManager notiMgr;
-    final int NOTI_ID = 1000;
-
-    static final int DIALOG_SAVE_AND_EXIT = 1;
-    static final int DIALOG_CANCEL_TIMER = 2;
-    static final String DIALOG_TYPE = "dialogType";
 
     @Override
     public void onBackPressed() {
@@ -79,6 +77,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,17 +101,10 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             } else {
                 binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
             }
-            Log.d(TAG, "isPaused: " + isPaused);
             if (isPaused) {
-                Log.d(TAG, "isPaused = true");
                 hideButtons(binder.startTimer, binder.stopTimer, binder.lap);
                 showButtons(binder.resumeTimer, binder.resetTimer);
             }
-        }
-        if (isTimerRunning) {
-            //binder.chronometer.start();
-            //hideButtons(binder.startTimer);
-            //showButtons(binder.stopTimer, binder.lap);
         }
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
         digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
@@ -264,7 +256,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
         class LapHolder extends RecyclerView.ViewHolder {
             TextView lapOrder, lapTime;
-            public LapHolder(View itemView) {
+            LapHolder(View itemView) {
                 super(itemView);
                 lapOrder = (TextView) itemView.findViewById(R.id.lap_info_text);
                 lapTime = (TextView) itemView.findViewById(R.id.lap_info);
@@ -310,9 +302,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if (isRunning) {
-                                    //getDialog().dismiss();
-                                }
+                                getDialog().dismiss();
                             }
                         });
             }
