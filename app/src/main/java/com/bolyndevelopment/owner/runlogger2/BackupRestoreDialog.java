@@ -1,5 +1,6 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -11,9 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-/**
- * Created by Bobby Jones on 9/17/2017.
- */
+//Created 9/17/2017.
 
 public class BackupRestoreDialog extends DialogFragment implements View.OnClickListener{
     private ChoiceListener listener;
@@ -25,17 +24,18 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
     static final int RESTORE_FROM_PREVIOUS = 30;
     static final int RESTORE_FROM_NEW = 40;
 
-    public interface ChoiceListener{
+    interface ChoiceListener{
         void onChoiceSelected(final int choice);
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         setCancelable(false);
         listener = (ChoiceListener) getActivity();
 
         backupKey = getArguments().getString("backupKey");
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
         rootView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.dialog_backup_restore, null);
