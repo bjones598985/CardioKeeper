@@ -81,7 +81,7 @@
             android:id="@+id/main_nav_left"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="left|start"
+            android:layout_gravity="start"
             android:maxWidth="250dp"
             android:background="@android:color/transparent"
             android:fitsSystemWindows="true"
