@@ -2,12 +2,10 @@ package com.bolyndevelopment.owner.runlogger2;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,7 +17,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,11 +33,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -52,13 +46,11 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
-import com.bumptech.glide.Glide;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -73,7 +65,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.Timer;
 
 import es.dmoral.toasty.Toasty;
 
@@ -360,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     index++;
                 }
                 map.put(CARDIO_TYPE, cardioList.get(index));
-                long l = DataModel.getInstance().addRecords(map, null);
+                DataModel.getInstance().addRecords(map, null);
             }
         }
     }
@@ -557,18 +548,11 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         //new DatabaseBackup(this).dumpBackupFile();
     }
 
-    public void graphIt(String date, String cType, View view) {
+    public void graphIt(String date, String cType) {
         Intent i = new Intent(this, HelloGraph.class);
         i.putExtra("date", date);
         i.putExtra("cType", cType);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            //ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, view, "cardioName");
-            //startActivity(i, options.toBundle());
-            startActivity(i);
-        } else {
-            startActivity(i);
-        }
-
+        startActivity(i);
     }
 
     @Override
@@ -648,6 +632,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     new AddViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.button_dialog_frag_layout, parent, false));
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (recordsList.get(position) instanceof AddDialog) {
@@ -719,7 +704,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
 
             @Override
             public void onClick(View v) {
-                graphIt(recordsList.get(getAdapterPosition()).date, recordsList.get(getAdapterPosition()).cType, name);
+                graphIt(recordsList.get(getAdapterPosition()).date, recordsList.get(getAdapterPosition()).cType);
             }
         }
 
@@ -747,13 +732,14 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 cardioSpinner.setAdapter(adapter);
                 cardioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         distInput.setEnabled(position != 6);
                         if (position == 11) {
-                            ((TextView) itemView.findViewById(R.id.miles)).setText("Laps:");
+                            ((TextView) itemView.findViewById(R.id.miles)).setText(getResources().getString(R.string.lap_label));
                         } else {
-                            ((TextView)itemView.findViewById(R.id.miles)).setText("Distance:");
+                            ((TextView) itemView.findViewById(R.id.miles)).setText(getResources().getString(R.string.distance_label));
                         }
                         GradientDrawable sd = (GradientDrawable)getResources().getDrawable(R.drawable.rounded_corner_background);
                         if (position != 0) {
@@ -847,6 +833,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 return -1;
             }
 
+            @SuppressWarnings("deprecation")
             private void highlightField(int field) {
                 final Drawable background = getResources().getDrawable(R.drawable.error_rectangle);
                 switch (field) {
@@ -860,26 +847,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                         distInput.setBackground(background);
                         break;
                 }
-            }
-
-            private ArrayList<String> addInfoToArray() {
-                //HashMap<String, String> cardioData = new HashMap<>();
-                ArrayList<String> runData = new ArrayList<>();
-                runData.add(dateInput.getText().toString());
-                //cardioData.put(DATE, dateInput.getText().toString());
-                runData.add(getTimeMillis());
-                //cardioData.put(TIME, getTimeMillis());
-                //if (distInput.isEnabled()) {
-                runData.add(distInput.getText().toString());
-                    //cardioData.put(DISTANCE, distInput.getText().toString());
-                //}
-                //runData.add(distInput.isEnabled() ? distInput.getText().toString() : "-1"); possibility
-                runData.add(calsInput.getText().toString());
-                //cardioData.put(CALORIES, calsInput.getText().toString());
-                String cardio = (String)cardioSpinner.getSelectedItem();
-                runData.add(cardio); //how we'll add in the cardio type
-                //cardioData.put(CARDIO_TYPE, cardio);
-                return runData;
             }
 
             private HashMap<String, String> addInfoToMap() {

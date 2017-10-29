@@ -2,7 +2,6 @@
     <string name="app_name">Cardio\nKeeper</string>
     <string name="action_graph">About</string>
 
-
     <!-- Navigation drawer strings -->
     <string name="graph">Graph</string>
     <string name="settings">Settings</string>
@@ -106,6 +105,7 @@
     <string name="time_input_hint">hh:mm:ss</string>
     <string name="distance_label">Distance: </string>
     <string name="calories_label">Calories: </string>
+    <string name="lap_label">Laps: </string>
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">Cancel</string>
 
