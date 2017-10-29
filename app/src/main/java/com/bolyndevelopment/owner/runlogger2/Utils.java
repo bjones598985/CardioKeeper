@@ -12,7 +12,6 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,16 +23,13 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Owner on 1/19/2016.
- */
+//Created 1/19/2016.
+
 class Utils {
 
     private static final String TAG = "Utils";
@@ -121,12 +117,11 @@ class Utils {
     static Date convertStringToDate(String inDate, String format) {
         DateFormat formatter;
         Date outDate = null;
-        //String formattedDate = inDate.replace("/", "-");
         formatter = new SimpleDateFormat(format, Locale.US);
         try {
             outDate = formatter.parse(inDate);
         } catch (ParseException pe) {
-
+            Log.e(TAG, pe.getMessage());
         }
         return outDate;
     }
@@ -277,7 +272,7 @@ class Utils {
                     }
                     boss.close();
                 } catch (IOException ioe) {
-
+                    Log.e(TAG, ioe.getMessage());
                 }
             }
         }).start();
