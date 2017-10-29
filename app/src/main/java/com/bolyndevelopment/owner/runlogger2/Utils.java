@@ -1,12 +1,10 @@
 package com.bolyndevelopment.owner.runlogger2;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -19,10 +17,8 @@ import android.widget.Toast;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -39,7 +35,9 @@ import java.util.concurrent.TimeUnit;
  * Created by Owner on 1/19/2016.
  */
 class Utils {
+
     private static final String TAG = "Utils";
+
     static final String DB_DATE_FORMAT = "MM/dd/yyyy";
 
     static int getCardioIcon(String exercise) {
@@ -142,77 +140,12 @@ class Utils {
         return dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    static float convertPixelsToDp(float px){
-        DisplayMetrics metrics = MyApplication.appContext.getResources().getDisplayMetrics();
-        return px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-    }
-
-    static String convertLongToDate(long time, String format) {
-        Date d = new Date(time);
-        return new SimpleDateFormat(format, Locale.US).format(d);
-    }
-
-    static long convertDateToMillis(Date date) {
-        return date.getTime();
-    }
-
-    static Calendar[] comparisonDates(Calendar one, Calendar two) {
-        Calendar[] calendarArray = new Calendar[2];
-        one.set(Calendar.HOUR_OF_DAY, 12);
-        one.set(Calendar.MINUTE, 0);
-        one.set(Calendar.SECOND, 0);
-        one.set(Calendar.MILLISECOND, 0);
-
-        two.set(Calendar.HOUR_OF_DAY, 12);
-        two.set(Calendar.MINUTE, 0);
-        two.set(Calendar.SECOND, 0);
-        two.set(Calendar.MILLISECOND, 0);
-        calendarArray[0] = one;
-        calendarArray[1] = two;
-        return calendarArray;
-    }
-
-    static int getNumberOfDaysInMonth(Calendar cal) {
-        int month = cal.get(Calendar.MONTH) + 1;
-        int year = cal.get(Calendar.YEAR);
-        switch(month) {
-            case 4:
-            case 6:
-            case 9:
-            case 11:
-                return 30;
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            case 8:
-            case 10:
-            case 12:
-                return 31;
-            case 2:
-                if (year % 4 == 0) {
-                    return 29;
-                } else {
-                    return 28;
-                }
-        }
-        return 0;
-    }
-
     static long convertToMillis(int hours, int minutes, int seconds) {
         long millis = 0;
         millis += (hours * 60 * 60 * 1000);
         millis += (minutes * 60 * 1000);
         millis += (seconds * 1000);
         return millis;
-    }
-
-    static int convertMillisToIntMinutes(long millis) {
-        return (int) (millis / 60000);
-    }
-
-    static float convertMillisToFloatMinutes(long millis) {
-        return (float) (millis / 60000);
     }
 
     static String convertMillisToHms(long millis) {
@@ -229,28 +162,6 @@ class Utils {
             return String.format(Locale.US, "%02d secs", sec);
         } else {
             return "No time";
-        }
-    }
-
-    static boolean readInternalFile() {
-        final File sd = Environment.getExternalStorageDirectory();
-        final File data = MyApplication.appContext.getFilesDir();
-
-        final FileChannel source, destination;
-        final File currentFile = new File(data, "01112017.txt");
-        final File backupFile = new File(sd, "01112017.txt");
-
-        try {
-            Log.d(TAG, "inside try readinternalfile");
-            source = new FileInputStream(currentFile).getChannel();
-            destination = new FileOutputStream(backupFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-            source.close();
-            destination.close();
-            return true;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return false;
         }
     }
 
@@ -331,86 +242,6 @@ class Utils {
                 }
             }
         }).start();
-    }
-
-    static void exportData(final Handler handler) {
-        Log.d(TAG, "export data");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final File sd = Environment.getExternalStorageDirectory();
-                final File data = Environment.getDataDirectory();
-
-                final FileChannel source, destination;
-                //final FileChannel destination;
-                final String currentDBPath = "data/com.bolyndevelopment.owner.runlogger2/databases/log.db";
-                final String backupDBPath = "log.db";
-                final File currentDB = new File(data, currentDBPath);
-                final File backupDB = new File(sd, backupDBPath);
-                Log.d(TAG, "export data - inside thread");
-
-                try {
-                    Log.d(TAG, "export data");
-                    source = new FileInputStream(currentDB).getChannel();
-                    destination = new FileOutputStream(backupDB).getChannel();
-                    destination.transferFrom(source, 0, source.size());
-                    source.close();
-                    destination.close();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MyApplication.appContext, "DB Exported", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } catch (IOException e) {
-                    Log.d(TAG, "Error writing DB " + e.toString());
-                    //Message msg = handler.obtainMessage(MainActivity.IMPORT_DB, "Uh oh - your export isn't working. Sorry.");
-                    //handler.dispatchMessage(msg);
-                }
-            }
-        }).start();
-    }
-
-    static void importDb(final Handler handler) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final File externalStorageDirectory = Environment.getExternalStorageDirectory();
-                final File dataDirectory = Environment.getDataDirectory();
-                final FileChannel source, destination;
-                final String applicationDbPath = "data/com.bolyndevelopment.owner.intelligym2/databases/workout_records.db";
-                final String importDbPath = "workout_records.db";
-                final File importDb = new File(externalStorageDirectory, importDbPath);
-                final File applicationDb = new File(dataDirectory, applicationDbPath);
-                try {
-                    source = new FileInputStream(importDb).getChannel();
-                    destination = new FileOutputStream(applicationDb).getChannel();
-                    destination.transferFrom(source, 0, source.size());
-                    source.close();
-                    destination.close();
-                    //Message msg = handler.obtainMessage(MainActivity.IMPORT_DB, "Data successfully imported to " + applicationDb.getAbsolutePath());
-                    //handler.dispatchMessage(msg);
-                    //Snackbar.make(mainLayout, "Database imported to " + applicationDb.getAbsolutePath(), Snackbar.LENGTH_LONG).show();
-                } catch (IOException e) {
-                    Log.d(TAG, "Error writing DB " + e.toString());
-                    //Message msg = handler.obtainMessage(MainActivity.IMPORT_DB, "Uh oh - your import isn't working. Sorry.");
-                    //handler.dispatchMessage(msg);
-                }
-            }
-        }).start();
-    }
-
-    //we'll use this to delete the prior days text workout file
-    static void cleanFileList() {
-        final Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.DATE, -1);
-        String d = Utils.convertDateToString(cal.getTime(), "MMddyyyy");
-        d += ".txt";
-        final List<String> fileNameList = Arrays.asList(MyApplication.appContext.fileList());
-        if (fileNameList.contains(d)) {
-            MyApplication.appContext.deleteFile(d);
-        }
     }
 
     static void writeDbToCsvFile() {
@@ -512,5 +343,4 @@ class Utils {
             }
         }
     }
-
 }
