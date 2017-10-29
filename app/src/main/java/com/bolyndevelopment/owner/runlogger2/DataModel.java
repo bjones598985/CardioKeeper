@@ -135,37 +135,21 @@ class DataModel {
         int cals = 0;
         float distance = 0;
         ContentValues values = new ContentValues();
-        //values.put(COL_DATE, data.get(0));
         values.put(COL_DATE, map.get(MainActivity.DATE));
-        //values.put(COL_SEQUENCE, generateSequenceNumber(data.get(0)));
         values.put(COL_SEQUENCE, generateSequenceNumber(map.get(MainActivity.DATE)));
-        //values.put(COL_TIME, Long.parseLong(data.get(1)));
         values.put(COL_TIME, Long.parseLong(map.get(MainActivity.TIME)));
-        //values.put(COL_DISTANCE, Float.parseFloat(data.get(2)));
-        //values.put(COL_DISTANCE, Float.parseFloat(map.get(MainActivity.DISTANCE)));
-        /*
-        if (!data.get(3).equals("")) {
-            cals = Integer.parseInt(data.get(3));
-            values.put(COL_CALORIES, cals);
-        } else {
-            values.put(COL_CALORIES, cals);
-        }
-        */
         if (!map.get(MainActivity.DISTANCE).isEmpty()) {
             distance = Float.parseFloat(map.get(MainActivity.DISTANCE));
             values.put(COL_DISTANCE, distance);
         } else {
             values.put(COL_DISTANCE,  distance);
         }
-
         if (!map.get(MainActivity.CALORIES).isEmpty()) {
             cals = Integer.parseInt(map.get(MainActivity.CALORIES));
             values.put(COL_CALORIES, cals);
         } else {
             values.put(COL_CALORIES, cals);
         }
-
-        //values.put(COL_CARDIO_TYPE, data.get(4));
         values.put(COL_CARDIO_TYPE, map.get(MainActivity.CARDIO_TYPE));
         long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
         String sqlInsert = "insert into " + DATA_TABLE + " values(" + map.get(MainActivity.DATE)

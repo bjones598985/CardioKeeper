@@ -223,14 +223,12 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                         startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
                     }
                 }, MIN_DELAY_MILLIS);
-
             }
         });
     }
 
     private void setupDrawer() {
         binder.mainDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
         drawerToggle = new ActionBarDrawerToggle(this,
                 binder.mainDrawerLayout,
                 binder.toolbar,
@@ -248,11 +246,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             }
         };
         binder.mainDrawerLayout.addDrawerListener(drawerToggle);
-        //binder.mainDrawerLayout.setDrawerListener(drawerToggle);
-        //drawerToggle.syncState();
-
     }
-
 
     public void onNavClick(final View v) {
         switch (v.getId()) {
@@ -314,7 +308,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             binder.mainDrawerLayout.openDrawer(GravityCompat.START);  // OPEN DRAWER
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -357,15 +350,17 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 int sec = random.nextInt((60 - 1) + 1) + 1;
                 int miles = random.nextInt((15 - 1) + 1) + 1;
                 int calories = random.nextInt((1000 - 100) + 1) + 100;
-                ArrayList<String> list = new ArrayList<>();
-                list.add(date);
-                list.add(Utils.getTimeStringMillis(String.valueOf(min) + ":" + String.valueOf(sec)));
-                list.add(String.valueOf(miles));
-                list.add(String.valueOf(calories));
+                HashMap<String, String> map = new HashMap<>();
+                map.put(DATE, date);
+                map.put(TIME, Utils.getTimeStringMillis(String.valueOf(min) + ":" + String.valueOf(sec)));
+                map.put(DISTANCE, String.valueOf(miles));
+                map.put(CALORIES, String.valueOf(calories));
                 int index = random.nextInt(13);
-                if (index == 0) index++;
-                list.add(cardioList.get(index));
-                long l = DataModel.getInstance().addRecords(list, null);
+                if (index == 0) {
+                    index++;
+                }
+                map.put(CARDIO_TYPE, cardioList.get(index));
+                long l = DataModel.getInstance().addRecords(map, null);
             }
         }
     }
@@ -397,7 +392,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 });
             }
         }).start();
-
     }
 
     private void initRecyclerView() {
@@ -448,7 +442,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         super.onPostCreate(savedInstanceState);
         drawerToggle.syncState();
     }
-
 
     /*
     this is where we create the file and then get the Uri and write to it
@@ -536,44 +529,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         }
     }
 
-    private void saveEnteredData(final ArrayList<String> list) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long id = DataModel.getInstance().addRecords(list, lapDataFromTimer);
-                //long id = 0;
-                if (id > -1) {
-                    ListItem item = new ListItem();
-                    //item.order = (int) id;
-                    item.date = list.get(0);
-                    //item.date = map.get(DATE);
-                    item.time = Utils.convertMillisToHms(Long.parseLong(list.get(1)));
-                    //item.time = Utils.convertMillisToHms(Long.parseLong(map.get(TIME)));
-                    item.distance = list.get(2).equals("") ? 0 : Float.parseFloat(list.get(2));
-                    Log.d(TAG, "distance: " + item.distance);
-                    //item.distance = map.get(DISTANCE).equals("") ? 0 : Float.parseFloat(map.get(DISTANCE));
-                    item.calories = list.get(3).equals("") ? 0 : Integer.parseInt(list.get(3));
-                    Log.d(TAG, "calories: " + item.calories);
-                    //item.calories = map.get(CALORIES).equals("") ? 0 : Integer.parseInt(map.get(CALORIES));
-                    item.cType = list.get(4);
-                    //item.cType = map.get(CARDIO_TYPE);
-                    recordsList.add(0, item);
-                    recordsList.remove(1);
-                    //final int index = recordsList.indexOf(item);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAdapter.notifyItemChanged(0);
-                            binder.mainRecyclerview.scrollToPosition(0);
-                            isAddDialogOpen = false;
-                        }
-                    });
-                }
-            }
-        }).start();
-        //new DatabaseBackup(this).dumpBackupFile();
-    }
-
     private void saveEnteredData(final HashMap<String, String> map) {
         new Thread(new Runnable() {
             @Override
@@ -607,8 +562,9 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         i.putExtra("date", date);
         i.putExtra("cType", cType);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, view, "cardioName");
-            startActivity(i, options.toBundle());
+            //ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, view, "cardioName");
+            //startActivity(i, options.toBundle());
+            startActivity(i);
         } else {
             startActivity(i);
         }
@@ -821,7 +777,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 });
             }
 
-
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
@@ -987,5 +942,4 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             avh.dateInput.setText(formattedDate);
         }
     }
-
 }

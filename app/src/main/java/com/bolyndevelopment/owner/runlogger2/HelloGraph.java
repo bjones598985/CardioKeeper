@@ -47,27 +47,35 @@ import lecho.lib.hellocharts.model.SubcolumnValue;
 public class HelloGraph extends AppCompatActivity {
     //Created by Bobby Jones on 8/11/2017
     public static final String TAG = "HelloGraph";
+
     private static final String SPINNER_CARDIO = "spinner_cardio";
     private static final String SPINNER_DATA = "spinner_data";
     private static final String SPINNER_TIME = "spinner_time";
 
+    boolean initialDataLoaded = false; //once set to true, column data is update instead of generated
 
-    boolean initialDataLoaded = false;
-    String distUnit;
+    String distUnit; //miles or kilometers
 
-    int colorIndex = 0;
+    int colorIndex = 0; // index of colors to use to color the columns
 
-    List<Integer> columnColorList = new ArrayList<>();
+    List<Integer> columnColorList = new ArrayList<>(); // list of colors for coloring the columns
 
     Handler handler = new Handler();
+
     List<Float> rawData;
+
     List<AxisValue> axisValues;
+
     ColumnChartData columnData;
+
     LineChartData lineData;
+
     ActivityGraphsBinding binding;
 
-    boolean isDataTypeSet = false, isCardioTypeSet = false, isStatusBarVisible;
+    boolean isDataTypeSet = false, isCardioTypeSet = false;
+
     int dataType, timeFrame = 0;
+
     String cardioType, yAxisLabel, initialDate;
 
     @Override
@@ -100,7 +108,6 @@ public class HelloGraph extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
-        /*
         binding.coordLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
@@ -149,7 +156,6 @@ public class HelloGraph extends AppCompatActivity {
                 presentChart();
             }
         }
-
         binding.runQueryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,6 +163,7 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
     }
+
     private void setInitialPrefs() {
         final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
@@ -248,18 +255,11 @@ public class HelloGraph extends AppCompatActivity {
         binding.helloGraph.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
     }
 
-
-
     private int getNextColor() {
         if (colorIndex >= columnColorList.size()) {
             colorIndex = 0;
         }
         return columnColorList.get(colorIndex++);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -304,11 +304,7 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     String query = getQuery();
-                    Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
-                    Log.d(TAG, "Cursor count: " + c.getCount());
-                    dumpCursorToScreen(c);
-                    Log.d(TAG, "initdataloaded: " + initialDataLoaded);
                     if (initialDataLoaded) {
                         updateColumnValues(c);
                     } else {
@@ -358,8 +354,11 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private String buildAndRetrieveMidQueryPart() {
-        String endOfQuery = null;
         String ex = "\'" + cardioType + "\'";
+        if (timeFrame == 5) {
+            return ex;
+        }
+        String endOfQuery = null;
         String today;
         if (initialDate != null) {
             today = initialDate;
@@ -379,7 +378,6 @@ public class HelloGraph extends AppCompatActivity {
 
     private String getSecondDate() {
         Calendar cal = Calendar.getInstance();
-        Log.d(TAG, "getseconddate timeframe: " + timeFrame);
         switch (timeFrame) {
             case 0:
                 cal.add(Calendar.DAY_OF_MONTH, -7);
@@ -409,7 +407,7 @@ public class HelloGraph extends AppCompatActivity {
         List<Column> columns = new ArrayList<>();
         axisValues.clear();
         int colCount = 0;
-        int count = 0;
+        //int count = 0;
         while (!results.isAfterLast()) {
             String date = results.getString(0);
             subcolumnValues = new ArrayList<>();
@@ -418,20 +416,16 @@ public class HelloGraph extends AppCompatActivity {
                 float raw = results.getFloat(1);
                 subcolumnValues.add(new SubcolumnValue(raw).setColor(getNextColor()));
                 results.moveToNext();
-                Log.d(TAG, "Count: " + count);
-                count++;
+                //count++;
             }
             Column col = new Column(subcolumnValues);
             col.setHasLabels(true);
             col.setHasLabelsOnlyForSelected(true);
             columns.add(col);
-            //results.moveToNext();
-            Log.d(TAG, "colCount: " + colCount);
             colCount++;
         }
         results.close();
         columnData.setColumns(columns);
-        Log.d(TAG, "Num cols: " +columnData.getColumns().size());
     }
 
     private void updateColumnValues(Cursor results) {
@@ -442,10 +436,9 @@ public class HelloGraph extends AppCompatActivity {
 
         final List<Column> columns = oldData.getColumnChartData().getColumns();
         int sublistSize = 0;
-        if (columns.size() > 0) {
-            sublistSize = columns.get(colCount).getValues().size();
-            //Log.d(TAG, "Line 572 - sublistsize: " + sublistSize);
-        }
+        //if (columns.size() > 0) {
+            //sublistSize = columns.get(colCount).getValues().size();
+        //}
         int oldColumnCount = columns.size();
 
         //rawData.clear();
