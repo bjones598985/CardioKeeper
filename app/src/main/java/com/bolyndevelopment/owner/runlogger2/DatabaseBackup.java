@@ -1,14 +1,11 @@
 package com.bolyndevelopment.owner.runlogger2;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,9 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Bobby Jones on 8/17/2017.
- */
+//Created 8/17/2017.
 
 class DatabaseBackup {
     private static final String BACKUP_FILE = "data_backup.txt";
@@ -32,10 +27,9 @@ class DatabaseBackup {
     }
 
     int updateDbLog(ArrayList<String> inserts) {
-        FileOutputStream outputStream = null;
+        FileOutputStream outputStream;
         final List<String> fileList = Arrays.asList(context.fileList());
         try {
-
             if (fileList.contains(BACKUP_FILE)) {
                 outputStream = context.openFileOutput(BACKUP_FILE, Context.MODE_APPEND);
             } else {
@@ -53,16 +47,12 @@ class DatabaseBackup {
             Log.e(TAG, ioe.toString());
             Log.e(TAG, "The file did not write");
             return -1;
-        } finally {
-            //dumpBackupFile();
         }
-
     }
 
     void dumpBackupFile() {
-        FileInputStream fileInputStream = null;
         File file = context.getFileStreamPath(BACKUP_FILE);
-        BufferedInputStream bis = null;
+        BufferedInputStream bis;
         StringBuilder sb = new StringBuilder();
         char[] ch = new char[(int) file.length()];
         try {
@@ -76,7 +66,6 @@ class DatabaseBackup {
             for (char c : ch) {
                 sb.append(c);
             }
-            //Log.d(TAG, "Char array: " + sb.toString());
             Toast.makeText(MyApplication.appContext, "Char array: " + sb.toString(), Toast.LENGTH_LONG).show();
 
 
@@ -94,7 +83,6 @@ class DatabaseBackup {
         final File backupFile = new File(sd, BACKUP_FILE);
 
         try {
-            Log.d(TAG, "inside try readinternalfile");
             source = new FileInputStream(currentFile).getChannel();
             destination = new FileOutputStream(backupFile).getChannel();
             destination.transferFrom(source, 0, source.size());
