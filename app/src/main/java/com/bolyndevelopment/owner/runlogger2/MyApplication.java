@@ -3,9 +3,7 @@ package com.bolyndevelopment.owner.runlogger2;
 import android.app.Application;
 import android.content.Context;
 
-/**
- * Created by Bobby Jones on 7/23/2017.
- */
+//Created 7/23/2017.
 
 public class MyApplication extends Application {
     public static Context appContext = null;
