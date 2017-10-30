@@ -26,8 +26,6 @@
                     app:layout_scrollFlags="scroll|enterAlways"
                     app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-
-
             </android.support.design.widget.AppBarLayout>
 
             <LinearLayout
@@ -70,7 +68,7 @@
                     android:text="@string/run_query_button_text"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@android:color/black"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:theme="@style/HelloGraphGoButton" />
 
             </LinearLayout>
@@ -100,12 +98,9 @@
                     android:textSize="24sp"
                     android:padding="@dimen/chart_title_padding"
                     android:background="@android:color/transparent"
-                    android:transitionName="cardioName"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             </FrameLayout>
-
-
 
         </RelativeLayout>
 

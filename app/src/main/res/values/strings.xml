@@ -179,6 +179,16 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="flaticon">The following icon creators at <a href="http://www.flaticon.com">Flaticon.com</a></string>
     <string name="author_freepik">Icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a></string><!-- running, hiking, rowboat, jump rope, jogging, treadmill, bike, swimming -->
     <string name="author_scott_de_jonge">Icon made by Scott de Jonge from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
+    <string name="toasty_icon_description">Toasty Icon</string>
+
+    <string name="run_icon_description">Run Icon</string>
+    <string name="hike_icon_description">Hike Icon</string>
+    <string name="row_icon_description">Row Icon</string>
+    <string name="jump_rope_icon_description">Jump Rope Icon</string>
+    <string name="jog_icon_description">Jog Icon</string>
+    <string name="treadmill_icon_description">Treadmill Icon</string>
+    <string name="bike_icon_description">Hike Icon</string>
+    <string name="swim_icon_description">Swim Icon</string>
 
     <!-- TimerActivity dialog strings -->
     <string name="dialog_save_exit_msg">Are you done recording your cardio session?</string>

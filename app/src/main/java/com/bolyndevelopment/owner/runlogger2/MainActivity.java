@@ -694,7 +694,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 super(itemView);
                 itemView.setOnClickListener(this);
                 date = (TextView) itemView.findViewById(R.id.list_date_input);
-                time = (TextView) itemView.findViewById(R.id.list_time_input);
                 distance = (TextView) itemView.findViewById(R.id.list_miles_input);
                 calories = (TextView) itemView.findViewById(R.id.list_calories_input);
                 name = (TextView) itemView.findViewById(R.id.list_name_input);
