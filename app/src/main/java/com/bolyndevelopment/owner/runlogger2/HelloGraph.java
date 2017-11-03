@@ -1,11 +1,22 @@
 package com.bolyndevelopment.owner.runlogger2;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -14,15 +25,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.PathInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsBinding;
+import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsV2Binding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +72,13 @@ public class HelloGraph extends AppCompatActivity {
     private static final String SPINNER_DATA = "spinner_data";
     private static final String SPINNER_TIME = "spinner_time";
 
+    int[] fabLocation = new int[2];
+    int fabRadii;
+    float fabElevation;
+    int mainColor;
+
+    boolean isFabHidden = false;
+
     boolean initialDataLoaded = false; //once set to true, column data is update instead of generated
 
     String distUnit; //miles or kilometers
@@ -70,7 +97,8 @@ public class HelloGraph extends AppCompatActivity {
 
     LineChartData lineData;
 
-    ActivityGraphsBinding binding;
+    ActivityGraphsBinding binder;
+    ActivityGraphsV2Binding binding;
 
     boolean isDataTypeSet = false, isCardioTypeSet = false;
 
@@ -107,7 +135,7 @@ public class HelloGraph extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs_v2);
         binding.coordLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
@@ -116,6 +144,11 @@ public class HelloGraph extends AppCompatActivity {
                 }
             }
         });
+
+        binding.fabMenuButton.getLocationOnScreen(fabLocation);
+        fabRadii = binding.fabMenuButton.getWidth() / 2;
+        Log.d(TAG, "fabRadii: "+ fabRadii);
+        fabElevation = binding.fabMenuButton.getCompatElevation();
 
         /*
          * set distance variable to miles or kilometerss
@@ -156,12 +189,29 @@ public class HelloGraph extends AppCompatActivity {
                 presentChart();
             }
         }
-        binding.runQueryButton.setOnClickListener(new View.OnClickListener() {
+        binding.fabMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleFabMenu();
+            }
+        });
+
+        binding.include.runQueryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 presentChart();
+                toggleFabMenu();
+                //binding.fabMenuButton.setBackgroundTintList(ColorStateList.valueOf(mainColor));
             }
         });
+        binding.include.cancelMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleFabMenu();
+            }
+        });
+
+
     }
 
     private void setInitialPrefs() {
@@ -171,20 +221,19 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void setActivityColorScheme() {
-        int color;
         if (cardioType == null) {
-            color = getResources().getColor(R.color.colorPrimary);
+            mainColor = getResources().getColor(R.color.colorPrimary);
         } else {
-            color = Utils.ColorUtils.getCardioColor(cardioType);
+            mainColor = Utils.ColorUtils.getCardioColor(cardioType);
         }
         columnColorList.clear();
-        columnColorList = Utils.ColorUtils.makeNNumberOfColors(color, 0);
+        columnColorList = Utils.ColorUtils.makeNNumberOfColors(mainColor, 0);
         GradientDrawable gradBack = (GradientDrawable) getResources().getDrawable(R.drawable.gradient_drawable);
-        gradBack.setColors(new int[]{color, Color.WHITE});
+        gradBack.setColors(new int[]{mainColor, Color.WHITE});
         binding.coordLayout.setBackground(gradBack);
-        binding.spinnerCardioType.setPopupBackgroundDrawable(new ColorDrawable(color));
-        binding.spinnerData.setPopupBackgroundDrawable(new ColorDrawable(color));
-        binding.spinnerTimeFrame.setPopupBackgroundDrawable(new ColorDrawable(color));
+        binding.include.spinnerCardioType.setPopupBackgroundDrawable(new ColorDrawable(mainColor));
+        binding.include.spinnerData.setPopupBackgroundDrawable(new ColorDrawable(mainColor));
+        binding.include.spinnerTimeFrame.setPopupBackgroundDrawable(new ColorDrawable(mainColor));
     }
 
     private void initVars() {
@@ -197,10 +246,10 @@ public class HelloGraph extends AppCompatActivity {
     private void initSpinners() {
         final ArrayAdapter<CharSequence> dataAdapter = ArrayAdapter.createFromResource(this, R.array.graph_data_type, R.layout.spinner_item);
         dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        binding.spinnerData.setAdapter(dataAdapter);
+        binding.include.spinnerData.setAdapter(dataAdapter);
         //this is necessary so that on layout it doesnt fire
-        binding.spinnerData.setSelection(0, false);
-        binding.spinnerData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.include.spinnerData.setSelection(0, false);
+        binding.include.spinnerData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 dataType = position;
@@ -217,9 +266,9 @@ public class HelloGraph extends AppCompatActivity {
 
         final ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this, R.array.time_frame, R.layout.spinner_item);
         timeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        binding.spinnerTimeFrame.setAdapter(timeAdapter);
-        binding.spinnerTimeFrame.setSelection(0); //default
-        binding.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.include.spinnerTimeFrame.setAdapter(timeAdapter);
+        binding.include.spinnerTimeFrame.setSelection(0); //default
+        binding.include.spinnerTimeFrame.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 timeFrame = position;
@@ -233,9 +282,9 @@ public class HelloGraph extends AppCompatActivity {
 
         final ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.cardio_types, R.layout.spinner_item);
         typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        binding.spinnerCardioType.setAdapter(typeAdapter);
-        binding.spinnerCardioType.setSelection(0, false);
-        binding.spinnerCardioType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.include.spinnerCardioType.setAdapter(typeAdapter);
+        binding.include.spinnerCardioType.setSelection(0, false);
+        binding.include.spinnerCardioType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 cardioType = ((TextView)view).getText().toString();
@@ -266,27 +315,27 @@ public class HelloGraph extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString("cardioType", cardioType);
         outState.putBoolean("initialDataLoaded", initialDataLoaded);
-        outState.putInt(SPINNER_CARDIO, binding.spinnerCardioType.getSelectedItemPosition());
-        outState.putInt(SPINNER_DATA, binding.spinnerData.getSelectedItemPosition());
-        outState.putInt(SPINNER_TIME, binding.spinnerTimeFrame.getSelectedItemPosition());
+        outState.putInt(SPINNER_CARDIO, binding.include.spinnerCardioType.getSelectedItemPosition());
+        outState.putInt(SPINNER_DATA, binding.include.spinnerData.getSelectedItemPosition());
+        outState.putInt(SPINNER_TIME, binding.include.spinnerTimeFrame.getSelectedItemPosition());
         super.onSaveInstanceState(outState);
     }
 
     private void overrideInitVarsOnConfigChange(final Bundle inState) {
-        binding.spinnerCardioType.setSelection(inState.getInt(SPINNER_CARDIO));
+        binding.include.spinnerCardioType.setSelection(inState.getInt(SPINNER_CARDIO));
         dataType = inState.getInt(SPINNER_DATA);
-        binding.spinnerData.setSelection(dataType);
+        binding.include.spinnerData.setSelection(dataType);
         timeFrame = inState.getInt(SPINNER_TIME);
-        binding.spinnerTimeFrame.setSelection(timeFrame);
+        binding.include.spinnerTimeFrame.setSelection(timeFrame);
         isCardioTypeSet = true;
         isDataTypeSet = true;
     }
 
     private void overrideInitVars() {
         int pos = Arrays.asList(getResources().getStringArray(R.array.cardio_types)).indexOf(cardioType);
-        binding.spinnerCardioType.setSelection(pos);
+        binding.include.spinnerCardioType.setSelection(pos);
         dataType = 2;
-        binding.spinnerData.setSelection(dataType);
+        binding.include.spinnerData.setSelection(dataType);
         isCardioTypeSet = true;
         isDataTypeSet = true;
     }
@@ -300,6 +349,7 @@ public class HelloGraph extends AppCompatActivity {
         if (canPresentChart()) {
             binding.chartTitle.setText(cardioType);
             setActivityColorScheme();
+            binding.helloGraph.setVisibility(View.VISIBLE);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -587,6 +637,105 @@ public class HelloGraph extends AppCompatActivity {
                 binding.helloGraph.setComboLineColumnChartData(data);
             }
         });
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void toggleFabMenu() {
+        Log.d("FABBUTTON", "touched fab");
+        final FloatingActionButton fab = binding.fabMenuButton;
+        final ViewGroup layout = binding.include.spinnerLayout;
+
+        if (isFabHidden) {
+            fab.setTranslationX(fabLocation[0] + fabRadii);
+            fab.setTranslationY(fabLocation[1] + fabRadii);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    fab.show();
+                }
+            }, 300);
+            layout.animate().alpha(0).setDuration(500).start();
+            layout.setVisibility(View.INVISIBLE);
+            isFabHidden = false;
+        } else {
+            layout.setBackgroundColor(Utils.ColorUtils.darkenColor(mainColor));
+            int[] spinLayCoords = new int[2];
+            layout.getLocationOnScreen(spinLayCoords);
+            int[] spinLayCenterCoords = new int[]{spinLayCoords[0] + layout.getWidth() / 2, spinLayCoords[1] + layout.getHeight() / 2};
+            int[] fabCoords = new int[2];
+            fab.getLocationOnScreen(fabCoords);
+            final int fabRadii = fab.getWidth() / 2;
+
+            //center coords based on view
+            int spinLayCenterY = layout.getHeight() / 2;
+            int spinLayCenterX = layout.getWidth() / 2;
+
+            fab.animate().setListener(null);
+            isFabHidden = true;
+
+            Path path = getPath(spinLayCenterCoords[0] - fabRadii, spinLayCenterCoords[1] - fabRadii);
+            ObjectAnimator transAnim = ObjectAnimator.ofFloat(fab, View.X, View.Y, path);
+            transAnim.setDuration(500);
+            transAnim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    fab.setCompatElevation(0f);
+                }
+            });
+            final float[] from = new float[3], to = new float[3];
+
+            Color.colorToHSV(fab.getBackgroundTintList().getDefaultColor(), from);
+            Color.colorToHSV(mainColor, to);
+
+            ValueAnimator colorAnim = ValueAnimator.ofFloat(0, 1);
+            colorAnim.setDuration(500);
+
+            final float[] hsv  = new float[3];
+            colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
+                @Override public void onAnimationUpdate(ValueAnimator animation) {
+                    // Transition along each axis of HSV (hue, saturation, value)
+                    //code copied from
+                    hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
+                    hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
+                    hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
+                    fab.setBackgroundTintList(ColorStateList.valueOf(Color.HSVToColor(hsv)));
+
+                }
+            });
+            AnimatorSet setOne = new AnimatorSet();
+            float finalRadius = (float) Math.hypot(spinLayCenterX, spinLayCenterY);
+            final Animator circularRevealAnim = ViewAnimationUtils.createCircularReveal(layout, spinLayCenterX, spinLayCenterY, fabRadii, finalRadius);
+            circularRevealAnim.setDuration(500);
+            circularRevealAnim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    layout.setAlpha(1f);
+                    layout.setVisibility(View.VISIBLE);
+                }
+            });
+            circularRevealAnim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    fab.hide();
+                    fab.setCompatElevation(32f);
+                    layout.setElevation(32f);
+                }
+            });
+            setOne.playTogether(transAnim, colorAnim);
+            AnimatorSet setTwo = new AnimatorSet();
+            setTwo.playSequentially(setOne, circularRevealAnim);
+            setTwo.start();
+        }
+    }
+
+    private Path getPath(float endX, float endY) {
+        Path path = new Path();
+        final View view = binding.fabMenuButton;
+        path.moveTo(view.getX(),view.getY());
+        path.cubicTo(view.getX(),view.getY(),
+                view.getX() - 300,view.getY(),
+                endX, endY);
+        return path;
     }
 
     private class ComboTouchListener implements ComboLineColumnChartOnValueSelectListener {

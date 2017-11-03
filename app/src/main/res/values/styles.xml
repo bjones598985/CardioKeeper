@@ -47,7 +47,11 @@
     </style>
 
     <style name="HelloGraphGoButton" parent="AppTheme">
-        <item name="colorAccent">@android:color/white</item>
+        <item name="colorAccent">#ffffff</item>
+    </style>
+
+    <style name="HelloGraphCancelButton" parent="AppTheme">
+        <item name="colorAccent">#ffffff</item>
     </style>
 
     <style name="AddWorkoutDetailOkButton" parent="AppTheme">

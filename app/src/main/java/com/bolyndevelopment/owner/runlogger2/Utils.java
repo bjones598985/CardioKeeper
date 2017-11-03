@@ -298,6 +298,14 @@ class Utils {
             return colorList;
         }
 
+        static int darkenColor(int color) {
+            float[] hsv = new float[3];
+            Color.colorToHSV(color, hsv);
+            hsv[2] *= 1.1;
+            return Color.HSVToColor(hsv);
+
+        }
+
         static int changeAlpha(int color, int alphaValue) {
             final float[] hsv = new float[3];
             Color.colorToHSV(color, hsv);
