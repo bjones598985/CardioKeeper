@@ -194,13 +194,12 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         binder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, HelloGraph.class));
-                /*
+                //startActivity(new Intent(MainActivity.this, HelloGraph.class));
                 if (!isAddDialogOpen) {
                     initAddDialog(null);
                     isAddDialogOpen = true;
                 }
-                */
+
             }
         });
         binder.fabTimeRecord.setOnClickListener(new View.OnClickListener() {

@@ -28,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -716,7 +717,7 @@ public class HelloGraph extends AppCompatActivity {
                 public void onAnimationEnd(Animator animation) {
                     fab.hide();
                     fab.setCompatElevation(32f);
-                    //layout.setElevation(32f);
+                    layout.setElevation(32f);
                 }
             });
             setOne.playTogether(transAnim, colorAnim);
