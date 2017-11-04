@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
-            android:background="@color/colorAccent">
+            android:background="@android:color/transparent">
 
             <Spinner
                 android:id="@+id/spinner_cardio_type"
