@@ -639,9 +639,7 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toggleFabMenu() {
-        Log.d("FABBUTTON", "touched fab");
         final FloatingActionButton fab = binding.fabMenuButton;
         final ViewGroup layout = binding.include.spinnerLayout;
 
@@ -718,7 +716,7 @@ public class HelloGraph extends AppCompatActivity {
                 public void onAnimationEnd(Animator animation) {
                     fab.hide();
                     fab.setCompatElevation(32f);
-                    layout.setElevation(32f);
+                    //layout.setElevation(32f);
                 }
             });
             setOne.playTogether(transAnim, colorAnim);
