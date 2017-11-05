@@ -20,6 +20,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
@@ -30,7 +31,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsBinding;
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsV2Binding;
 
 import java.util.ArrayList;
@@ -62,6 +62,8 @@ public class HelloGraph extends AppCompatActivity {
     private static final String SPINNER_TIME = "spinner_time";
 
     int mainColor; //color based on the cardioType
+
+    int screenWidth;
 
     boolean isFabHidden = false; //flag for use in toggleFabMenu()
 
@@ -181,7 +183,6 @@ public class HelloGraph extends AppCompatActivity {
             public void onClick(View v) {
                 presentChart();
                 toggleFabMenu();
-                //binding.fabMenuButton.setBackgroundTintList(ColorStateList.valueOf(mainColor));
             }
         });
         binding.include.cancelMenuButton.setOnClickListener(new View.OnClickListener() {
@@ -191,7 +192,14 @@ public class HelloGraph extends AppCompatActivity {
             }
         });
 
+        getDisplayInfo();
 
+    }
+
+    private void getDisplayInfo() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        screenWidth = displayMetrics.widthPixels;
     }
 
     private void setInitialPrefs() {
@@ -726,11 +734,12 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private Path getPath(float endX, float endY) {
+        int seed = screenWidth - binding.fabMenuButton.getWidth();
         Path path = new Path();
         final View view = binding.fabMenuButton;
         path.moveTo(view.getX(),view.getY());
         path.cubicTo(view.getX(),view.getY(),
-                view.getX() - 300,view.getY(),
+                view.getX() - (new Random().nextInt(seed) + binding.fabMenuButton.getWidth() / 2),view.getY(),
                 endX, endY);
         return path;
     }

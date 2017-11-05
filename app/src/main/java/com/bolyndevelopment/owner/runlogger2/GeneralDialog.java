@@ -33,13 +33,9 @@ public class GeneralDialog extends DialogFragment {
         if (getArguments().getInt(MainActivity.DIALOG_TYPE) == MainActivity.DIALOG_ABOUT) {
             root = LayoutInflater.from(getActivity()).inflate(R.layout.about_dialog_layout, null);
             ImageView icon = (ImageView) root.findViewById(R.id.toasty_icon);
-            //ImageView flatIcon = (ImageView) root.findViewById(R.id.flaticon_icon);
             Glide.with(this)
                     .load("https://raw.githubusercontent.com/GrenderG/Toasty/master/art/web_hi_res_512.png")
                     .into(icon);
-            //Glide.with(this).asDrawable()
-                    //.load("https://media.freepik.com/flaticon/img/flaticon-logo.svg")
-                    //.into(flatIcon);
         }
     }
 

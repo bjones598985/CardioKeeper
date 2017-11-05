@@ -13,6 +13,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -51,6 +53,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
+import com.bumptech.glide.Glide;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -181,6 +184,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             }
         }
         setInitialPreferences();
+
+        Glide.with(this).asBitmap().load(R.drawable.card_keep_finish_v5).into(binder.appIconImageview);
+
+
     }
 
     private void setInitialPreferences() {
