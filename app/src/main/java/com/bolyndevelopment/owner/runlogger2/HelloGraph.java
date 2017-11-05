@@ -6,37 +6,25 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.PathInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -50,6 +38,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import es.dmoral.toasty.Toasty;
 import lecho.lib.hellocharts.animation.ChartAnimationListener;
@@ -60,7 +49,6 @@ import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Column;
 import lecho.lib.hellocharts.model.ColumnChartData;
 import lecho.lib.hellocharts.model.ComboLineColumnChartData;
-import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SubcolumnValue;
@@ -73,12 +61,9 @@ public class HelloGraph extends AppCompatActivity {
     private static final String SPINNER_DATA = "spinner_data";
     private static final String SPINNER_TIME = "spinner_time";
 
-    int[] fabLocation = new int[2];
-    int fabRadii;
-    float fabElevation;
-    int mainColor;
+    int mainColor; //color based on the cardioType
 
-    boolean isFabHidden = false;
+    boolean isFabHidden = false; //flag for use in toggleFabMenu()
 
     boolean initialDataLoaded = false; //once set to true, column data is update instead of generated
 
@@ -98,7 +83,6 @@ public class HelloGraph extends AppCompatActivity {
 
     LineChartData lineData;
 
-    ActivityGraphsBinding binder;
     ActivityGraphsV2Binding binding;
 
     boolean isDataTypeSet = false, isCardioTypeSet = false;
@@ -145,11 +129,6 @@ public class HelloGraph extends AppCompatActivity {
                 }
             }
         });
-
-        binding.fabMenuButton.getLocationOnScreen(fabLocation);
-        fabRadii = binding.fabMenuButton.getWidth() / 2;
-        Log.d(TAG, "fabRadii: "+ fabRadii);
-        fabElevation = binding.fabMenuButton.getCompatElevation();
 
         /*
          * set distance variable to miles or kilometerss
@@ -355,7 +334,6 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     String query = getQuery();
-                    Log.d(TAG, "Query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
                     if (initialDataLoaded) {
                         updateColumnValues(c);
@@ -645,8 +623,8 @@ public class HelloGraph extends AppCompatActivity {
         final ViewGroup layout = binding.include.spinnerLayout;
 
         if (isFabHidden) {
-            fab.setTranslationX(fabLocation[0] + fabRadii);
-            fab.setTranslationY(fabLocation[1] + fabRadii);
+            fab.setTranslationX(0);
+            fab.setTranslationY(0);
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -660,71 +638,91 @@ public class HelloGraph extends AppCompatActivity {
             layout.setBackgroundColor(Utils.ColorUtils.darkenColor(mainColor));
             int[] spinLayCoords = new int[2];
             layout.getLocationOnScreen(spinLayCoords);
-            int[] spinLayCenterCoords = new int[]{spinLayCoords[0] + layout.getWidth() / 2, spinLayCoords[1] + layout.getHeight() / 2};
-            int[] fabCoords = new int[2];
-            fab.getLocationOnScreen(fabCoords);
-            final int fabRadii = fab.getWidth() / 2;
+            int[] newCoordinates = getNewCoordinates();
+            final Path path = getPath(spinLayCoords[0] + newCoordinates[0], spinLayCoords[1] + newCoordinates[1]);
 
-            //center coords based on view
-            int spinLayCenterY = layout.getHeight() / 2;
-            int spinLayCenterX = layout.getWidth() / 2;
+            final Animator transAnim = getMovementAnim(path);
+            final Animator colorAnim = getColorAnim();
+            final Animator circularRevealAnim = getCircleRevealAnim(newCoordinates[0] + fab.getWidth() / 2, newCoordinates[1] + fab.getHeight() / 2);
 
-            fab.animate().setListener(null);
-            isFabHidden = true;
-
-            Path path = getPath(spinLayCenterCoords[0] - fabRadii, spinLayCenterCoords[1] - fabRadii);
-            ObjectAnimator transAnim = ObjectAnimator.ofFloat(fab, View.X, View.Y, path);
-            transAnim.setDuration(500);
-            transAnim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    fab.setCompatElevation(0f);
-                }
-            });
-            final float[] from = new float[3], to = new float[3];
-
-            Color.colorToHSV(fab.getBackgroundTintList().getDefaultColor(), from);
-            Color.colorToHSV(mainColor, to);
-
-            ValueAnimator colorAnim = ValueAnimator.ofFloat(0, 1);
-            colorAnim.setDuration(500);
-
-            final float[] hsv  = new float[3];
-            colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
-                @Override public void onAnimationUpdate(ValueAnimator animation) {
-                    // Transition along each axis of HSV (hue, saturation, value)
-                    //code copied from
-                    hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
-                    hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
-                    hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
-                    fab.setBackgroundTintList(ColorStateList.valueOf(Color.HSVToColor(hsv)));
-
-                }
-            });
             AnimatorSet setOne = new AnimatorSet();
-            float finalRadius = (float) Math.hypot(spinLayCenterX, spinLayCenterY);
-            final Animator circularRevealAnim = ViewAnimationUtils.createCircularReveal(layout, spinLayCenterX, spinLayCenterY, fabRadii, finalRadius);
-            circularRevealAnim.setDuration(500);
-            circularRevealAnim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    layout.setAlpha(1f);
-                    layout.setVisibility(View.VISIBLE);
-                }
-            });
-            circularRevealAnim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    fab.hide();
-                    fab.setCompatElevation(32f);
-                    layout.setElevation(32f);
-                }
-            });
             setOne.playTogether(transAnim, colorAnim);
             AnimatorSet setTwo = new AnimatorSet();
             setTwo.playSequentially(setOne, circularRevealAnim);
             setTwo.start();
+            isFabHidden = true;
         }
+    }
+
+    private int[] getNewCoordinates() {
+        int fabDiam = binding.fabMenuButton.getWidth();
+        int spinRadX = binding.include.spinnerLayout.getWidth();
+        int spinRadY = binding.include.spinnerLayout.getHeight();
+        spinRadX -= fabDiam;
+        spinRadY -= fabDiam;
+        Random random = new Random();
+        int x = random.nextInt(spinRadX);
+        int y = random.nextInt(spinRadY);
+        return new int[]{x, y};
+    }
+
+    private Animator getMovementAnim(Path p) {
+        final ObjectAnimator transAnim = ObjectAnimator.ofFloat(binding.fabMenuButton, View.X, View.Y, p);
+        transAnim.setDuration(500);
+        transAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                transAnim.removeAllListeners();
+            }
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+                binding.fabMenuButton.setCompatElevation(0f);
+            }
+        });
+        return transAnim;
+    }
+
+    private Animator getColorAnim() {
+        final float[] from = new float[3], to = new float[3];
+        Color.colorToHSV(binding.fabMenuButton.getBackgroundTintList().getDefaultColor(), from);
+        Color.colorToHSV(mainColor, to);
+        ValueAnimator colorAnim = ValueAnimator.ofFloat(0, 1);
+        colorAnim.setDuration(500);
+        final float[] hsv  = new float[3];
+        colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
+            @Override public void onAnimationUpdate(ValueAnimator animation) {
+                // Transition along each axis of HSV (hue, saturation, value)
+                //code copied from https://stackoverflow.com/questions/18216285/android-animate-color-change-from-color-to-color
+                hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
+                hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
+                hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
+                binding.fabMenuButton.setBackgroundTintList(ColorStateList.valueOf(Color.HSVToColor(hsv)));
+            }
+        });
+        return colorAnim;
+    }
+
+    private Animator getCircleRevealAnim(int xCoord, int yCoord) {
+        float finalRadius = (float) Math.hypot(xCoord, yCoord);
+        final Animator circularRevealAnim = ViewAnimationUtils.createCircularReveal(binding.include.spinnerLayout, xCoord, yCoord, binding.fabMenuButton.getWidth() / 2, finalRadius);
+        circularRevealAnim.setDuration(500);
+        circularRevealAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                binding.include.spinnerLayout.setAlpha(1f);
+                binding.include.spinnerLayout.setVisibility(View.VISIBLE);
+            }
+        });
+        circularRevealAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                binding.fabMenuButton.hide();
+                binding.fabMenuButton.setCompatElevation(32f);
+                binding.include.spinnerLayout.setElevation(32f);
+            }
+        });
+        return circularRevealAnim;
     }
 
     private Path getPath(float endX, float endY) {
