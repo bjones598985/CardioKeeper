@@ -108,7 +108,7 @@ public class HelloGraph extends AppCompatActivity {
 
                 // Note that some of these constants are new as of API 16 (Jelly Bean)
                 // and API 19 (KitKat). It is safe to use them, as they are inlined
-                // at compile-time and do nothing on earlier devices.
+                // at compile-timerTime and do nothing on earlier devices.
                 binding.coordLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -360,11 +360,11 @@ public class HelloGraph extends AppCompatActivity {
         String midQueryPart = buildAndRetrieveMidQueryPart();
         switch (dataType) {
             case 1:
-                query = "select Data.date, round(Lap.time * 1.0 / 60000) as Mins, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + midQueryPart + " order by Data.date asc";
+                query = "select Data.date, round(Lap.timerTime * 1.0 / 60000) as Mins, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + midQueryPart + " order by Data.date asc";
                 yAxisLabel = "Minutes";
                 break;
             case 2:
-                query = "select date, round(time * 1.0 / 60000) as Mins from Data where cardio_type=" + midQueryPart + " order by date asc";
+                query = "select date, round(timerTime * 1.0 / 60000) as Mins from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Minutes";
                 break;
             case 3:
@@ -376,11 +376,11 @@ public class HelloGraph extends AppCompatActivity {
                 yAxisLabel = "Calories";
                 break;
             case 5:
-                query = "select date, distance / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
+                query = "select date, distance / round(timerTime * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Speed";
                 break;
             case 6:
-                query = "select date, calories / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
+                query = "select date, calories / round(timerTime * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Calories / Hour";
                 break;
             case 7:

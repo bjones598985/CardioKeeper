@@ -156,7 +156,7 @@ class Utils {
         } else if (sec > 0) {
             return String.format(Locale.US, "%02d secs", sec);
         } else {
-            return "No time";
+            return "No timerTime";
         }
     }
 

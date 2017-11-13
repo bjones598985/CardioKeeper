@@ -5,11 +5,14 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.databinding.DataBindingUtil;
 import android.graphics.Typeface;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.app.FragmentTransaction;
@@ -48,6 +51,23 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     NotificationCompat.Builder builder;
     NotificationManager notiMgr;
 
+    TimerBroadCastService timerService;
+    boolean isBound;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            TimerBroadCastService.LocalBinder localBinder = (TimerBroadCastService.LocalBinder) service;
+            timerService = localBinder.getService();
+            //timerService.setTimerFace(binder.chronometer);
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
+
     @Override
     public void onBackPressed() {
         decideHowToFinish();
@@ -64,6 +84,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             ft.add(sd, "save");
             ft.commitAllowingStateLoss();
         } else {
+            unbindService(connection);
             finish();
         }
     }
@@ -82,24 +103,33 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
+
+        Intent intent = new Intent(this, TimerBroadCastService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         isPaused = false;
         isTimerRunning = false;
         lapList = new ArrayList<>();
         if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
-            timeWhenStopped = savedInstanceState.getLong("time");
+            timeWhenStopped = savedInstanceState.getLong("timerTime");
             isTimerRunning = savedInstanceState.getBoolean("isTimerRunning");
             long runningTime = savedInstanceState.getLong("runningTime");
             lastTime = savedInstanceState.getLong("lastTime");
             isPaused = savedInstanceState.getBoolean("isPaused");
             if (isTimerRunning) {
-                binder.chronometer.setBase(SystemClock.elapsedRealtime() - runningTime);
-                binder.chronometer.start();
+                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - runningTime);
+                //binder.chronometer.start();
+
+                timerService.onStartTimer();
+
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
             } else {
-                binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
+                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
+                //timerService.setChronBase(SystemClock.elapsedRealtime() - timeWhenStopped);
             }
             if (isPaused) {
                 hideButtons(binder.startTimer, binder.stopTimer, binder.lap);
@@ -117,8 +147,11 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putStringArrayList("list", lapList);
-        outState.putLong("time", timeWhenStopped);
-        outState.putLong("runningTime", SystemClock.elapsedRealtime() - binder.chronometer.getBase());
+        outState.putLong("timerTime", timeWhenStopped);
+        //outState.putLong("runningTime", SystemClock.elapsedRealtime() - binder.chronometer.getBase());
+
+        //outState.putLong("runningTime", SystemClock.elapsedRealtime() - timerService.getChronBase());
+
         outState.putBoolean("isTimerRunning", isTimerRunning);
         outState.putLong("lastTime", lastTime);
         outState.putBoolean("isPaused", isPaused);
@@ -151,8 +184,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         stackBuilder.addNextIntent(i);
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);
-        notiMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notiMgr.notify(NOTI_ID, builder.build());
+
+        //notiMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //notiMgr.notify(NOTI_ID, builder.build());
         binder.chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
@@ -166,8 +200,11 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start_timer:
-                binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
-                binder.chronometer.start();
+                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
+                //binder.chronometer.start();
+
+                timerService.onStartTimer();
+
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
                 isTimerRunning = true;
@@ -175,15 +212,21 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 //createNotification();
                 break;
             case R.id.stop_timer:
-                binder.chronometer.stop();
-                timeWhenStopped = SystemClock.elapsedRealtime() - binder.chronometer.getBase();
+                //binder.chronometer.stop();
+                //timeWhenStopped = SystemClock.elapsedRealtime() - binder.chronometer.getBase();
+
+                timerService.onStopTimer();
+
                 hideButtons(binder.stopTimer, binder.lap);
                 showButtons(binder.resumeTimer, binder.resetTimer);
                 isTimerRunning = false;
                 isPaused = true;
                 break;
             case R.id.lap:
-                long time =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
+                //long timerTime =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
+
+                long time = Utils.getTimeLongMillis(timerService.getChronTimeValue());
+
                 long diff = time - lastTime;
                 lastTime = time;
                 lapList.add(0, String.valueOf(diff));
@@ -191,8 +234,11 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.list.scrollToPosition(0);
                 break;
             case R.id.resume_timer:
-                binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
-                binder.chronometer.start();
+                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
+                //binder.chronometer.start();
+
+                timerService.onResumeTimer();
+
                 hideButtons(binder.resumeTimer, binder.resetTimer);
                 showButtons(binder.stopTimer, binder.lap);
                 isTimerRunning = true;
@@ -224,12 +270,15 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void onSavePositiveClick() {
+        unbindService(connection);
         Intent intent = new Intent();
         intent.putExtra("totalTime", binder.chronometer.getText().toString());
         intent.putStringArrayListExtra("list", lapList);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
+
+
 
     private class LapAdapter extends RecyclerView.Adapter<LapAdapter.LapHolder> {
 

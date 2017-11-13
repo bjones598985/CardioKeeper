@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     static final String DIALOG_TYPE = "dialogType";
 
     static final String DATE = "date";
-    static final String TIME = "time";
+    static final String TIME = "timerTime";
     static final String DISTANCE = "distance";
     static final String CALORIES = "calories";
     static final String CARDIO_TYPE = "cardio_type";
