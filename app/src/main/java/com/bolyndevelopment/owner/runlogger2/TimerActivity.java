@@ -3,8 +3,6 @@ package com.bolyndevelopment.owner.runlogger2;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,14 +11,11 @@ import android.content.ServiceConnection;
 import android.databinding.DataBindingUtil;
 import android.graphics.Typeface;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.app.FragmentTransaction;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Chronometer;
 import android.widget.TextView;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
@@ -40,16 +34,12 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     static final int DIALOG_CANCEL_TIMER = 2;
     static final String DIALOG_TYPE = "dialogType";
 
-    final int NOTI_ID = 1000;
     long lastTime = 0;
-    long timeWhenStopped = 0;
-    boolean isTimerRunning, hasStartBtnBeenPressedOnce = false, isPaused;
+    boolean hasStartBtnBeenPressedOnce = false;
 
     ActivityTimerBinding binder;
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
-    NotificationCompat.Builder builder;
-    NotificationManager notiMgr;
 
     TimerBroadCastService timerService;
     boolean isBound;
@@ -63,7 +53,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
             }
-            //timerService.setTimerFace(binder.chronometer);
             isBound = true;
         }
 
@@ -83,7 +72,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             SaveDialog sd = new SaveDialog();
             Bundle b = new Bundle();
             b.putInt(DIALOG_TYPE, DIALOG_CANCEL_TIMER);
-            b.putBoolean("isRunning", isTimerRunning);
+            b.putBoolean("isRunning", timerService.getIsRunning());
             sd.setArguments(b);
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.add(sd, "save");
@@ -109,42 +98,17 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
 
-
-
         Intent intent = new Intent(this, TimerBroadCastService.class);
         startService(intent);
-
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //isPaused = false;
-        //isTimerRunning = false;
-        lapList = new ArrayList<>();
+
         if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
-            //timeWhenStopped = savedInstanceState.getLong("timerTime");
-            //isTimerRunning = savedInstanceState.getBoolean("isTimerRunning");
-            //long runningTime = savedInstanceState.getLong("runningTime");
-            //lastTime = savedInstanceState.getLong("lastTime");
-            //isPaused = savedInstanceState.getBoolean("isPaused");
-            //if (isTimerRunning) {
-                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - runningTime);
-                //binder.chronometer.start();
-
-                //timerService.onStartTimer();
-
-                //hideButtons(binder.startTimer);
-                //showButtons(binder.stopTimer, binder.lap);
-            //} else {
-                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
-                //timerService.setChronBase(SystemClock.elapsedRealtime() - timeWhenStopped);
-            //}
-            //if (isPaused) {
-                //hideButtons(binder.startTimer, binder.stopTimer, binder.lap);
-                //showButtons(binder.resumeTimer, binder.resetTimer);
-            //}
         }
+
+        lapList = new ArrayList<>();
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
         digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
         binder.timeText.setTypeface(digital);
@@ -156,14 +120,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putStringArrayList("list", lapList);
-        //outState.putLong("timerTime", timeWhenStopped);
-        //outState.putLong("runningTime", SystemClock.elapsedRealtime() - binder.chronometer.getBase());
-
-        //outState.putLong("runningTime", SystemClock.elapsedRealtime() - timerService.getChronBase());
-
-        //outState.putBoolean("isTimerRunning", timerService.getIsRunning());
-        //outState.putLong("lastTime", lastTime);
-        //outState.putBoolean("isPaused", isPaused);
         super.onSaveInstanceState(outState);
     }
 
@@ -186,63 +142,22 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         stopService(new Intent(this, TimerBroadCastService.class));
     }
 
-    private void createNotification() {
-        builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.drawable.ic_timer)
-                .setContentTitle("Cardio Keeper - Timer")
-                //.setContentText("Content Text")
-                .setAutoCancel(true);
-        Intent i = new Intent(this, TimerActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(TimerActivity.class);
-        stackBuilder.addNextIntent(i);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(resultPendingIntent);
-
-        //notiMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //notiMgr.notify(NOTI_ID, builder.build());
-        /*
-        binder.chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                builder.setContentTitle(String.format("Cardio Keeper - Time elapsed: %s", chronometer.getText().toString()));
-                notiMgr.notify(NOTI_ID, builder.build());
-            }
-        });
-        */
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start_timer:
-                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
-                //binder.chronometer.start();
-
                 timerService.onStartTimer();
-
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
-                isTimerRunning = true;
                 hasStartBtnBeenPressedOnce = true;
-                //createNotification();
                 break;
             case R.id.stop_timer:
-                //binder.chronometer.stop();
-                //timeWhenStopped = SystemClock.elapsedRealtime() - binder.chronometer.getBase();
-
                 timerService.onStopTimer();
-
                 hideButtons(binder.stopTimer, binder.lap);
                 showButtons(binder.resumeTimer, binder.resetTimer);
-                isTimerRunning = false;
-                isPaused = true;
                 break;
             case R.id.lap:
-                //long timerTime =  Utils.getTimeLongMillis(binder.chronometer.getText().toString());
-
                 long time = timerService.getTimerTime() * 1000;
-
                 long diff = time - lastTime;
                 lastTime = time;
                 lapList.add(0, String.valueOf(diff));
@@ -250,15 +165,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 binder.list.scrollToPosition(0);
                 break;
             case R.id.resume_timer:
-                //binder.chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
-                //binder.chronometer.start();
-
                 timerService.onResumeTimer();
-
                 hideButtons(binder.resumeTimer, binder.resetTimer);
                 showButtons(binder.stopTimer, binder.lap);
-                isTimerRunning = true;
-                isPaused = false;
                 break;
             case R.id.reset_timer:
                 SaveDialog sd = new SaveDialog();
@@ -298,14 +207,12 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public LapHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            //final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.timer_list_item, parent, false);
             final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.timer_list_item_alt, parent, false);
             return new LapHolder(view);
         }
 
         @Override
         public void onBindViewHolder(LapHolder holder, int position) {
-            //holder.order.setText(String.valueOf(lapList.size() - position));
             String time = Utils.convertMillisToHms(Long.valueOf(lapList.get(position)));
             String s = "Lap " + String.valueOf(lapList.size() - position) + " - ";
             holder.lapOrder.setText(s);
@@ -344,7 +251,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //onSaveCancelClick();
                             }
                         });
             } else {

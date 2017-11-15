@@ -26,7 +26,7 @@ public class TimerBroadCastService extends Service {
     long timeInstance = 0;
     private NotificationManager mNM;
     private final int NOTIF_ID = 1000;
-    boolean isRunning = false;
+    private boolean isRunning = false;
     PendingIntent contentIntent;
     Thread timerThread;
     Timer timer;
