@@ -23,7 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AndroidDatabaseManager" />
         <activity
             android:name=".HelloGraph"
             android:label="Graph It"
@@ -35,11 +34,6 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" />
-
-        <service
-            android:name=".TimerService"
-            android:enabled="true"
-            android:exported="true" />
         <service
             android:name=".TimerBroadCastService"
             android:enabled="true"

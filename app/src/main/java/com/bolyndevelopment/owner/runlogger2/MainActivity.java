@@ -294,9 +294,6 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     }
                 }, MIN_DELAY_MILLIS);
                 break;
-            case R.id.nav_menu_adm:
-                startActivity(new Intent(this, AndroidDatabaseManager.class));
-                break;
         }
         binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
     }

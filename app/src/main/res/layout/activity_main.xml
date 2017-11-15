@@ -242,30 +242,6 @@
 
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:id="@+id/nav_menu_adm"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/HelloGraphNavTextView">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:srcCompat="@drawable/ic_info_outline_24dp"
-                            android:tint="@android:color/white"/>
-
-                        <TextView
-                            android:id="@+id/adm"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="8dp"
-                            android:textSize="16sp"
-                            android:text="@string/about"
-                            android:textColor="@android:color/white"/>
-
-                    </LinearLayout>
-
                 </LinearLayout>
 
             </LinearLayout>
