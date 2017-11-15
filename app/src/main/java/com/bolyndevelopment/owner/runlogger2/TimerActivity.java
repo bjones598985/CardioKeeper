@@ -68,7 +68,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void decideHowToFinish() {
-        if (hasStartBtnBeenPressedOnce) {
+        if (timerService.getIsRunning()) {
             SaveDialog sd = new SaveDialog();
             Bundle b = new Bundle();
             b.putInt(DIALOG_TYPE, DIALOG_CANCEL_TIMER);
@@ -149,7 +149,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 timerService.onStartTimer();
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
-                hasStartBtnBeenPressedOnce = true;
                 break;
             case R.id.stop_timer:
                 timerService.onStopTimer();

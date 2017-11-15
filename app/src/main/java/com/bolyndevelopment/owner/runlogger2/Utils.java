@@ -91,28 +91,6 @@ class Utils {
         return String.valueOf(millis);
     }
 
-    static long getTimeLongMillis(String time) {
-        String[] array = TextUtils.split(time, ":");
-        int[] timeArray = new int[array.length];
-        for (int x = 0; x<array.length;x++) {
-            if (array[x].equals("")) {
-                timeArray[x] = 0;
-            } else {
-                timeArray[x] = Integer.valueOf(array[x]);
-            }
-        }
-        long millis = 0;
-        switch (timeArray.length) {
-            case 2:
-                millis =  convertToMillis(0, timeArray[0], timeArray[1]);
-                break;
-            case 3:
-                millis =  convertToMillis(timeArray[0], timeArray[1], timeArray[2]);
-                break;
-        }
-        return millis;
-    }
-
     @Nullable
     static Date convertStringToDate(String inDate, String format) {
         DateFormat formatter;
@@ -128,11 +106,6 @@ class Utils {
 
     static String convertDateToString(Date inDate, String format) {
         return new SimpleDateFormat(format, Locale.US).format(inDate);
-    }
-
-    static float convertDpToPixel(float dp) {
-        DisplayMetrics metrics = MyApplication.appContext.getResources().getDisplayMetrics();
-        return dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
     static long convertToMillis(int hours, int minutes, int seconds) {
@@ -250,45 +223,6 @@ class Utils {
                     }
                 } catch (IOException e) {
                     Log.d(TAG, "Error writing DB " + e.toString());
-                }
-            }
-        }).start();
-    }
-
-    static void writeDbToCsvFile() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Cursor cursor = DataModel.getInstance().rawQuery("select Workout.date, " +
-                        "Exercise.exercise, Set_Record.weight, Set_Record.reps, " +
-                        "Set_Record.date_time, Set_Record.notes, Set_Record.set_id, " +
-                        "Set_Record.ex_order_num from Set_Record, Workout, " +
-                        "Exercise where Workout._id=Set_Record.workout_id " +
-                        "and Exercise._id=Set_Record.exercise_id and Workout.date='07/03/2017' " +
-                        "order by Set_Record.ex_order_num, Set_Record.set_id", null);
-                File output = new File(Environment.getExternalStorageDirectory(), "workout.csv");
-                BufferedOutputStream boss;
-                cursor.moveToFirst();
-                try {
-                    boss = new BufferedOutputStream(new FileOutputStream(output));
-                    String columnNames = "Date,Exercise,Weight,Reps,Date_Time,Notes,Set_Id,Exercise Order Number\n";
-                    boss.write(columnNames.getBytes());
-                    while (!cursor.isAfterLast()) {
-                        String sb = cursor.getString(0) + "," +
-                                cursor.getString(1) + "," +
-                                cursor.getFloat(2) + "," +
-                                cursor.getInt(3) + "," +
-                                cursor.getInt(4) + "," +
-                                cursor.getString(5) + "," +
-                                cursor.getString(6) + "," +
-                                cursor.getInt(7) +
-                                '\n';
-                        boss.write(sb.getBytes());
-                        cursor.moveToNext();
-                    }
-                    boss.close();
-                } catch (IOException ioe) {
-                    Log.e(TAG, ioe.getMessage());
                 }
             }
         }).start();
