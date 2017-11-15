@@ -154,9 +154,25 @@ class Utils {
         } else if (min > 0){
             return String.format(Locale.US, "%02d:%02d", min, sec);
         } else if (sec > 0) {
-            return String.format(Locale.US, "%02d secs", sec);
+            return String.format(Locale.US, "0:%02d", sec);
         } else {
             return "No timerTime";
+        }
+    }
+
+    static String convertSecondsToHms(long seconds) {
+        seconds *= 1000;
+        long hour = TimeUnit.MILLISECONDS.toHours(seconds);
+        long min = TimeUnit.MILLISECONDS.toMinutes(seconds) -
+                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds));
+        long sec = TimeUnit.MILLISECONDS.toSeconds(seconds) -
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds));
+        if (hour > 0) {
+            return String.format(Locale.US, "%02d:%02d:%02d", hour, min, sec);
+        } else if (min > 0){
+            return String.format(Locale.US, "%02d:%02d", min, sec);
+        } else {
+            return String.format(Locale.US, "0:%02d", sec);
         }
     }
 

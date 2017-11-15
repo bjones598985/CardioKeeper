@@ -13,11 +13,13 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class TimerBroadCastService extends Service {
     public static final String TAG = TimerBroadCastService.class.getSimpleName();
+    WeakReference<TextView> timerTextView;
 
     private Handler handler = new Handler();
     long timerTime = 0;
@@ -34,7 +36,17 @@ public class TimerBroadCastService extends Service {
         public void run() {
             Log.d(TAG, "Time: " + timerTime);
             timerTime = timerTime + 1L;
-            updateNotification();
+            if (isRunning) {
+                if (timerTextView.get() != null) {
+                    timerTextView.get().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            timerTextView.get().setText(Utils.convertSecondsToHms(timerTime));
+                        }
+                    });
+                }
+                updateNotification();
+            }
         }
     };
 
@@ -42,16 +54,19 @@ public class TimerBroadCastService extends Service {
 
     }
 
+    public void setTimerTextView(TextView tv) {
+        timerTextView = new WeakReference<>(tv);
+        timerTextView.get().setText(Utils.convertSecondsToHms(timerTime));
+    }
+
     private void updateNotification() {
-        if (isRunning) {
             Notification.Builder notification = new Notification.Builder(this)
-                    .setSmallIcon(android.R.drawable.arrow_down_float)// the status icon
+                    .setSmallIcon(R.mipmap.ic_launcher)// the status icon
                     .setTicker("Ticker Text")// the status text
                     .setContentTitle("Timer Service")// the label of the entry
-                    .setContentText(String.format("Time Elapsed: %s", timerTime))// the contents of the entry
+                    .setContentText("Time Elapsed - " + Utils.convertSecondsToHms(timerTime))// the contents of the entry
                     .setContentIntent(contentIntent);// The intent to send when the entry is clicked
             mNM.notify(NOTIF_ID, notification.build());
-        }
     }
     @Override
     public void onCreate() {
@@ -61,7 +76,7 @@ public class TimerBroadCastService extends Service {
         //i.putExtra("fromNoti", true);
         contentIntent = PendingIntent.getActivity(this,
                 0,new Intent(this, TimerActivity.class), 0);
-        showNotification();
+        //showNotification();
         timer = new Timer();
     }
 
@@ -100,7 +115,7 @@ public class TimerBroadCastService extends Service {
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder notification = new Notification.Builder(this)
-                .setSmallIcon(android.R.drawable.arrow_down_float)// the status icon
+                .setSmallIcon(R.mipmap.ic_launcher)// the status icon
                 .setTicker("Ticker Text")// the status text
                 .setContentTitle("Timer Service")// the label of the entry
                 .setContentText("Where we'll post the timerTime elapsed")// the contents of the entry
@@ -112,7 +127,8 @@ public class TimerBroadCastService extends Service {
     public void onStartTimer() {
         Toast.makeText(TimerBroadCastService.this, "onStart", Toast.LENGTH_SHORT).show();
         isRunning = true;
-        timer.scheduleAtFixedRate(timerTask, 0, 1000);
+        showNotification();
+        timer.scheduleAtFixedRate(timerTask, 1000, 1000);
         //handler.removeCallbacks(task);
         //handler.post(task);
         //timerThread.start();
@@ -129,15 +145,13 @@ public class TimerBroadCastService extends Service {
         isRunning = true;
     }
 
-    public String getChronTimeValue() {
-        Toast.makeText(TimerBroadCastService.this, "getChronTimeValue", Toast.LENGTH_SHORT).show();
-        return "Hello";
+    public boolean getIsRunning() {
+        return isRunning;
     }
 
-    public void setTimerFace(TextView face) {
-        Toast.makeText(TimerBroadCastService.this, "setTimerFace", Toast.LENGTH_SHORT).show();
+    public long getTimerTime() {
+        return timerTime;
     }
-
     public class LocalBinder extends Binder {
         TimerBroadCastService getService() {
             return TimerBroadCastService.this;
