@@ -66,11 +66,11 @@
     </style>
 
     <style name="DialogButtons" parent="DialogStyle">
-        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="colorAccent">@color/altBtn</item>
     </style>
 
     <style name="DialogButtons.Mini">
-        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/altBtnDark</item>
     </style>
 
     <style name="DialogButtons.Restore">

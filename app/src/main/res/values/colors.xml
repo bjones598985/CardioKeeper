@@ -4,15 +4,18 @@
     <color name="colorPrimaryDark">#212121</color>
     <color name="colorAccent_alt">#ffea00</color>
     <!--<color name="colorAccent">#ff3d00</color>-->
-    <color name="colorAccentDark">#64ffda</color>
-    <color name="colorAccent">#00bfa5</color>
+    <color name="colorAccent1">#64ffda</color>
+    <color name="colorAccentDark1">#00bfa5</color>
 
     <color name="menu_icon_color">#999999</color>
 
     <color name="black_overlay">#66000000</color>
 
-    <color name="colorPrimary2">#2196f3</color>
-    <color name="colorPrimaryDark2">#1565c0</color>
+    <color name="colorAccent">#2196f3</color>
+    <color name="colorAccentDark">#1565c0</color>
+    
+    <color name="altBtn">#669999</color>
+    <color name="altBtnDark">#3d5c5c</color>
 
     <color name="transparent_background">#40424242</color>
 

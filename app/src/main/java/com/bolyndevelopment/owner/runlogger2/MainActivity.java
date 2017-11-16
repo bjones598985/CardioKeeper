@@ -13,8 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -50,7 +48,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
 import com.bumptech.glide.Glide;
@@ -69,13 +66,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import es.dmoral.toasty.Toasty;
-
 public class MainActivity extends AppCompatActivity implements BackupRestoreDialog.ChoiceListener, GeneralDialog.GeneralDialogListener {
     public static final String TAG = "MainActivity";
 
     static final int DIALOG_ENABLE_BACKUP = 1;
     static final int DIALOG_ABOUT = 2;
+    static final int DIALOG_PERMISSION = 3;
+
     static final String DIALOG_TYPE = "dialogType";
 
     static final String DATE = "date";
@@ -112,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "RequestCode: " + requestCode);
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
@@ -121,9 +119,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             final Uri backupUri = data.getData();
             Utils.backupDb(backupUri, handler, binder.coord);
             saveUriPathToSharedPreferences(backupUri.toString());
-            if (isFirstBackup) {
-                showGeneralDialog(DIALOG_ENABLE_BACKUP);
-            }
+            checkIfAutoBackupEnabled();
         }
         if (requestCode == SEARCH_FILE_CODE && resultCode == Activity.RESULT_OK) {
             final Uri restoreUri = data.getData();
@@ -135,6 +131,18 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             if (isDataChanged) {
                 setInitialPreferences();
                 mAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    private void checkIfAutoBackupEnabled() {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean syncEnabled = sharedPref.getBoolean(getString(R.string.pref_sync), false);
+        if (!syncEnabled) {
+            Random rand = new Random();
+            int r = rand.nextInt(10);
+            if (r > 5) {
+                showGeneralDialog(DIALOG_ENABLE_BACKUP);
             }
         }
     }
@@ -491,7 +499,11 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                     //Utils.exportData(handler);
                     //Toast.makeText(this, "You can now export the database.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toasty.error(this, "The database can be exported without permission", Toast.LENGTH_SHORT).show();
+                    showGeneralDialog(DIALOG_PERMISSION);
+                    //Snackbar mySnackbar = Snackbar.make(binder.coord, R.string.denied_permission_msg, Snackbar.LENGTH_LONG);
+                    //mySnackbar.setAction(R.string.allow_permission_msg, allowPermClickListener);
+                    //mySnackbar.show();
+                    //Toasty.error(this, "The database can't be exported without permission", Toast.LENGTH_SHORT).show();
                     /*
                     this is where we should put in something to advise of the problem and give chance to redo it
                      */
@@ -506,14 +518,14 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                Toast.makeText(this, "Should show request permission: true", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Should show request permission: true", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
                 // Show an expanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
             } else {
                 // No explanation needed, we can request the permission.
-                Toast.makeText(this, "Should show request permission: false", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Should show request permission: false", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                 // app-defined int constant. The callback method gets the
@@ -566,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
         isFirstBackup = backupKey == null;
-
+        Log.d(TAG, "Choice: " + choice);
         switch (choice) {
             case BackupRestoreDialog.BACKUP_TO_NEW:
                 createFile(DB_MIME_TYPE, DataModel.DATABASE_NAME);
@@ -574,6 +586,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             case BackupRestoreDialog.BACKUP_TO_PREVIOUS:
                 final Uri backupUri = Uri.parse(backupKey);
                 Utils.backupDb(backupUri, handler, binder.coord);
+                checkIfAutoBackupEnabled();
                 break;
             case BackupRestoreDialog.RESTORE_FROM_NEW:
                 if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) {

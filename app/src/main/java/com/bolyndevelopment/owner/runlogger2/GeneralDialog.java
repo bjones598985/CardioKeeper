@@ -4,9 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -21,6 +24,18 @@ public class GeneralDialog extends DialogFragment {
     View root;
 
     private GeneralDialogListener listener;
+
+    private DialogInterface.OnClickListener allowPermClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+            getDialog().dismiss();
+        }
+    };
 
     interface GeneralDialogListener {
         void onGeneralDialogButtonClicked(int buttonId);
@@ -50,30 +65,43 @@ public class GeneralDialog extends DialogFragment {
         //get int dialogType to determine which dialog to show
         int type = getArguments().getInt(MainActivity.DIALOG_TYPE);
 
-        if (type == MainActivity.DIALOG_ABOUT) {
-            builder.setTitle(null).setView(root)
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+        switch (type) {
+            case MainActivity.DIALOG_ABOUT:
+                builder.setTitle(null).setView(root)
+                        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            getDialog().dismiss();
+                                getDialog().dismiss();
                         }
                     });
+                break;
 
-        } else {
-            builder.setTitle(getResources().getString(R.string.sync_dialog_title)).setView(R.layout.sync_dialog_layout)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            listener.onGeneralDialogButtonClicked(which);
-                            getDialog().dismiss();
-                        }
-                    })
-                    .setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            listener.onGeneralDialogButtonClicked(which);
-                            getDialog().dismiss();
-                        }
-                    });
+            case MainActivity.DIALOG_ENABLE_BACKUP:
+                builder.setView(R.layout.sync_dialog_layout)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                listener.onGeneralDialogButtonClicked(which);
+                                getDialog().dismiss();
+                            }
+                        })
+                        .setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                listener.onGeneralDialogButtonClicked(which);
+                                getDialog().dismiss();
+                            }
+                        });
+                break;
+            case MainActivity.DIALOG_PERMISSION:
+                builder.setView(R.layout.backup_restore_msg)
+                        .setPositiveButton(getString(R.string.allow_permission_msg), allowPermClickListener)
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                break;
+
         }
         AlertDialog ad = builder.create();
         ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

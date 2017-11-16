@@ -81,6 +81,11 @@
 
     <string name="cardio_icon_description">Cardio Icon</string>
 
+    <string name="denied_permission_msg">
+        Backup and Restore cannot be used with out enabling the proper permission.\n\nPlease click \"Allow\" to enable Backup and Restore
+    </string>
+    <string name="allow_permission_msg">Allow</string>
+
     <!-- Timer Activity strings -->
     <string name="start_btn">Start</string>
     <string name="pause_btn">Pause</string>
