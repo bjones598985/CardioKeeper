@@ -9,7 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.app.FragmentTransaction;
@@ -239,10 +241,13 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
             int dialogType = getArguments().getInt(DIALOG_TYPE);
+            TextView root;
             if (dialogType == DIALOG_SAVE_AND_EXIT) {
-                builder.setMessage(getResources().getString(R.string.dialog_save_exit_msg))
+                root = (TextView) getActivity().getLayoutInflater().inflate(R.layout.general_dialog_textview, null);
+                root.setText(getString(R.string.dialog_save_exit_msg));
+                builder.setView(root)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 ((TimerActivity) getActivity()).onSavePositiveClick();
@@ -256,7 +261,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 final boolean isRunning = getArguments().getBoolean("isRunning");
                 String msg = isRunning ? getResources().getString(R.string.dialog_back_press_exit_running_msg) :
                         getResources().getString(R.string.dialog_save_exit_msg);
-                builder.setMessage(msg)
+                root = (TextView) getActivity().getLayoutInflater().inflate(R.layout.general_dialog_textview, null);
+                root.setText(msg);
+                builder.setView(root)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -275,7 +282,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                             }
                         });
             }
-            return builder.create();
+            AlertDialog ad = builder.create();
+            ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            return ad;
         }
     }
 }

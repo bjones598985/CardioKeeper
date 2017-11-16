@@ -93,7 +93,7 @@ public class GeneralDialog extends DialogFragment {
                         });
                 break;
             case MainActivity.DIALOG_PERMISSION:
-                builder.setView(R.layout.backup_restore_msg)
+                builder.setView(R.layout.general_dialog_textview)
                         .setPositiveButton(getString(R.string.allow_permission_msg), allowPermClickListener)
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
