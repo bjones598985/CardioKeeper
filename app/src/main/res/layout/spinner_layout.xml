@@ -9,6 +9,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|end"
             android:layout_marginEnd="16dp"
+            android:animateLayoutChanges="true"
             android:orientation="vertical">
 
             <Spinner
@@ -25,6 +26,17 @@
                 android:popupBackground="@color/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+            <CheckBox
+                android:id="@+id/include_laps_checkbox"
+                style="@android:style/Widget.Material.CompoundButton.CheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/include_laps_text"
+                android:textColor="@android:color/white"
+                android:onClick="onCheckBoxClicked"
+                android:visibility="gone"
+                android:theme="@style/CheckBoxStyle"/>
+
             <Spinner
                 android:id="@+id/spinner_time_frame"
                 android:layout_width="match_parent"
@@ -40,7 +52,7 @@
                 android:text="@string/run_query_button_text"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="@android:color/black"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 android:theme="@style/HelloGraphGoButton" />
 
             <Button
@@ -51,7 +63,7 @@
                 android:text="@string/cancel_menu_button"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="@android:color/black"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 android:theme="@style/HelloGraphCancelButton" />
 
         </LinearLayout>

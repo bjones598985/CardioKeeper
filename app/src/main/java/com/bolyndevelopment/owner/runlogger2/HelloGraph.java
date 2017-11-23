@@ -28,6 +28,7 @@ import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -87,53 +88,20 @@ public class HelloGraph extends AppCompatActivity {
 
     ActivityGraphsV2Binding binding;
 
-    boolean isDataTypeSet = false, isCardioTypeSet = false;
+    boolean isDataTypeSet = false, isCardioTypeSet = false, includeLapData = false;
+
 
     int dataType, timeFrame = 0;
 
     String cardioType, yAxisLabel, initialDate;
 
     @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        //delayedHide(100);
-    }
-
-    private void delayedHide(int delayMillis) {
-        handler.postDelayed(new Runnable() {
-            @SuppressLint("InlinedApi")
-            @Override
-            public void run() {
-                // Delayed removal of status and navigation bar
-
-                // Note that some of these constants are new as of API 16 (Jelly Bean)
-                // and API 19 (KitKat). It is safe to use them, as they are inlined
-                // at compile-timerTime and do nothing on earlier devices.
-                binding.coordLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-            }
-        }, delayMillis);
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_graphs_v2);
-        binding.coordLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-            @Override
-            public void onSystemUiVisibilityChange(int visibility) {
-                if (visibility == View.VISIBLE){
-                    //delayedHide(500);
-                }
-            }
-        });
 
         /*
-         * set distance variable to miles or kilometerss
+         * set distance variable to miles or kilometers
          */
         setInitialPrefs();
 
@@ -224,6 +192,11 @@ public class HelloGraph extends AppCompatActivity {
         binding.include.spinnerTimeFrame.setPopupBackgroundDrawable(new ColorDrawable(mainColor));
     }
 
+    public void onCheckBoxClicked(View v) {
+        includeLapData = ((CheckBox) v).isChecked();
+        columnData.setStacked(includeLapData);
+    }
+
     private void initVars() {
         axisValues = new ArrayList<>();
         rawData = new ArrayList<>();
@@ -243,7 +216,12 @@ public class HelloGraph extends AppCompatActivity {
                 dataType = position;
                 isDataTypeSet = position != 0;
                 //only stack columns when displaying lap data
-                columnData.setStacked(position == 1);
+                //columnData.setStacked(position == 1);
+                if (position == 1) {
+                    binding.include.includeLapsCheckbox.setVisibility(View.VISIBLE);
+                } else {
+                    binding.include.includeLapsCheckbox.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -360,30 +338,32 @@ public class HelloGraph extends AppCompatActivity {
         String midQueryPart = buildAndRetrieveMidQueryPart();
         switch (dataType) {
             case 1:
-                query = "select Data.date, round(Lap.time * 1.0 / 60000) as Mins, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + midQueryPart + " order by Data.date asc";
-                yAxisLabel = "Minutes";
-                break;
+                if (includeLapData) {
+                    query = "select Data.date, round(Lap.time * 1.0 / 60000) as Mins, Lap.lap_num from Lap inner join Data on Data._id=Lap.workout_id where cardio_type=" + midQueryPart + " order by Data.date asc";
+                    yAxisLabel = "Minutes";
+                    break;
+                } else {
+                    query = "select date, round(time * 1.0 / 60000) as Mins from Data where cardio_type=" + midQueryPart + " order by date asc";
+                    yAxisLabel = "Minutes";
+                    break;
+                }
             case 2:
-                query = "select date, round(time * 1.0 / 60000) as Mins from Data where cardio_type=" + midQueryPart + " order by date asc";
-                yAxisLabel = "Minutes";
-                break;
-            case 3:
                 query = "select date, distance from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = distUnit;
                 break;
-            case 4:
+            case 3:
                 query = "select date, calories from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Calories";
                 break;
-            case 5:
+            case 4:
                 query = "select date, distance / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Speed";
                 break;
-            case 6:
+            case 5:
                 query = "select date, calories / round(time * 1.0 / 3600000) from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Calories / Hour";
                 break;
-            case 7:
+            case 6:
                 query = "select date, calories / distance from Data where cardio_type=" + midQueryPart + " order by date asc";
                 yAxisLabel = "Calories / " + distUnit;
                 break;
@@ -443,6 +423,14 @@ public class HelloGraph extends AppCompatActivity {
 
     private void generateColumnData(Cursor results) {
         results.moveToFirst();
+        if (results.getCount() == 0) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toasty.info(getBaseContext(), "Uh oh, your search turned up no results", Toast.LENGTH_LONG, true).show();
+                }
+            });
+        }
         //rawData.clear();
         List<SubcolumnValue> subcolumnValues;
         List<Column> columns = new ArrayList<>();

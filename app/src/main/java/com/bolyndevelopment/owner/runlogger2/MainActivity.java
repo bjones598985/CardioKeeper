@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         };
 
         initRecyclerView();
-        //addRandomData();
+        addRandomData();
         queryForRecords();
         setSupportActionBar(binder.toolbar);
         setupDrawer();

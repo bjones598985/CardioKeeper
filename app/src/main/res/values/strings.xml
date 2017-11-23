@@ -37,7 +37,6 @@
 
     <string-array name="graph_data_type">
         <item>@string/select_</item>
-        <item>@string/laps</item>
         <item>@string/duration</item>
         <item>@string/distance</item>
         <item>@string/cal_burned</item>
@@ -101,6 +100,7 @@
     <string name="years">Years</string>
     <string name="no_graph_data">Nothing to show\nfor those selections</string>
 
+    <string name="include_laps_text">Include Lap Data</string>
     <string name="run_query_button_text">Go</string>
     <string name="cancel_menu_button">Cancel</string>
 

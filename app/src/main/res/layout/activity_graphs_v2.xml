@@ -19,7 +19,7 @@
             android:paddingEnd="@dimen/chart_other_padding"
             android:paddingStart="@dimen/chart_other_padding"
             android:background="@android:color/transparent"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         <TextView
