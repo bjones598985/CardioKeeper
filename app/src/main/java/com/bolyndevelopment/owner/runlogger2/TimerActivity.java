@@ -37,7 +37,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     static final String DIALOG_TYPE = "dialogType";
 
     long lastTime = 0;
-    boolean hasStartBtnBeenPressedOnce = false;
 
     ActivityTimerBinding binder;
     ArrayList<String> lapList;

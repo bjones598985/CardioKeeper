@@ -13,6 +13,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppTheme.NoActionBar.HelloGraph">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <style name="HelloGraphNavTextView" parent="AppTheme">
         <item name="android:gravity">center_vertical</item>
         <item name="android:onClick">onNavClick</item>

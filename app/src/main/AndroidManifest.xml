@@ -27,7 +27,7 @@
             android:name=".HelloGraph"
             android:label="Graph It"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar.HelloGraph" />
         <activity android:name=".TimerActivity"
             android:launchMode="singleTask"/>
         <activity
