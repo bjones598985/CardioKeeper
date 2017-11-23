@@ -96,7 +96,7 @@ public class HelloGraph extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        delayedHide(100);
+        //delayedHide(100);
     }
 
     private void delayedHide(int delayMillis) {
@@ -127,7 +127,7 @@ public class HelloGraph extends AppCompatActivity {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
                 if (visibility == View.VISIBLE){
-                    delayedHide(500);
+                    //delayedHide(500);
                 }
             }
         });
