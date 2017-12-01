@@ -42,14 +42,14 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
 
-    TimerBroadCastService timerService;
+    TimerService timerService;
     boolean isBound;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            TimerBroadCastService.LocalBinder localBinder = (TimerBroadCastService.LocalBinder) service;
+            TimerService.LocalBinder localBinder = (TimerService.LocalBinder) service;
             timerService = localBinder.getService();
-            timerService.setTimerTextView(binder.timeText);
+            timerService.setTimerTextViews(binder.timeText, binder.lapTimeText);
             if (timerService.getIsRunning()) {
                 hideButtons(binder.startTimer);
                 showButtons(binder.stopTimer, binder.lap);
@@ -99,7 +99,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
 
-        Intent intent = new Intent(this, TimerBroadCastService.class);
+        Intent intent = new Intent(this, TimerService.class);
         startService(intent);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
@@ -113,6 +113,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
         digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
         binder.timeText.setTypeface(digital);
+        binder.lapTimeText.setTypeface(digital);
 
         initButtons();
         initRv();
@@ -140,7 +141,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
     private void clearServiceConnection() {
         unbindService(connection);
-        stopService(new Intent(this, TimerBroadCastService.class));
+        stopService(new Intent(this, TimerService.class));
     }
 
     @Override

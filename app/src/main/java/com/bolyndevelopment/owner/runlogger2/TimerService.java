@@ -9,14 +9,18 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.widget.TextView;
 
+import com.bumptech.glide.util.Util;
+
+import org.w3c.dom.Text;
+
 import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TimerBroadCastService extends Service {
-    WeakReference<TextView> timerTextView;
+public class TimerService extends Service {
+    WeakReference<TextView> timerTextView, lapTimeTextView;
 
-    private long timerTime = 0, timeInstance = 0;
+    private long timerTime = 0, timeInstance = 0, lapTime = 0;
     private final int NOTIF_ID = 1000;
     private boolean isRunning = false;
 
@@ -42,7 +46,24 @@ public class TimerBroadCastService extends Service {
         }
     };
 
-    public TimerBroadCastService() {
+    private TimerTask lapTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            lapTime = lapTime + 1L;
+            if (isRunning) {
+                if (lapTimeTextView.get() != null) {
+                    lapTimeTextView.get().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            lapTimeTextView.get().setText(Utils.convertSecondsToHms(lapTime));
+                        }
+                    });
+                }
+            }
+        }
+    };
+
+    public TimerService() {
 
     }
 
@@ -89,6 +110,7 @@ public class TimerBroadCastService extends Service {
     public void onStartTimer() {
         showNotification();
         timer.scheduleAtFixedRate(timerTask, 1000, 1000);
+        timer.scheduleAtFixedRate(lapTimerTask, 1000, 1000);
         isRunning = true;
     }
 
@@ -102,17 +124,24 @@ public class TimerBroadCastService extends Service {
         isRunning = true;
     }
 
+    public void onLapPressed() {
+
+    }
+
     public boolean getIsRunning() {
         return isRunning;
     }
 
     public long getTimerTime() {
+        lapTime = 0;
         return timerTime;
     }
 
-    public void setTimerTextView(TextView tv) {
+    public void setTimerTextViews(TextView tv, TextView lapTv) {
         timerTextView = new WeakReference<>(tv);
         timerTextView.get().setText(Utils.convertSecondsToHms(timerTime));
+        lapTimeTextView = new WeakReference<>(lapTv);
+        lapTimeTextView.get().setText(Utils.convertSecondsToHms(lapTime));
     }
 
     private void updateNotification() {
@@ -126,8 +155,8 @@ public class TimerBroadCastService extends Service {
     }
 
     class LocalBinder extends Binder {
-        TimerBroadCastService getService() {
-            return TimerBroadCastService.this;
+        TimerService getService() {
+            return TimerService.this;
         }
     }
 }

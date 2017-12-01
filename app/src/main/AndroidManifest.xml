@@ -35,7 +35,7 @@
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" />
         <service
-            android:name=".TimerBroadCastService"
+            android:name=".TimerService"
             android:enabled="true"
             android:exported="true" />
     </application>

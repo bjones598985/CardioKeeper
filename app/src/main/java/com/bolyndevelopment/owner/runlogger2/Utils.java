@@ -140,6 +140,8 @@ class Utils {
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds));
         long sec = TimeUnit.MILLISECONDS.toSeconds(seconds) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds));
+        long millis = TimeUnit.MILLISECONDS.toMicros(seconds) -
+                TimeUnit.SECONDS.toMicros(seconds);
         if (hour > 0) {
             return String.format(Locale.US, "%02d:%02d:%02d", hour, min, sec);
         } else if (min > 0){

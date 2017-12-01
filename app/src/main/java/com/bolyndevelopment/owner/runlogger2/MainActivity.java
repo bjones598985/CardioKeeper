@@ -66,7 +66,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements BackupRestoreDialog.ChoiceListener, GeneralDialog.GeneralDialogListener {
+public class MainActivity extends AppCompatActivity implements
+        BackupRestoreDialog.ChoiceListener, GeneralDialog.GeneralDialogListener,
+        View.OnClickListener {
     public static final String TAG = "MainActivity";
 
     static final int DIALOG_ENABLE_BACKUP = 1;
@@ -179,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
         };
 
         initRecyclerView();
-        addRandomData();
+        //addRandomData();
         queryForRecords();
         setSupportActionBar(binder.toolbar);
         setupDrawer();
@@ -254,56 +256,10 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
             }
         };
         binder.mainDrawerLayout.addDrawerListener(drawerToggle);
-    }
-
-    public void onNavClick(final View v) {
-        switch (v.getId()) {
-            case R.id.nav_menu_graph:
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(getBaseContext(), HelloGraph.class));
-                    }
-                }, MIN_DELAY_MILLIS);
-                break;
-            case R.id.nav_menu_backup:
-                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(v.getContext());
-                            final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
-                            Bundle b = new Bundle();
-                            b.putString("backupKey", backupKey);
-                            BackupRestoreDialog brd = new BackupRestoreDialog();
-                            brd.setArguments(b);
-                            FragmentTransaction ft = getFragmentManager().beginTransaction();
-                            ft.add(brd, "backup");
-                            ft.commitAllowingStateLoss();
-                        }
-                    }, MIN_DELAY_MILLIS);
-                }
-                break;
-            case R.id.nav_menu_settings:
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent i = new Intent(getBaseContext(), SettingsActivity.class);
-                        i.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
-                        startActivityForResult(i, SETTINGS_CODE);
-                    }
-                }, MIN_DELAY_MILLIS);
-                break;
-            case R.id.nav_menu_about:
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        showGeneralDialog(DIALOG_ABOUT);
-                    }
-                }, MIN_DELAY_MILLIS);
-                break;
-        }
-        binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
+        binder.navMenuGraph.setOnClickListener(this);
+        binder.navMenuBackup.setOnClickListener(this);
+        binder.navMenuSettings.setOnClickListener(this);
+        binder.navMenuAbout.setOnClickListener(this);
     }
 
     @Override
@@ -620,6 +576,57 @@ public class MainActivity extends AppCompatActivity implements BackupRestoreDial
                 Utils.backupDb(backupUri, handler, null);
             }
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.nav_menu_graph:
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getBaseContext(), HelloGraph.class));
+                    }
+                }, MIN_DELAY_MILLIS);
+                break;
+            case R.id.nav_menu_backup:
+                if (checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_REQUEST_CODE)) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                            final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
+                            Bundle b = new Bundle();
+                            b.putString("backupKey", backupKey);
+                            BackupRestoreDialog brd = new BackupRestoreDialog();
+                            brd.setArguments(b);
+                            FragmentTransaction ft = getFragmentManager().beginTransaction();
+                            ft.add(brd, "backup");
+                            ft.commitAllowingStateLoss();
+                        }
+                    }, MIN_DELAY_MILLIS);
+                }
+                break;
+            case R.id.nav_menu_settings:
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent i = new Intent(getBaseContext(), SettingsActivity.class);
+                        i.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
+                        startActivityForResult(i, SETTINGS_CODE);
+                    }
+                }, MIN_DELAY_MILLIS);
+                break;
+            case R.id.nav_menu_about:
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showGeneralDialog(DIALOG_ABOUT);
+                    }
+                }, MIN_DELAY_MILLIS);
+                break;
+        }
+        binder.mainDrawerLayout.closeDrawer(binder.mainNavLeft);
     }
 
     private class ListItem {
