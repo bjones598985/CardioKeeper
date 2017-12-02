@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -17,12 +16,10 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -266,7 +263,6 @@ public class HelloGraph extends AppCompatActivity {
 
     private void initGraph() {
         binding.helloGraph.setValueTouchEnabled(true);
-        binding.helloGraph.setOnValueTouchListener(new ComboTouchListener());
         binding.helloGraph.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
     }
 
@@ -328,6 +324,12 @@ public class HelloGraph extends AppCompatActivity {
                         initialDataLoaded = true;
                     }
                     setAxesAndDisplay();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.helloGraph.setOnValueTouchListener(new ComboTouchListener());
+                        }
+                    });
                 }
             }).start();
         }
@@ -569,7 +571,6 @@ public class HelloGraph extends AppCompatActivity {
                             }
                         }
                         binding.helloGraph.setDataAnimationListener(null);
-                        //see if we can't animate the viewport here
                         binding.helloGraph.startDataAnimation(1500);
 
                     }
@@ -637,7 +638,7 @@ public class HelloGraph extends AppCompatActivity {
             int[] newCoordinates = getNewCoordinates();
             final Path path = getPath(spinLayCoords[0] + newCoordinates[0], spinLayCoords[1] + newCoordinates[1]);
 
-            final Animator transAnim = getMovementAnim(path);
+            final Animator transAnim = getTranslateAnim(path);
             final Animator colorAnim = getColorAnim();
             final Animator circularRevealAnim = getCircleRevealAnim(newCoordinates[0] + fab.getWidth() / 2, newCoordinates[1] + fab.getHeight() / 2);
 
@@ -662,7 +663,7 @@ public class HelloGraph extends AppCompatActivity {
         return new int[]{x, y};
     }
 
-    private Animator getMovementAnim(Path p) {
+    private Animator getTranslateAnim(Path p) {
         final ObjectAnimator transAnim = ObjectAnimator.ofFloat(binding.fabMenuButton, View.X, View.Y, p);
         transAnim.setDuration(500);
         transAnim.addListener(new AnimatorListenerAdapter() {
@@ -701,13 +702,14 @@ public class HelloGraph extends AppCompatActivity {
 
     private Animator getCircleRevealAnim(int xCoord, int yCoord) {
         float finalRadius = (float) Math.hypot(xCoord, yCoord);
-        final Animator circularRevealAnim = ViewAnimationUtils.createCircularReveal(binding.include.spinnerLayout, xCoord, yCoord, binding.fabMenuButton.getWidth() / 2, finalRadius);
+        final Animator circularRevealAnim = ViewAnimationUtils.createCircularReveal(binding.include.spinnerLayout, xCoord, yCoord, binding.fabMenuButton.getWidth() / 2, finalRadius*10);
         circularRevealAnim.setDuration(500);
         circularRevealAnim.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 binding.include.spinnerLayout.setAlpha(1f);
                 binding.include.spinnerLayout.setVisibility(View.VISIBLE);
+                binding.include.spinnerLayout.setElevation(32f);
             }
         });
         circularRevealAnim.addListener(new AnimatorListenerAdapter() {
@@ -715,7 +717,7 @@ public class HelloGraph extends AppCompatActivity {
             public void onAnimationEnd(Animator animation) {
                 binding.fabMenuButton.hide();
                 binding.fabMenuButton.setCompatElevation(32f);
-                binding.include.spinnerLayout.setElevation(32f);
+                //binding.include.spinnerLayout.setElevation(32f);
             }
         });
         return circularRevealAnim;

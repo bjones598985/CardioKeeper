@@ -105,11 +105,11 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        lapList = new ArrayList<>();
         if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
         }
 
-        lapList = new ArrayList<>();
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
         digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
         binder.timeText.setTypeface(digital);
