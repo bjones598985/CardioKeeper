@@ -41,16 +41,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Jump Rope"
-                android:textSize="24sp"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                android:textSize="22sp" />
 
             <TextView
                 android:id="@+id/list_miles_input"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5.0 mi in 25 m 36 s"
-                android:textSize="18sp"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
 
         </LinearLayout>
 

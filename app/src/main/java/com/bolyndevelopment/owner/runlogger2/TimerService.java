@@ -27,6 +27,7 @@ public class TimerService extends Service {
     private NotificationManager mNM;
     private PendingIntent contentIntent;
     private Timer timer;
+    private String title;
 
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -73,6 +74,7 @@ public class TimerService extends Service {
         contentIntent = PendingIntent.getActivity(this,
                 0,new Intent(this, TimerActivity.class), 0);
         timer = new Timer();
+        title = getString(R.string.ticker);
     }
 
     @Override
@@ -95,7 +97,6 @@ public class TimerService extends Service {
     private void showNotification() {
         contentIntent = PendingIntent.getActivity(this,
                 0,new Intent(this, TimerActivity.class), 0);
-        String title = getResources().getString(R.string.ticker);
 
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon
@@ -124,10 +125,6 @@ public class TimerService extends Service {
         isRunning = true;
     }
 
-    public void onLapPressed() {
-
-    }
-
     public boolean getIsRunning() {
         return isRunning;
     }
@@ -147,9 +144,9 @@ public class TimerService extends Service {
     private void updateNotification() {
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon
-                .setTicker("Ticker Text")// the status text
-                .setContentTitle("Timer Service")// the label of the entry
-                .setContentText("Time Elapsed - " + Utils.convertSecondsToHms(timerTime))// the contents of the entry
+                .setTicker(title)// the status text
+                .setContentTitle(title)// the label of the entry
+                .setContentText("Time - " + Utils.convertSecondsToHms(timerTime))// the contents of the entry
                 .setContentIntent(contentIntent);// The intent to send when the entry is clicked
         mNM.notify(NOTIF_ID, notification.build());
     }

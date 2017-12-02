@@ -1,6 +1,5 @@
 package com.bolyndevelopment.owner.runlogger2;
 
-import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -8,12 +7,9 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -70,7 +66,8 @@ class Utils {
     }
 
     static String getTimeStringMillis(String time) {
-        String[] array = TextUtils.split(time, ":");
+        String[] array = time.split(":");
+        //String[] array = TextUtils.split(time, ":");
         int[] timeArray = new int[array.length];
         for (int x = 0; x<array.length;x++) {
             if (array[x].equals("")) {
@@ -208,20 +205,8 @@ class Utils {
                         source.close();
                         destination.close();
                         handler.dispatchMessage(handler.obtainMessage(6));
-                        //handler.post(new Runnable() {
-                            //@Override
-                            //public void run() {
-                                //Snackbar.make(coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
-                            //}
-                        //});
                     } else {
                         handler.dispatchMessage(handler.obtainMessage(9));
-                        //handler.post(new Runnable() {
-                            //@Override
-                            //public void run() {
-                                //Snackbar.make(coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
-                            //}
-                        //});
                     }
                 } catch (IOException e) {
                     Log.d(TAG, "Error writing DB " + e.toString());

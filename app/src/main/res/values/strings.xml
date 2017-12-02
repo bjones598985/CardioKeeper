@@ -205,4 +205,19 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <!-- TimerService -->
     <string name="ticker">Cardio Timer</string>
 
+    <!-- Color codes -->
+    <string name="bike_color">#ff0000</string>
+    <string name="elliptical_color">#ff6680</string>
+    <string name="exercise_bike_color">#cc2100</string>
+    <string name="hiking_color">#008888</string>
+    <string name="jogging_color">#ff00ff</string>
+    <string name="jump_rope_color">#dd00a0</string>
+    <string name="rowing_color">#ffa500</string>
+    <string name="rowing_machine_color">#2aa900</string>
+    <string name="running_color">#999999</string>
+    <string name="stair_master_color">#666666</string>
+    <string name="swimming_color">#00cc00</string>
+    <string name="treadmill_color">#0088ff</string>
+    <string name="walking_color">#0000ff</string>
+
 </resources>
