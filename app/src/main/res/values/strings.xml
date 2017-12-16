@@ -220,4 +220,10 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="treadmill_color">#0088ff</string>
     <string name="walking_color">#0000ff</string>
 
+    <!-- BackupRestoreDialog strings -->
+    <string name="dialog_backup">Back up</string>
+    <string name="dialog_restore">Restore</string>
+    <string name="dialog_new_locale">Backup to New Location</string>
+    <string name="dialog_restore_from">Restore from...</string>
+
 </resources>

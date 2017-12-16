@@ -104,7 +104,9 @@ public class GeneralDialog extends DialogFragment {
 
         }
         AlertDialog ad = builder.create();
-        //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (type == MainActivity.DIALOG_ABOUT) {
+            //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#cccccc")));
+        }
         return ad;
     }
 }

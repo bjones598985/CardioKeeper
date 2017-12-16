@@ -109,7 +109,6 @@ class DataModel {
                 ids += helper.getWritableDatabase().insert(LAP_TABLE, null, lapValues);
                 long ll = l + 1;
                 String sql = "insert into " + LAP_TABLE + " values(" + dataId + ", " + ll + ", " + lapData.get(l) + ");";
-                Log.d(TAG, "SQL: " + sql);
                 if (ids > -1) {
                     inserts.add(sql + ":success");
                 } else {

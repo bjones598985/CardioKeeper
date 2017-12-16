@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -37,9 +38,13 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
 
         backupKey = getArguments().getString("backupKey");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         rootView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.dialog_backup_restore, null);
-        for (int x = 0; x < rootView.getChildCount(); x++ ) {
+        final ViewGroup firstChild = (ViewGroup) rootView.getChildAt(0);
+        for (int x = 0; x < firstChild.getChildCount(); x++ ) {
+            firstChild.getChildAt(x).setOnClickListener(this);
+        }
+        for (int x = 1; x < rootView.getChildCount(); x++ ) {
             rootView.getChildAt(x).setOnClickListener(this);
         }
 
@@ -49,7 +54,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                 getDialog().dismiss();
             }
         }).create();
-        ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         return ad;
     }
 
@@ -57,19 +62,18 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.backup_button:
-                final Button newLocale = (Button) rootView.findViewById(R.id.backup_new_location);
-                newLocale.setVisibility(View.VISIBLE);
-                newLocale.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        listener.onChoiceSelected(BACKUP_TO_NEW);
-                        getDialog().dismiss();
-                    }
-                });
-                final Button sameLocale = (Button) rootView.findViewById(R.id.backup_same_location);
                 if (backupKey != null) {
+                    rootView.findViewById(R.id.backup_mini_layout).setVisibility(View.VISIBLE);
+                    final Button newLocale = (Button) rootView.findViewById(R.id.backup_new_location);
+                    newLocale.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            listener.onChoiceSelected(BACKUP_TO_NEW);
+                            getDialog().dismiss();
+                        }
+                    });
+                    final Button sameLocale = (Button) rootView.findViewById(R.id.backup_same_location);
                     sameLocale.setText(backupKey.contains("google") ? "Backup to Google Drive" : "Backup to File System");
-                    sameLocale.setVisibility(View.VISIBLE);
                     sameLocale.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -77,13 +81,24 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                             getDialog().dismiss();
                         }
                     });
+                } else {
+                    listener.onChoiceSelected(BACKUP_TO_NEW);
+                    getDialog().dismiss();
                 }
                 break;
             case R.id.restore_button:
                 if (backupKey != null) {
+                    rootView.findViewById(R.id.restore_mini_layout).setVisibility(View.VISIBLE);
+                    final Button otherLocale = (Button) rootView.findViewById(R.id.restore_other_location);
+                    otherLocale.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            listener.onChoiceSelected(RESTORE_FROM_NEW);
+                            getDialog().dismiss();
+                        }
+                    });
                     final Button lastLocale = (Button) rootView.findViewById(R.id.restore_last_location);
                     lastLocale.setText(backupKey.contains("google") ? "Restore from Google Drive" : "Restore from File System");
-                    lastLocale.setVisibility(View.VISIBLE);
                     lastLocale.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -91,16 +106,10 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                             getDialog().dismiss();
                         }
                     });
+                } else {
+                    listener.onChoiceSelected(RESTORE_FROM_NEW);
+                    getDialog().dismiss();
                 }
-                final Button otherLocale = (Button) rootView.findViewById(R.id.restore_other_location);
-                otherLocale.setVisibility(View.VISIBLE);
-                otherLocale.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        listener.onChoiceSelected(RESTORE_FROM_NEW);
-                        getDialog().dismiss();
-                    }
-                });
                 break;
         }
     }

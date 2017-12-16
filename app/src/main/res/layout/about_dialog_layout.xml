@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#cccccc"
     android:padding="16dp">
 
     <LinearLayout
@@ -85,64 +84,86 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/run_cardio"
-                android:contentDescription="@string/run_icon_description" />
+                android:contentDescription="@string/run_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/hike_cardio"
-                android:contentDescription="@string/hike_icon_description" />
+                android:contentDescription="@string/hike_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/row_cardio"
-                android:contentDescription="@string/row_icon_description" />
+                android:contentDescription="@string/row_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/jump_rope_cardio"
-                android:contentDescription="@string/jump_rope_icon_description" />
+                android:contentDescription="@string/jump_rope_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/jog_cardio"
-                android:contentDescription="@string/jog_icon_description" />
+                android:contentDescription="@string/jog_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/treadmill_cardio"
-                android:contentDescription="@string/treadmill_icon_description" />
+                android:contentDescription="@string/treadmill_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/bike_cardio"
-                android:contentDescription="@string/bike_icon_description" />
+                android:contentDescription="@string/bike_icon_description"
+                android:tint="@color/black_overlay"/>
             <ImageView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:src="@drawable/swim_cardio"
-                android:contentDescription="@string/swim_icon_description" />
+                android:contentDescription="@string/swim_icon_description"
+                android:tint="@color/black_overlay"/>
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView8"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:padding="12dp"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            android:text="@string/author_scott_de_jonge"
-            android:drawableStart="@drawable/walk_cardio"
-            android:linksClickable="true"
-            android:autoLink="web"/>
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/walk_cardio"
+                android:tint="@color/black_overlay"/>
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:text="@string/author_scott_de_jonge"
+                android:linksClickable="true"
+                android:autoLink="web"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
