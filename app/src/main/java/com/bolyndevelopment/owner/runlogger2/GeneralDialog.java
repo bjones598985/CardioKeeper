@@ -61,7 +61,7 @@ public class GeneralDialog extends DialogFragment {
 
         listener = (GeneralDialogListener) getActivity();
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //get int dialogType to determine which dialog to show
         int type = getArguments().getInt(MainActivity.DIALOG_TYPE);
 
@@ -104,7 +104,7 @@ public class GeneralDialog extends DialogFragment {
 
         }
         AlertDialog ad = builder.create();
-        ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         return ad;
     }
 }

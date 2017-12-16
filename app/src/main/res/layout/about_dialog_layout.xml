@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/general_dialog_background"
+    android:background="#cccccc"
     android:padding="16dp">
 
     <LinearLayout
@@ -13,24 +13,13 @@
         android:padding="8dp">
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/about_intro"
-            android:padding="12dp"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:visibility="gone"/>
-
-        <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright"
             android:padding="12dp"
             android:textSize="12sp"
-            android:typeface="monospace"
-            android:background="@android:color/white"/>
+            android:typeface="monospace"/>
 
         <TextView
             android:id="@+id/textView3"
@@ -39,8 +28,7 @@
             android:padding="12dp"
             android:textSize="18sp"
             android:text="@string/other_software_clause"
-            android:textColor="@android:color/white"
-            android:background="@color/colorPrimary"/>
+            android:textColor="@android:color/black"/>
 
         <TextView
             android:id="@+id/textView4"
@@ -49,14 +37,12 @@
             android:padding="12dp"
             android:typeface="monospace"
             android:textSize="12sp"
-            android:text="@string/hello_charts_license"
-            android:background="@android:color/white"/>
+            android:text="@string/hello_charts_license"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/colorPrimary">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/toasty_icon"
@@ -72,7 +58,7 @@
                 android:padding="12dp"
                 android:textSize="18sp"
                 android:text="@string/toasty"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:linksClickable="true"
                 android:autoLink="web"/>
 
@@ -85,16 +71,14 @@
             android:padding="12dp"
             android:textSize="14sp"
             android:text="@string/author_freepik"
-            android:textColor="@android:color/white"
-            android:background="@color/colorPrimary"
+            android:textColor="@android:color/black"
             android:linksClickable="true"
             android:autoLink="web"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/colorPrimary">
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="0dp"
@@ -147,11 +131,6 @@
 
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:visibility="gone"/>
-
         <TextView
             android:id="@+id/textView8"
             android:layout_width="match_parent"
@@ -159,8 +138,7 @@
             android:gravity="center_vertical"
             android:padding="12dp"
             android:textSize="14sp"
-            android:textColor="@android:color/white"
-            android:background="@color/colorPrimary"
+            android:textColor="@android:color/black"
             android:text="@string/author_scott_de_jonge"
             android:drawableStart="@drawable/walk_cardio"
             android:linksClickable="true"

@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "RequestCode: " + requestCode);
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
@@ -263,16 +262,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            Log.d(TAG, "home button touched");
-            binder.mainDrawerLayout.openDrawer(GravityCompat.START);  // OPEN DRAWER
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("isAddDialogOpen", isAddDialogOpen);
         super.onSaveInstanceState(outState);
@@ -409,10 +398,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     private void createFile(String mimeType, String fileName) {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        // Filter to only show results that can be "opened", such as
-        // a file (as opposed to a list of contacts or timezones).
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        //intent.putExtra(Intent.EXTRA_INITIAL_INTENTS, Intent.ACTION_GET_CONTENT);
 
         // Create a file with the requested MIME type.
         intent.setType(mimeType);
@@ -421,26 +407,16 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void searchForBackup() {
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-        // browser.
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // Filter to only show results that can be "opened", such as a
-        // file (as opposed to a list of contacts or timezones)
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // Filter to show only images, using the image MIME data type.
-        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
-        // To search for all documents available via installed storage providers,
-        // it would be "*/*".
         intent.setType(DB_MIME_TYPE);
         startActivityForResult(intent, SEARCH_FILE_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult");
         switch (requestCode) {
             case WRITE_REQUEST_CODE:
-                Log.d(TAG, "Write request");
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
                     final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
@@ -451,18 +427,8 @@ public class MainActivity extends AppCompatActivity implements
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     ft.add(brd, "backup");
                     ft.commitAllowingStateLoss();
-                    //isThereExternalWriteAccess = true;
-                    //Utils.exportData(handler);
-                    //Toast.makeText(this, "You can now export the database.", Toast.LENGTH_SHORT).show();
                 } else {
                     showGeneralDialog(DIALOG_PERMISSION);
-                    //Snackbar mySnackbar = Snackbar.make(binder.coord, R.string.denied_permission_msg, Snackbar.LENGTH_LONG);
-                    //mySnackbar.setAction(R.string.allow_permission_msg, allowPermClickListener);
-                    //mySnackbar.show();
-                    //Toasty.error(this, "The database can't be exported without permission", Toast.LENGTH_SHORT).show();
-                    /*
-                    this is where we should put in something to advise of the problem and give chance to redo it
-                     */
                 }
                 break;
         }
@@ -470,26 +436,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public boolean checkForPermission(String permission, int requestCode) {
-        // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                //Toast.makeText(this, "Should show request permission: true", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
             } else {
-                // No explanation needed, we can request the permission.
-                //Toast.makeText(this, "Should show request permission: false", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
             return false;
         } else {
-            Log.d(TAG, "permission already granted");
             return true;
         }
     }
@@ -534,7 +488,6 @@ public class MainActivity extends AppCompatActivity implements
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
         isFirstBackup = backupKey == null;
-        Log.d(TAG, "Choice: " + choice);
         switch (choice) {
             case BackupRestoreDialog.BACKUP_TO_NEW:
                 createFile(DB_MIME_TYPE, DataModel.DATABASE_NAME);
