@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult");
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
@@ -195,8 +196,10 @@ public class MainActivity extends AppCompatActivity implements
         setInitialPreferences();
 
         Glide.with(this).asBitmap().load(R.drawable.card_keep_finish_v5).into(binder.appIconImageview);
-
-
+        boolean recreate = getIntent().getBooleanExtra("recreate", false);
+        if (recreate) {
+            startActivityForResult(new Intent(MainActivity.this, TimerActivity.class), CODE_TIMER);
+        }
     }
 
     private void setInitialPreferences() {
@@ -229,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        startActivityForResult(new Intent(getBaseContext(), TimerActivity.class), CODE_TIMER);
+                        startActivityForResult(new Intent(MainActivity.this, TimerActivity.class), CODE_TIMER);
                     }
                 }, MIN_DELAY_MILLIS);
             }

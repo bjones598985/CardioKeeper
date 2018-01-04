@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -71,8 +72,8 @@ public class TimerService extends Service {
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        contentIntent = PendingIntent.getActivity(this,
-                0,new Intent(this, TimerActivity.class), 0);
+        //contentIntent = PendingIntent.getActivity(this,
+                //0,new Intent(this, TimerActivity.class), 0);
         timer = new Timer();
         title = getString(R.string.ticker);
     }
@@ -95,14 +96,22 @@ public class TimerService extends Service {
     private final IBinder mBinder = new LocalBinder();
 
     private void showNotification() {
-        contentIntent = PendingIntent.getActivity(this,
-                0,new Intent(this, TimerActivity.class), 0);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("recreate", true);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(i);
+        //stackBuilder.addParentStack(TimerActivity.class);
+        //stackBuilder.addNextIntent(new Intent(this, TimerActivity.class));
 
+
+        //contentIntent = PendingIntent.getActivity(this,0,new Intent(this, TimerActivity.class), 0);
+        contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon
                 //.setTicker(title)// the status text
                 //.setContentTitle(title)// the label of the entry
-                .setContentText("")// the contents of the entry
+                //.setContentText("")// the contents of the entry
                 .setContentIntent(contentIntent);// The intent to send when the entry is clicked
 
         startForeground(NOTIF_ID, notification.build());
