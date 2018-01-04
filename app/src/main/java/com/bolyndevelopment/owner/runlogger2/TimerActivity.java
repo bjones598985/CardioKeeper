@@ -9,9 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.app.FragmentTransaction;
@@ -20,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,22 +27,29 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
+import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class TimerActivity extends AppCompatActivity implements View.OnClickListener {
     static final int DIALOG_SAVE_AND_EXIT = 1;
     static final int DIALOG_CANCEL_TIMER = 2;
     static final String DIALOG_TYPE = "dialogType";
+    static final String LAP_FILE = "lap_file";
 
     long lastTime = 0;
+
+    boolean isBound, writeToCache = true;
 
     ActivityTimerBinding binder;
     ArrayList<String> lapList;
     Typeface digital, digitalItalic;
-
     TimerService timerService;
-    boolean isBound;
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -79,6 +85,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             ft.add(sd, "save");
             ft.commitAllowingStateLoss();
         } else {
+            writeToCache = false;
             clearServiceConnection();
             finish();
         }
@@ -91,6 +98,24 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("TIMEACT", "onStop");
+        if (writeToCache) {
+            final File file = new File(getCacheDir(), LAP_FILE);
+            final String list = new Gson().toJson(lapList);
+            try {
+                final
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(list.getBytes());
+                fos.close();
+            } catch (IOException ioe) {
+                Log.e("Timer Activity", "Error: " + ioe.toString());
+            }
+        }
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -109,6 +134,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
         }
+        fetchCachedDataIfExists();
 
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
         digital = Typeface.createFromAsset(getAssets(), "fonts/digital_mono.ttf");
@@ -117,6 +143,26 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
 
         initButtons();
         initRv();
+    }
+
+    private void fetchCachedDataIfExists() {
+        File file  = new File(getCacheDir(), LAP_FILE);
+        if (file.exists()) {
+            FileInputStream fis;
+            StringBuilder sb = new StringBuilder();
+            try {
+                fis = new FileInputStream(file);
+                int i;
+                while ((i = fis.read()) != -1) {
+                    sb.append((char) i);
+                }
+            } catch (IOException ioe) {
+                Log.d("Timer Activity", "Error: " + ioe.toString());
+            }
+            lapList = new Gson().fromJson(sb.toString(), ArrayList.class);
+            file.delete();
+        }
+
     }
 
     @Override
@@ -200,6 +246,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         intent.putExtra("totalTime", binder.timeText.getText().toString());
         intent.putStringArrayListExtra("list", lapList);
         setResult(Activity.RESULT_OK, intent);
+        writeToCache = false;
         clearServiceConnection();
         finish();
     }
@@ -241,7 +288,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             int dialogType = getArguments().getInt(DIALOG_TYPE);
             TextView root;
             if (dialogType == DIALOG_SAVE_AND_EXIT) {
@@ -282,9 +329,9 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                             }
                         });
             }
-            AlertDialog ad = builder.create();
-            ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            return ad;
+            //AlertDialog ad = builder.create();
+            //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            return builder.create();
         }
     }
 }

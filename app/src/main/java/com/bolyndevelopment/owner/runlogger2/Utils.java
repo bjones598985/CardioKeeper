@@ -53,7 +53,7 @@ class Utils {
             case "Running":
                 return R.drawable.run_cardio;
             case "Stair Master":
-                return R.drawable.swim_cardio;
+                return R.drawable.stair_stepper_2;
             case "Swimming":
                 return R.drawable.swim_cardio;
             case "Treadmill":

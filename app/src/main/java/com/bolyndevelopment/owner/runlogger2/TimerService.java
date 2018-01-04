@@ -100,8 +100,8 @@ public class TimerService extends Service {
 
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon
-                .setTicker(title)// the status text
-                .setContentTitle(title)// the label of the entry
+                //.setTicker(title)// the status text
+                //.setContentTitle(title)// the label of the entry
                 .setContentText("")// the contents of the entry
                 .setContentIntent(contentIntent);// The intent to send when the entry is clicked
 
@@ -130,7 +130,7 @@ public class TimerService extends Service {
     }
 
     public long getTimerTime() {
-        lapTime = 0;
+        lapTime = -1L;
         return timerTime;
     }
 
@@ -142,11 +142,13 @@ public class TimerService extends Service {
     }
 
     private void updateNotification() {
+        String mainText = "Time Elapsed: " + Utils.convertSecondsToHms(timerTime);
+        String secondartyText = "Lap Time: " + Utils.convertSecondsToHms(lapTime);
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon
-                .setTicker(title)// the status text
-                .setContentTitle(title)// the label of the entry
-                .setContentText("Time - " + Utils.convertSecondsToHms(timerTime))// the contents of the entry
+                .setTicker(mainText)// the status text
+                .setContentTitle(mainText)// the label of the entry
+                .setContentText(secondartyText)// the contents of the entry
                 .setContentIntent(contentIntent);// The intent to send when the entry is clicked
         mNM.notify(NOTIF_ID, notification.build());
     }

@@ -203,7 +203,7 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="title_activity_hello_graph_v2">HelloGraphV2</string>
 
     <!-- TimerService -->
-    <string name="ticker">Cardio Timer</string>
+    <string name="ticker">Time Elapsed</string>
 
     <!-- Color codes -->
     <string name="bike_color">#ff0000</string>
