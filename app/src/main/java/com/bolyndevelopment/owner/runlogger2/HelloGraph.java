@@ -316,6 +316,7 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     String query = getQuery();
+                    Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
                     if (initialDataLoaded) {
                         updateColumnValues(c);
@@ -389,9 +390,9 @@ public class HelloGraph extends AppCompatActivity {
         String secondDate = getSecondDate();
 
         if (dataType == 1) {
-            endOfQuery = ex + " and Data.date between \'" + secondDate + "\' and \'" + today + "\'";
+            endOfQuery = ex + " and Data.date >= \'" + secondDate + "\' and Data.date <= \'" + today + "\'";
         } else {
-            endOfQuery = ex + " and date between '" + secondDate + "\' and \'" + today + "\'";
+            endOfQuery = ex + " and date >= '" + secondDate + "\' and date <= \'" + today + "\'";
         }
         return endOfQuery;
     }

@@ -456,6 +456,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 long id = DataModel.getInstance().addRecords(map, lapDataFromTimer);
+                Log.d(TAG, "id: " + id);
                 if (id > -1) {
                     ListItem item = new ListItem();
                     item.date = map.get(DATE);

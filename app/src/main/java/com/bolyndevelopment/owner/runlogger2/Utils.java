@@ -67,7 +67,6 @@ class Utils {
 
     static String getTimeStringMillis(String time) {
         String[] array = time.split(":");
-        //String[] array = TextUtils.split(time, ":");
         int[] timeArray = new int[array.length];
         for (int x = 0; x<array.length;x++) {
             if (array[x].equals("")) {

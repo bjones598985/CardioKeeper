@@ -97,9 +97,9 @@ public class TimerService extends Service {
 
     private void showNotification() {
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        Intent i = new Intent(this, MainActivity.class);
+        Intent i = new Intent(this, MainActivityAlt.class);
         i.putExtra("recreate", true);
-        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addParentStack(MainActivityAlt.class);
         stackBuilder.addNextIntent(i);
         //stackBuilder.addParentStack(TimerActivity.class);
         //stackBuilder.addNextIntent(new Intent(this, TimerActivity.class));
@@ -109,9 +109,6 @@ public class TimerService extends Service {
         contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon
-                //.setTicker(title)// the status text
-                //.setContentTitle(title)// the label of the entry
-                //.setContentText("")// the contents of the entry
                 .setContentIntent(contentIntent);// The intent to send when the entry is clicked
 
         startForeground(NOTIF_ID, notification.build());
