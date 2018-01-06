@@ -77,16 +77,12 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
     private ActionBarDrawerToggle drawerToggle;
     private Handler handler = new Handler();
-    ArrayList<String> lapDataFromTimer;
-    boolean isAddDialogOpen = false;
-    boolean isFirstBackup;
-    boolean isAutoBackupEnabled;
-    boolean isDualPane;
-    String distUnit;
-    CoordinatorLayout coord;
-    Toolbar toolbar;
-    DrawerLayout drawer;
-    NavigationView mainNavLeft;
+    boolean isAddDialogOpen = false, isFirstBackup, isAutoBackupEnabled, isDualPane;
+    private String distUnit;
+    private CoordinatorLayout coord;
+    private Toolbar toolbar;
+    private DrawerLayout drawer;
+    private NavigationView mainNavLeft;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -175,10 +171,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_alt);
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindow().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        Log.i(TAG, "DensityDPI: " + metrics.densityDpi);
-        Log.i(TAG, "Density: " + metrics.density);
 
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
 
