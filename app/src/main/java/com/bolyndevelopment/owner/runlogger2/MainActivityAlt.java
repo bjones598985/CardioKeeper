@@ -78,7 +78,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     private ActionBarDrawerToggle drawerToggle;
     private Handler handler = new Handler();
     boolean isAddDialogOpen = false, isFirstBackup, isAutoBackupEnabled, isDualPane;
-    private String distUnit;
+    String distUnit;
     private CoordinatorLayout coord;
     private Toolbar toolbar;
     private DrawerLayout drawer;
