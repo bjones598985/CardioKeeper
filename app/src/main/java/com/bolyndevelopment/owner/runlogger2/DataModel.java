@@ -27,8 +27,9 @@ class DataModel {
     private static final int DATABASE_VERSION = 1;
     static final String DATABASE_NAME = "log.db";
 
-    private static final String COL_ID = "_id";
+    static final String DATE_FORMAT = "yyyy-MM-dd";
 
+    private static final String COL_ID = "_id";
     private static final String COL_DATE = "date";
     private static final String COL_TIME = "time";
     private static final String COL_DISTANCE = "distance";

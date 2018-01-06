@@ -385,7 +385,7 @@ public class HelloGraph extends AppCompatActivity {
             today = initialDate;
             //secondDate = initialDate;
         } else {
-            today = Utils.convertDateToString(new Date(), Utils.DB_DATE_FORMAT);
+            today = Utils.convertDateToString(new Date(), DataModel.DATE_FORMAT);
         }
         String secondDate = getSecondDate();
 
@@ -400,7 +400,7 @@ public class HelloGraph extends AppCompatActivity {
     private String getSecondDate() {
         Calendar cal = Calendar.getInstance();
         if (initialDate != null) {
-            cal.setTime(Utils.convertStringToDate(initialDate, "MM/dd/yyyy"));
+            cal.setTime(Utils.convertStringToDate(initialDate, DataModel.DATE_FORMAT));
         }
         switch (timeFrame) {
             case 0:

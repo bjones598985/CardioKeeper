@@ -30,7 +30,7 @@ class Utils {
 
     private static final String TAG = "Utils";
 
-    static final String DB_DATE_FORMAT = "MM/dd/yyyy";
+    static final String DB_DATE_FORMAT = "yyyy-MM-dd";
 
     static int getCardioIcon(String exercise) {
         switch (exercise) {

@@ -256,7 +256,7 @@ public class ListDisplayFragment extends Fragment {
         } else {
             final ListItem item = recordsList.get(position);
             MyAdapter.BaseViewHolder bHolder = (MyAdapter.BaseViewHolder) holder;
-            String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, "MM/dd/yyyy"), "MMM d");
+            String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, DataModel.DATE_FORMAT), "MMM d");
             bHolder.date.setText(date);
             String cal = String.valueOf(item.calories) + " cals";
             bHolder.calories.setText(cal);
@@ -508,7 +508,7 @@ public class ListDisplayFragment extends Fragment {
 
     public void onDateSet(DatePicker view, int year, int month, int day) {
         month++;
-        String formattedDate = String.format(Locale.US, "%02d/%02d/%04d", month, day, year);
+        String formattedDate = String.format(Locale.US, "%04d-%02d-%02d", year, month, day);
         //String datePicked = month + "/" + day + "/" + year;
         // Do something with the date chosen by the user
         avh.dateInput.setText(formattedDate);
