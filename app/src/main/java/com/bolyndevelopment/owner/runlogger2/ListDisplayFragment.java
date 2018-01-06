@@ -382,7 +382,7 @@ public class ListDisplayFragment extends Fragment {
                 case R.id.cancel_button:
                     recordsList.remove(0);
                     mainRecyclerView.getAdapter().notifyItemRemoved(0);
-                    isAddDialogOpen = false;
+                    mListener.setInitDialogOpen(false);
                     break;
                 case R.id.confirm_button:
                     int validation = validateFields();

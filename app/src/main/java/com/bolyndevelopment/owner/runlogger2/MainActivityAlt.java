@@ -18,6 +18,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -31,6 +32,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -55,6 +57,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     static final int DIALOG_ENABLE_BACKUP = 1;
     static final int DIALOG_ABOUT = 2;
     static final int DIALOG_PERMISSION = 3;
+    static final float FAB_MULTI_FACTOR = 1.75f;
 
     static final String DATE = "date";
     static final String TIME = "timerTime";
@@ -75,14 +78,17 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
     static final String DB_MIME_TYPE = "application/x-sqlite3";
 
+    private int fabHeight;
+
     private ActionBarDrawerToggle drawerToggle;
     private Handler handler = new Handler();
-    boolean isAddDialogOpen = false, isFirstBackup, isAutoBackupEnabled, isDualPane;
-    private String distUnit;
+    boolean isAddDialogOpen = false, isFirstBackup, isAutoBackupEnabled, isDualPane, areFabsExpanded = false;
+    String distUnit;
     private CoordinatorLayout coord;
     private Toolbar toolbar;
     private DrawerLayout drawer;
     private NavigationView mainNavLeft;
+    private FloatingActionButton plusFab, timerFab, filterFab, addFab;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -225,23 +231,63 @@ public class MainActivityAlt extends AppCompatActivity  implements
     }
 
     private void initFabs() {
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+        plusFab = (FloatingActionButton) findViewById(R.id.fab_menu);
+        plusFab.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void onClick(View view) {
-                if (!isAddDialogOpen) {
-                    ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
-                    isAddDialogOpen = true;
-                }
-
+            public void onGlobalLayout() {
+                plusFab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                fabHeight = plusFab.getHeight();
             }
         });
-        findViewById(R.id.fab_time_record).setOnClickListener(new View.OnClickListener() {
+        plusFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                animateFabs();
+            }
+        });
+        timerFab = (FloatingActionButton) findViewById(R.id.fab_time_record);
+        timerFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                animateFabs();
                 ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).onTimerFabClicked(isAddDialogOpen);
                 isAddDialogOpen = false;
             }
         });
+        filterFab = (FloatingActionButton) findViewById(R.id.fab_filter);
+        filterFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFabs();
+            }
+        });
+        addFab = (FloatingActionButton) findViewById(R.id.fab_add_manual);
+        addFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFabs();
+                if (!isAddDialogOpen) {
+                    //((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
+                    isAddDialogOpen = true;
+                }
+            }
+        });
+
+    }
+
+    private void animateFabs() {
+        if (areFabsExpanded) {
+            plusFab.animate().rotationBy(45f).scaleYBy(.25f).scaleXBy(.25f).start();
+            timerFab.animate().rotationBy(360f).translationYBy(fabHeight * FAB_MULTI_FACTOR).start();
+            filterFab.animate().rotationBy(360f).translationXBy(fabHeight * FAB_MULTI_FACTOR).start();
+            addFab.animate().rotationBy(360f).translationXBy(fabHeight * FAB_MULTI_FACTOR * .75f).translationYBy(fabHeight * FAB_MULTI_FACTOR * .75f).start();
+        } else {
+            plusFab.animate().rotationBy(-45f).scaleYBy(-0.25f).scaleXBy(-0.25f).start();
+            timerFab.animate().rotationBy(-360f).translationYBy(-fabHeight * FAB_MULTI_FACTOR).start();
+            filterFab.animate().rotationBy(-360f).translationXBy(-fabHeight * FAB_MULTI_FACTOR).start();
+            addFab.animate().rotationBy(-360f).translationXBy(-fabHeight * FAB_MULTI_FACTOR * .75f).translationYBy(-fabHeight * FAB_MULTI_FACTOR * .75f).start();
+        }
+        areFabsExpanded = !areFabsExpanded;
     }
 
     //only if screen isn't big
