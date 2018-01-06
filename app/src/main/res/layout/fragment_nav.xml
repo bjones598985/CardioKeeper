@@ -6,6 +6,7 @@
     tools:context="com.bolyndevelopment.owner.runlogger2.NavFragment">
 
     <LinearLayout
+        android:id="@+id/first_child"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"

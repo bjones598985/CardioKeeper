@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -251,7 +252,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         });
     }
 
-    //only if screen is big
+    //only if screen isn't big
     private void initDrawer() {
         drawer = (DrawerLayout) findViewById(R.id.main_drawer_layout);
         drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -273,10 +274,13 @@ public class MainActivityAlt extends AppCompatActivity  implements
         };
         drawer.addDrawerListener(drawerToggle);
         mainNavLeft = (NavigationView) findViewById(R.id.main_nav_left);
-        findViewById(R.id.nav_menu_graph).setOnClickListener(this);
-        findViewById(R.id.nav_menu_backup).setOnClickListener(this);
-        findViewById(R.id.nav_menu_settings).setOnClickListener(this);
-        findViewById(R.id.nav_menu_about).setOnClickListener(this);
+        if (!isDualPane) {
+            findViewById(R.id.first_child).setBackgroundColor(Color.TRANSPARENT);
+        }
+        //findViewById(R.id.nav_menu_graph).setOnClickListener(this);
+        //findViewById(R.id.nav_menu_backup).setOnClickListener(this);
+        //findViewById(R.id.nav_menu_settings).setOnClickListener(this);
+        //findViewById(R.id.nav_menu_about).setOnClickListener(this);
     }
 
     @Override
