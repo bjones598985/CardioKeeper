@@ -18,6 +18,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class ListDisplayFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("MainActivityAlt", "onActivityResult - LDF");
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
             final String totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");

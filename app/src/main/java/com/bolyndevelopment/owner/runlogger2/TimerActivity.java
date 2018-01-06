@@ -206,10 +206,12 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             case R.id.lap:
                 long time = timerService.getTimerTime() * 1000;
                 long diff = time - lastTime;
-                lastTime = time;
-                lapList.add(0, String.valueOf(diff));
-                binder.list.getAdapter().notifyItemInserted(0);
-                binder.list.scrollToPosition(0);
+                if (diff > 0) {//need this so that it doesn't record 0 seconds as a lap
+                    lastTime = time;
+                    lapList.add(0, String.valueOf(diff));
+                    binder.list.getAdapter().notifyItemInserted(0);
+                    binder.list.scrollToPosition(0);
+                }
                 break;
             case R.id.resume_timer:
                 timerService.onResumeTimer();

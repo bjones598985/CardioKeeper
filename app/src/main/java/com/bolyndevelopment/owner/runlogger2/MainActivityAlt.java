@@ -32,7 +32,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.bolyndevelopment.owner.runlogger2.databinding.ActivityMainBinding;
 import com.bumptech.glide.Glide;
 
 import org.greenrobot.eventbus.EventBus;
@@ -67,7 +66,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     static final int MIN_DELAY_MILLIS = 200;
     static final int CODE_TIMER = 100;
 
-    public static final int WRITE_REQUEST_CODE = 1;
+    static final int WRITE_REQUEST_CODE = 1;
 
     static final int CREATE_FILE_CODE = 57;
     static final int SEARCH_FILE_CODE = 43;
@@ -76,7 +75,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     static final String DB_MIME_TYPE = "application/x-sqlite3";
 
     private ActionBarDrawerToggle drawerToggle;
-    Handler handler = new Handler();
+    private Handler handler = new Handler();
     ArrayList<String> lapDataFromTimer;
     boolean isAddDialogOpen = false;
     boolean isFirstBackup;
@@ -92,11 +91,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult");
-        if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
-            final String totalTime = data.getStringExtra("totalTime");
-            lapDataFromTimer = data.getStringArrayListExtra("list");
-            ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(totalTime);
-        }
         if (requestCode == CREATE_FILE_CODE && resultCode == Activity.RESULT_OK) {
             final Uri backupUri = data.getData();
             Utils.backupDb(backupUri, handler, coord);
@@ -131,9 +125,9 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
     private void addRandomData() {
         final List<String> cardioList = Arrays.asList(getResources().getStringArray(R.array.cardio_types));
-        for (int y=1; y<8; y++) {
+        for (int y=1; y<13; y++) {
             for (int x = 1; x < 31; x += 3) {
-                String date = String.format(Locale.US, "%02d/%02d/%04d", y, x, 2017);
+                String date = String.format(Locale.US, "%04d-%02d-%02d", 2017, y, x);
                 Random random = new Random();
                 int min = random.nextInt((60 - 1) + 1) + 1;
                 int sec = random.nextInt((60 - 1) + 1) + 1;
@@ -210,7 +204,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             }
         };
         setSupportActionBar(toolbar);
-        setupFabs();
+        initFabs();
         if (savedInstanceState != null) {
             isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
             if (isAddDialogOpen) {
@@ -218,7 +212,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             }
         }
         if (!isDualPane) {
-            setupDrawer();
+            initDrawer();
             Glide.with(this).asBitmap()
                     .load(R.drawable.card_keep_finish_v5)
                     .into((ImageView) findViewById(R.id.app_icon_imageview));
@@ -237,7 +231,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
     }
 
-    private void setupFabs() {
+    private void initFabs() {
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -258,7 +252,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     }
 
     //only if screen is big
-    private void setupDrawer() {
+    private void initDrawer() {
         drawer = (DrawerLayout) findViewById(R.id.main_drawer_layout);
         drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerToggle = new ActionBarDrawerToggle(this,
