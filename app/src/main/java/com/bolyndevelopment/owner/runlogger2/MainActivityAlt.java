@@ -259,6 +259,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 animateFabs();
+                Snackbar.make(coord, "Filter - slated for future release", Snackbar.LENGTH_LONG).show();
             }
         });
         addFab = (FloatingActionButton) findViewById(R.id.fab_add_manual);
@@ -267,12 +268,11 @@ public class MainActivityAlt extends AppCompatActivity  implements
             public void onClick(View v) {
                 animateFabs();
                 if (!isAddDialogOpen) {
-                    //((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
+                    ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
                     isAddDialogOpen = true;
                 }
             }
         });
-
     }
 
     private void animateFabs() {
