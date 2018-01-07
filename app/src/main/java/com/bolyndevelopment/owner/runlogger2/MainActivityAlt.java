@@ -28,8 +28,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -171,6 +175,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_alt);
+        setWindowAnimations();
 
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
 
@@ -217,6 +222,10 @@ public class MainActivityAlt extends AppCompatActivity  implements
         }
     }
 
+    private void setWindowAnimations() {
+        getWindow().setExitTransition(new Fade());
+    }
+
     private void setInitialPreferences() {
         final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
@@ -232,7 +241,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
                     ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
                     isAddDialogOpen = true;
                 }
-
             }
         });
         findViewById(R.id.fab_time_record).setOnClickListener(new View.OnClickListener() {
