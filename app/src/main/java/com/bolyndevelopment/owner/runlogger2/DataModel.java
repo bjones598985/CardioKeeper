@@ -128,6 +128,29 @@ class DataModel {
         return helper.getReadableDatabase().query(DATA_TABLE, from, null, null, null, null, COL_DATE + " desc");
     }
 
+    Cursor getSelectedRecords(String[] criteria) {
+        Log.d(TAG, "size: " + criteria.length);
+
+        return helper.getReadableDatabase().query(DATA_TABLE, from,
+                COL_CARDIO_TYPE + " in (" + makePlaceholders(criteria.length) + ")",
+                criteria, null, null, COL_DATE + " desc");
+    }
+
+    //helper for getSelectedRecords(String[] criteria)
+    private String makePlaceholders(int len) {
+        if (len < 1) {
+            // It will lead to an invalid query anyway ..
+            throw new RuntimeException("No placeholders");
+        } else {
+            StringBuilder sb = new StringBuilder(len * 2 - 1);
+            sb.append("?");
+            for (int i = 1; i < len; i++) {
+                sb.append(",?");
+            }
+            return sb.toString();
+        }
+    }
+
     //will still work
     Cursor rawQuery(String query, String[] arguments) {
         return helper.getWritableDatabase().rawQuery(query, arguments);

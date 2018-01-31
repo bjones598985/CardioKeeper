@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_by"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:elevation="4dp"
+            android:padding="8dp"
+            android:textColor="@android:color/white"
+            android:background="@color/colorPrimary"/>
+
+        <TableLayout
+            android:id="@+id/table_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:stretchColumns="0,1">
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_biking"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/biking"
+                    android:padding="4dp" />
+                <CheckBox
+                    android:id="@+id/checkBox_elliptical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/elliptical"
+                    android:gravity="end"
+                    android:padding="4dp"
+                    android:layout_gravity="start"/>
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_exercise_bike"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/exercise_bike"
+                    android:padding="4dp"/>
+                <CheckBox
+                    android:id="@+id/checkBox_hiking"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/hiking"
+                    android:gravity="end"
+                    android:padding="4dp"
+                    android:layout_gravity="start"/>
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_jogging"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/jogging"
+                    android:padding="4dp"/>
+                <CheckBox
+                    android:id="@+id/checkBox_jump_rope"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/jump_rope"
+                    android:gravity="end"
+                    android:padding="4dp"
+                    android:layout_gravity="start"/>
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_rowing"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/rowing"
+                    android:padding="4dp"/>
+                <CheckBox
+                    android:id="@+id/checkBox_rowing_machine"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/rowing_machine"
+                    android:gravity="end"
+                    android:padding="4dp"
+                    android:layout_gravity="start"/>
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_running"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/running"
+                    android:padding="4dp"/>
+                <CheckBox
+                    android:id="@+id/checkBox_stair_master"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/stair_master"
+                    android:gravity="end"
+                    android:padding="4dp"
+                    android:layout_gravity="start"/>
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_swimming"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/swimming"
+                    android:padding="4dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkBox_treadmill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/treadmill"
+                    android:gravity="end"
+                    android:padding="4dp"
+                    android:layout_gravity="start"/>
+            </TableRow>
+
+            <TableRow>
+                <CheckBox
+                    android:id="@+id/checkBox_walking"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/walking"
+                    android:padding="4dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <Button
+            android:id="@+id/filter_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter"
+            android:layout_gravity="center"
+            tools:style="@style/Widget.AppCompat.Button.Colored" />
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

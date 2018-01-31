@@ -1,6 +1,7 @@
 package com.bolyndevelopment.owner.runlogger2;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -14,16 +15,24 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -31,9 +40,17 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
@@ -41,17 +58,24 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 public class MainActivityAlt extends AppCompatActivity  implements
         BackupRestoreDialog.ChoiceListener, GeneralDialog.GeneralDialogListener,
         View.OnClickListener, ListDisplayFragment.ListFragListener,
         NavFragment.NavFragListener {
+
     public static final String TAG = "MainActivityAlt";
 
     static final int DIALOG_ENABLE_BACKUP = 1;
@@ -89,6 +113,8 @@ public class MainActivityAlt extends AppCompatActivity  implements
     private DrawerLayout drawer;
     private NavigationView mainNavLeft;
     private FloatingActionButton plusFab, timerFab, filterFab, addFab;
+    private BottomSheetBehavior bottomBehavior;
+    private ViewPager pager;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -166,6 +192,29 @@ public class MainActivityAlt extends AppCompatActivity  implements
         }).start();
     }
 
+    public void queryForRecords(final ArrayList<CheckBox> filter) {
+        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        if (filter.size() > 0) {
+            final String[] array = new String[filter.size()];
+            for (int x = 0; x < filter.size(); x++) {
+                array[x] = filter.get(x).getText().toString();
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final Cursor cursor = DataModel.getInstance().getSelectedRecords(array);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((ListDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.ListFrag)).onRecordsQueried(cursor);
+                        }
+                    });
+                }
+            }).start();
+
+        }
+    }
+
     private void saveUriPathToSharedPreferences(String path) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -177,11 +226,13 @@ public class MainActivityAlt extends AppCompatActivity  implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_alt);
-
+        //addRandomData();
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
 
         coord = (CoordinatorLayout) findViewById(R.id.coord);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         handler = new Handler(Looper.getMainLooper()){
@@ -221,6 +272,10 @@ public class MainActivityAlt extends AppCompatActivity  implements
         if (recreate) {
             startActivityForResult(new Intent(MainActivityAlt.this, TimerActivity.class), CODE_TIMER);
         }
+
+        bottomBehavior = BottomSheetBehavior.from(pager);
+        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomBehavior.setPeekHeight(0);
     }
 
     private void setInitialPreferences() {
@@ -259,7 +314,9 @@ public class MainActivityAlt extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 animateFabs();
-                Snackbar.make(coord, "Filter - slated for future release", Snackbar.LENGTH_LONG).show();
+                //Snackbar.make(coord, "Filter - slated for future release", Snackbar.LENGTH_LONG).show();
+                bottomBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                //((FilterSortBottomSheet)getFragmentManager().findFragmentById(R.id.bottom_sheet_frag))
             }
         });
         addFab = (FloatingActionButton) findViewById(R.id.fab_add_manual);
@@ -547,5 +604,136 @@ public class MainActivityAlt extends AppCompatActivity  implements
     @Override
     public void onMenuOptionClicked(View view) {
         onClick(view);
+    }
+
+    private void onSetSortArgs(String... args) {
+        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        ((ListDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.ListFrag)).sortList(args);
+    }
+
+    private class PagerAdapter extends FragmentPagerAdapter {
+
+        PagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Page page = new Page();
+            Bundle bundle = new Bundle();
+            bundle.putInt("pos", position);
+            page.setArguments(bundle);
+            page.setReference(MainActivityAlt.this);
+            return page;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    }
+
+    public static class Page extends Fragment implements View.OnClickListener {
+        private int position;
+        private View root;
+        private ArrayList<CheckBox> filterList;
+        private Spinner spinner1, spinner2, spinner3;
+
+        private int[] ids = new int[]{R.id.checkBox_biking, R.id.checkBox_elliptical, R.id.checkBox_exercise_bike,
+                R.id.checkBox_hiking, R.id.checkBox_jogging, R.id.checkBox_jump_rope, R.id.checkBox_rowing, R.id.checkBox_rowing_machine,
+                R.id.checkBox_running, R.id.checkBox_stair_master, R.id.checkBox_swimming, R.id.checkBox_treadmill, R.id.checkBox_walking,
+                R.id.filter_button};
+
+        private WeakReference<MainActivityAlt> ref;
+
+        public Page() {
+
+        }
+
+        public void setReference(MainActivityAlt alt) {
+            ref = new WeakReference<>(alt);
+        }
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            position = getArguments().getInt("pos");
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            root = position == 0 ? inflater.inflate(R.layout.filter_frag_layout, null) : inflater.inflate(R.layout.sort_frag_layout, null);
+            return root;
+        }
+
+        @Override
+        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+            switch (position) {
+                case 0:
+                    filterList = new ArrayList<>();
+                    for (int id : ids) {
+                        view.findViewById(id).setOnClickListener(this);
+                    }
+                    break;
+                case 1:
+                    view.findViewById(R.id.sort_button).setOnClickListener(this);
+                    setUpSpinners(view);
+                    break;
+            }
+        }
+
+        private void setUpSpinners(View view) {
+            final ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
+            final ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
+            final ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
+            adapter1.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            adapter2.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            adapter3.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            spinner1 = (Spinner) view.findViewById(R.id.spinner1);
+            spinner1.setAdapter(adapter1);
+            spinner2 = (Spinner) view.findViewById(R.id.spinner2);
+            spinner2.setAdapter(adapter2);
+            spinner3 = (Spinner) view.findViewById(R.id.spinner3);
+            spinner3.setAdapter(adapter3);
+        }
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.checkBox_biking:
+                case R.id.checkBox_elliptical:
+                case R.id.checkBox_exercise_bike:
+                case R.id.checkBox_hiking:
+                case R.id.checkBox_jogging:
+                case R.id.checkBox_jump_rope:
+                case R.id.checkBox_rowing:
+                case R.id.checkBox_rowing_machine:
+                case R.id.checkBox_running:
+                case R.id.checkBox_stair_master:
+                case R.id.checkBox_swimming:
+                case R.id.checkBox_treadmill:
+                case R.id.checkBox_walking:
+                    if (filterList.contains(v)) {
+                        filterList.remove(v);
+                    } else {
+                        filterList.add((CheckBox) v);
+                    }
+                    break;
+                case R.id.filter_button:
+                    ref.get().queryForRecords(filterList);
+                    break;
+                case R.id.sort_button:
+                    setSortArgs();
+                    break;
+            }
+        }
+
+        private void setSortArgs() {
+            String s1 = ((TextView) spinner1.getSelectedView()).getText().toString();
+            String s2 = ((TextView) spinner2.getSelectedView()).getText().toString();
+            String s3 = ((TextView) spinner3.getSelectedView()).getText().toString();
+            ref.get().onSetSortArgs(s1/*, s2, s3*/);
+        }
     }
 }

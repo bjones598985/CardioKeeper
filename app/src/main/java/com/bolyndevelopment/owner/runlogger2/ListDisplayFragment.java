@@ -13,12 +13,14 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +32,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +54,8 @@ public class ListDisplayFragment extends Fragment {
     RecyclerView mainRecyclerView;
     boolean isAddDialogOpen = false;
 
+    static final int ASCENDING = -1;
+    static final int DESCENDING = 1;
 
     static final int ALPHA_25 = 63;
     static final int CODE_TIMER = 100;
@@ -114,32 +121,71 @@ public class ListDisplayFragment extends Fragment {
         */
     }
 
+    public void sortList(String... args) {
+        for (String str : args) {
+            switch (str) {
+                case "Select...":
+                    continue;
+                case "Exercise: A-Z":
+                    ListSorter.sortAlphabetic(recordsList, ASCENDING);
+                    break;
+                case "Exercise: Z-A":
+                    ListSorter.sortAlphabetic(recordsList, DESCENDING);
+                    break;
+                case "Date: Ascending":
+                    ListSorter.sortByDate(recordsList, ASCENDING);
+                    break;
+                case "Date: Descending":
+                    ListSorter.sortByDate(recordsList, DESCENDING);
+                    break;
+                case "Distance: Ascending":
+                    ListSorter.sortByDistance(recordsList, ASCENDING);
+                    break;
+                case "Distance: Descending":
+                    ListSorter.sortByDistance(recordsList, DESCENDING);
+                    break;
+                case "Time: Ascending":
+                    ListSorter.sortByTime(recordsList, ASCENDING);
+                    break;
+                case "Time: Descending":
+                    ListSorter.sortByTime(recordsList, DESCENDING);
+                    break;
+                case "Calories: Ascending":
+                    ListSorter.sortByCalories(recordsList, ASCENDING);
+                    break;
+                case "Calories: Descending":
+                    ListSorter.sortByCalories(recordsList, DESCENDING);
+                    break;
+            }
+            notifyOfDataChange();
+        }
+    }
+
     public void onRecordsQueried(final Cursor cursor) {
         recordsList.clear();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                cursor.moveToFirst();
-                ListItem item;
-                while (!cursor.isAfterLast()) {
-                    item = new ListItem();
-                    item.cType = cursor.getString(4);
-                    item.calories = cursor.getInt(3);
-                    item.distance = cursor.getFloat(2);
-                    item.date = cursor.getString(0);
-                    item.time = Utils.convertMillisToHms(cursor.getLong(1));
-                    recordsList.add(item);
-                    cursor.moveToNext();
+        if (cursor.getCount() == 0) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext(), "Uh oh, no results for that selection...", Toast.LENGTH_LONG).show();
                 }
-                cursor.close();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        myAdapter.notifyDataSetChanged();
-                    }
-                });
+            });
+        } else {
+            cursor.moveToFirst();
+            ListItem item;
+            while (!cursor.isAfterLast()) {
+                item = new ListItem();
+                item.cType = cursor.getString(4);
+                item.calories = cursor.getInt(3);
+                item.distance = cursor.getFloat(2);
+                item.date = cursor.getString(0);
+                item.time = Utils.convertMillisToHms(cursor.getLong(1));
+                recordsList.add(item);
+                cursor.moveToNext();
             }
-        }).start();
+            cursor.close();
+            myAdapter.notifyDataSetChanged();
+        }
     }
 
     public void initAddDialog(@Nullable String time) {
@@ -211,38 +257,44 @@ public class ListDisplayFragment extends Fragment {
         }
     }
 
-    private class ListItem {
-    int calories;
-    float distance;
-    String date = null, time = null, cType;
-}
+    public static class ListItem {
+        int calories;
+        float distance;
+        String date = null, time = null, cType;
+
+        @Override
+        public String toString() {
+            return "cType: " + cType + ", calories: " + calories + ", distance: " +
+                    distance + ", date: " + date + ", time: " + time;
+        }
+    }
 
     private class AddDialog extends ListItem {
     int spinnerPosition = 0;
 }
 
     private class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    final int LIST_ITEM = 1;
-    final int ADD_DIALOG = 2;
+        final int LIST_ITEM = 1;
+        final int ADD_DIALOG = 2;
 
-    final int CARDIO_SPINNER = 1;
-    final int TIME_EDITTEXT = 2;
-    final int DIST_EDITTEXT = 3;
+        final int CARDIO_SPINNER = 1;
+        final int TIME_EDITTEXT = 2;
+        final int DIST_EDITTEXT = 3;
 
-    @Override
-    public int getItemViewType(int position) {
-        return recordsList.get(position) instanceof AddDialog ? ADD_DIALOG : LIST_ITEM;
-    }
+        @Override
+        public int getItemViewType(int position) {
+            return recordsList.get(position) instanceof AddDialog ? ADD_DIALOG : LIST_ITEM;
+        }
 
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return viewType == LIST_ITEM ? new MyAdapter.BaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_v3, parent, false)) :
-                new MyAdapter.AddViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.button_dialog_frag_layout, parent, false));
-    }
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return viewType == LIST_ITEM ? new MyAdapter.BaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_v3, parent, false)) :
+                    new MyAdapter.AddViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.button_dialog_frag_layout, parent, false));
+        }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        @SuppressWarnings("deprecation")
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (recordsList.get(position) instanceof AddDialog) {
             MyAdapter.AddViewHolder avh = (MyAdapter.AddViewHolder) holder;
             final AddDialog ad = (AddDialog) recordsList.get(position);
@@ -258,6 +310,7 @@ public class ListDisplayFragment extends Fragment {
         } else {
             final ListItem item = recordsList.get(position);
             MyAdapter.BaseViewHolder bHolder = (MyAdapter.BaseViewHolder) holder;
+            Log.e("LDF", "item.date: " + item.date);
             String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, DataModel.DATE_FORMAT), "MMM d");
             bHolder.date.setText(date);
             String cal = String.valueOf(item.calories) + " cals";
@@ -288,12 +341,12 @@ public class ListDisplayFragment extends Fragment {
         }
     }
 
-    @Override
-    public int getItemCount() {
+        @Override
+        public int getItemCount() {
         return recordsList.size();
     }
 
-    class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView date, time, distance, calories, name;
         ImageView icon;
         FrameLayout fl;
@@ -315,7 +368,7 @@ public class ListDisplayFragment extends Fragment {
         }
     }
 
-    class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable {
+        class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable {
         ViewGroup mainLayout;
         Spinner cardioSpinner;
         TextView dateInput;
@@ -460,7 +513,7 @@ public class ListDisplayFragment extends Fragment {
         private HashMap<String, String> addInfoToMap() {
             HashMap<String, String> cardioData = new HashMap<>();
             cardioData.put(MainActivityAlt.DATE, dateInput.getText().toString());
-            cardioData.put(MainActivityAlt.TIME, getTimeMillis());
+            cardioData.put(MainActivityAlt.TIME, Utils.getTimeMillis(timeInput.getText().toString()));
             cardioData.put(MainActivityAlt.DISTANCE, distInput.getText().toString());
             cardioData.put(MainActivityAlt.CALORIES, calsInput.getText().toString());
             String cardio = (String) cardioSpinner.getSelectedItem();
@@ -491,29 +544,103 @@ public class ListDisplayFragment extends Fragment {
             return String.valueOf(millis);
         }
     }
-}
+    }
 
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-    MyAdapter.AddViewHolder avh;
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        avh = (MyAdapter.AddViewHolder) getArguments().getSerializable("date");
-        // Use the current date as the default date in the picker
-        final Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
+        MyAdapter.AddViewHolder avh;
 
-        // Create a new instance of DatePickerDialog and return it
-        return new DatePickerDialog(getActivity(), this, year, month, day);
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            avh = (MyAdapter.AddViewHolder) getArguments().getSerializable("date");
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            month++;
+            String formattedDate = String.format(Locale.US, "%04d-%02d-%02d", year, month, day);
+            //String datePicked = month + "/" + day + "/" + year;
+            // Do something with the date chosen by the user
+            avh.dateInput.setText(formattedDate);
+        }
     }
 
-    public void onDateSet(DatePicker view, int year, int month, int day) {
-        month++;
-        String formattedDate = String.format(Locale.US, "%04d-%02d-%02d", year, month, day);
-        //String datePicked = month + "/" + day + "/" + year;
-        // Do something with the date chosen by the user
-        avh.dateInput.setText(formattedDate);
+    static class ListSorter {
+
+        //verified works
+        static void sortAlphabetic(List<ListItem> recordsList, final int direction) {
+            Collections.sort(recordsList, new Comparator<ListItem>() {
+                @Override
+                public int compare(ListItem o1, ListItem o2) {
+                    if (direction == ASCENDING) {
+                        return o1.cType.compareTo(o2.cType);
+                    } else {
+                        return o2.cType.compareTo(o1.cType);
+                    }
+                }
+            });
+        }
+        //verified works
+        static void sortByDate(List<ListItem> recordsList, final int direction) {
+            Collections.sort(recordsList, new Comparator<ListItem>() {
+                @Override
+                public int compare(ListItem o1, ListItem o2) {
+                    if (direction == ASCENDING) {
+                        return o1.date.compareTo(o2.date);
+                    } else {
+                        return o2.date.compareTo(o1.date);
+                    }
+                }
+            });
+        }
+        //verified works
+        static void sortByDistance(List<ListItem> recordsList, final int direction) {
+            Collections.sort(recordsList, new Comparator<ListItem>(){
+                @Override
+                public int compare(ListItem o1, ListItem o2) {
+                    if (direction == ASCENDING) {
+                        return Math.round(o1.distance - o2.distance);
+                    } else {
+                        return Math.round(o2.distance - o1.distance);
+                    }
+                }
+            });
+        }
+        //verified works
+        static void sortByTime(List<ListItem> recordsList, final int direction) {
+            Collections.sort(recordsList, new Comparator<ListItem>() {
+                @Override
+                public int compare(ListItem o1, ListItem o2) {
+                    String t1, t2;
+                    t1 = Utils.getTimeMillis(o1.time);
+                    t2 = Utils.getTimeMillis(o2.time);
+                    if (direction == ASCENDING) {
+                        return t1.compareTo(t2);
+                    } else {
+                        return t2.compareTo(t1);
+                    }
+                }
+            });
+        }
+
+        //verified works
+        static void sortByCalories(List<ListItem> recordsList, final int direction) {
+            Collections.sort(recordsList, new Comparator<ListItem>() {
+                @Override
+                public int compare(ListItem o1, ListItem o2) {
+                    if (direction == ASCENDING) {
+                        return o1.calories - o2.calories;
+                    } else {
+                        return o2.calories - o1.calories;
+                    }
+                }
+            });
+        }
     }
-}
 }

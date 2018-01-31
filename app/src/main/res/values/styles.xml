@@ -101,4 +101,11 @@
     <style name="CheckBoxStyle" parent="AppTheme">
         <item name="colorAccent">@android:color/black</item>
     </style>
+
+    <style name="SpinnerStyle">
+        <item name="android:layout_marginTop">@dimen/sort_frag_spinner_margin</item>
+        <item name="android:layout_marginBottom">@dimen/sort_frag_spinner_margin</item>
+        <item name="android:paddingTop">@dimen/sort_frag_spinner_padding</item>
+        <item name="android:paddingBottom">@dimen/sort_frag_spinner_padding</item>
+    </style>
 </resources>

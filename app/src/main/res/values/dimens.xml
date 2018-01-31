@@ -13,4 +13,7 @@
     <dimen name="chart_title_padding">16dp</dimen>
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
+
+    <dimen name="sort_frag_spinner_padding">8dp</dimen>
+    <dimen name="sort_frag_spinner_margin">8dp</dimen>
 </resources>

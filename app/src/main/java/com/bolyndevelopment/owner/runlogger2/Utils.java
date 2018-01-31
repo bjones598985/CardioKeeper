@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
@@ -102,6 +103,28 @@ class Utils {
 
     static String convertDateToString(Date inDate, String format) {
         return new SimpleDateFormat(format, Locale.US).format(inDate);
+    }
+
+    static String getTimeMillis(String time) {
+        String[] array = time.split(":");
+        int[] timeArray = new int[array.length];
+        for (int x = 0; x<array.length; x++) {
+            if (array[x].equals("")) {
+                timeArray[x] = 0;
+            } else {
+                timeArray[x] = Integer.valueOf(array[x]);
+            }
+        }
+        long millis = 0;
+        switch (timeArray.length) {
+            case 2:
+                millis =  convertToMillis(0, timeArray[0], timeArray[1]);
+                break;
+            case 3:
+                millis =  convertToMillis(timeArray[0], timeArray[1], timeArray[2]);
+                break;
+        }
+        return String.valueOf(millis);
     }
 
     static long convertToMillis(int hours, int minutes, int seconds) {

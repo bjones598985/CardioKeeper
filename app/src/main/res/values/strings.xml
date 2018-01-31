@@ -228,4 +228,25 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- Bottom Sheet -->
+
+    <string name="filter_by">Filter by...</string>
+    <string name="sort_by">Sort by...</string>
+    <string name="sort">Sort</string>
+    <string name="filter">Filter</string>
+
+    <string-array name="sort_options">
+        <item>Select...</item>
+        <item>Exercise: A-Z</item>
+        <item>Exercise: Z-A</item>
+        <item>Date: Ascending</item>
+        <item>Date: Descending</item>
+        <item>Distance: Ascending</item>
+        <item>Distance: Descending</item>
+        <item>Time: Ascending</item>
+        <item>Time: Descending</item>
+        <item>Calories: Ascending</item>
+        <item>Calories: Descending</item>
+    </string-array>
+
 </resources>
