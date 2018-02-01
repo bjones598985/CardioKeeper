@@ -3,30 +3,37 @@ package com.bolyndevelopment.owner.runlogger2;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
 
-/**
- * Created by Bobby Jones on 1/31/2018.
- */
+import java.util.List;
+
+//Created by Bobby Jones on 1/31/2018.
 
 public class ListDiffCallback extends DiffUtil.Callback {
+    List<ListItem> oldList;
+    List<ListItem> newList;
+
+    public ListDiffCallback (List<ListItem> oldList, List<ListItem> newList) {
+        this.oldList = oldList;
+        this.newList = newList;
+    }
 
     @Override
     public int getOldListSize() {
-        return 0;
+        return oldList.size();
     }
 
     @Override
     public int getNewListSize() {
-        return 0;
+        return newList.size();
     }
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        return false;
+        return oldList.get(oldItemPosition).getId() == newList.get(newItemPosition).getId();
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        return false;
+        return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
     }
 
     @Nullable

@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -49,6 +50,7 @@ import java.util.Random;
 public class ListDisplayFragment extends Fragment {
 
     List<ListItem> recordsList = new ArrayList<>();
+    List<ListItem> oldList = new ArrayList<>();
     ArrayList<String> lapDataFromTimer;
     MyAdapter myAdapter;
     RecyclerView mainRecyclerView;
@@ -162,6 +164,8 @@ public class ListDisplayFragment extends Fragment {
     }
 
     public void onRecordsQueried(final Cursor cursor) {
+        oldList.clear();
+        oldList.addAll(recordsList);
         recordsList.clear();
         if (cursor.getCount() == 0) {
             handler.post(new Runnable() {
@@ -184,7 +188,9 @@ public class ListDisplayFragment extends Fragment {
                 cursor.moveToNext();
             }
             cursor.close();
-            myAdapter.notifyDataSetChanged();
+            //myAdapter.notifyDataSetChanged();
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ListDiffCallback(oldList, recordsList));
+            result.dispatchUpdatesTo(myAdapter);
         }
     }
 
@@ -257,6 +263,7 @@ public class ListDisplayFragment extends Fragment {
         }
     }
 
+    /*
     public static class ListItem {
         int calories;
         float distance;
@@ -270,8 +277,8 @@ public class ListDisplayFragment extends Fragment {
     }
 
     private class AddDialog extends ListItem {
-    int spinnerPosition = 0;
-}
+        int spinnerPosition = 0;
+    }*/
 
     private class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final int LIST_ITEM = 1;
@@ -310,7 +317,6 @@ public class ListDisplayFragment extends Fragment {
         } else {
             final ListItem item = recordsList.get(position);
             MyAdapter.BaseViewHolder bHolder = (MyAdapter.BaseViewHolder) holder;
-            Log.e("LDF", "item.date: " + item.date);
             String date = Utils.convertDateToString(Utils.convertStringToDate(item.date, DataModel.DATE_FORMAT), "MMM d");
             bHolder.date.setText(date);
             String cal = String.valueOf(item.calories) + " cals";
