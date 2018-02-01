@@ -28,19 +28,19 @@
             android:id="@+id/spinner1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SpinnerStyle"/>
+            style="@style/SortSpinnerStyle"/>
 
         <Spinner
             android:id="@+id/spinner2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SpinnerStyle"/>
+            style="@style/SortSpinnerStyle"/>
 
         <Spinner
             android:id="@+id/spinner3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SpinnerStyle"/>
+            style="@style/SortSpinnerStyle"/>
 
         <Button
             android:id="@+id/sort_button"

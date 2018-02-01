@@ -107,7 +107,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     private ActionBarDrawerToggle drawerToggle;
     private Handler handler = new Handler();
     boolean isAddDialogOpen = false, isFirstBackup, isAutoBackupEnabled, isDualPane, areFabsExpanded = false;
-    String distUnit;
     private CoordinatorLayout coord;
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -115,6 +114,8 @@ public class MainActivityAlt extends AppCompatActivity  implements
     private FloatingActionButton plusFab, timerFab, filterFab, addFab;
     private BottomSheetBehavior bottomBehavior;
     private ViewPager pager;
+
+    String distUnit;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -138,6 +139,208 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).notifyOfDataChange();
             }
         }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_alt);
+        //addRandomData();
+        isDualPane = getResources().getBoolean(R.bool.dual_pane);
+
+        coord = (CoordinatorLayout) findViewById(R.id.coord);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        handler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 6) {
+                    queryForRecords();
+                    Snackbar.make(coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
+                }
+                if (msg.what == 9) {
+                    Snackbar.make(coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
+                }
+                if (msg.what == 12) {
+                    SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(getResources().getString(R.string.db_backup_date_time), msg.obj.toString());
+                    editor.apply();
+                }
+            }
+        };
+        setSupportActionBar(toolbar);
+        initFabs();
+        if (savedInstanceState != null) {
+            isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
+            if (isAddDialogOpen) {
+                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
+            }
+        }
+        if (!isDualPane) {
+            initDrawer();
+            Glide.with(this).asBitmap()
+                    .load(R.drawable.card_keep_finish_v5)
+                    .into((ImageView) findViewById(R.id.app_icon_imageview));
+        }
+        setInitialPreferences();
+        boolean recreate = getIntent().getBooleanExtra("recreate", false);
+        if (recreate) {
+            startActivityForResult(new Intent(MainActivityAlt.this, TimerActivity.class), CODE_TIMER);
+        }
+
+        bottomBehavior = BottomSheetBehavior.from(pager);
+        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomBehavior.setPeekHeight(0);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("isAddDialogOpen", isAddDialogOpen);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    public void showGeneralDialog(int type) {
+        GeneralDialog sd = new GeneralDialog();
+        Bundle b = new Bundle();
+        b.putInt(DIALOG_TYPE, type);
+        sd.setArguments(b);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(sd, "general");
+        ft.commitAllowingStateLoss();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (!isDualPane) {
+            drawerToggle.onConfigurationChanged(newConfig);
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (!isDualPane) {
+            drawerToggle.syncState();
+        }
+    }
+
+    private void setInitialPreferences() {
+        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
+        distUnit = distPref.equals("-1") ? getResources().getString(R.string.short_miles).toLowerCase() : getResources().getString(R.string.short_kilos).toLowerCase();
+        isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
+    }
+
+    private void initFabs() {
+        plusFab = (FloatingActionButton) findViewById(R.id.fab_menu);
+        plusFab.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                plusFab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                fabHeight = plusFab.getHeight();
+            }
+        });
+        plusFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                animateFabs();
+            }
+        });
+        timerFab = (FloatingActionButton) findViewById(R.id.fab_time_record);
+        timerFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFabs();
+                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).onTimerFabClicked(isAddDialogOpen);
+                isAddDialogOpen = false;
+            }
+        });
+        filterFab = (FloatingActionButton) findViewById(R.id.fab_filter);
+        filterFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFabs();
+                //Snackbar.make(coord, "Filter - slated for future release", Snackbar.LENGTH_LONG).show();
+                bottomBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                //((FilterSortBottomSheet)getFragmentManager().findFragmentById(R.id.bottom_sheet_frag))
+            }
+        });
+        addFab = (FloatingActionButton) findViewById(R.id.fab_add_manual);
+        addFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFabs();
+                if (!isAddDialogOpen) {
+                    ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
+                    isAddDialogOpen = true;
+                }
+            }
+        });
+    }
+
+    private void animateFabs() {
+        if (areFabsExpanded) {
+            plusFab.animate().rotationBy(45f).scaleYBy(.25f).scaleXBy(.25f).start();
+            timerFab.animate().rotationBy(360f).translationYBy(fabHeight * FAB_MULTI_FACTOR).start();
+            filterFab.animate().rotationBy(360f).translationXBy(fabHeight * FAB_MULTI_FACTOR).start();
+            addFab.animate().rotationBy(360f).translationXBy(fabHeight * FAB_MULTI_FACTOR * .75f).translationYBy(fabHeight * FAB_MULTI_FACTOR * .75f).start();
+        } else {
+            plusFab.animate().rotationBy(-45f).scaleYBy(-0.25f).scaleXBy(-0.25f).start();
+            timerFab.animate().rotationBy(-360f).translationYBy(-fabHeight * FAB_MULTI_FACTOR).start();
+            filterFab.animate().rotationBy(-360f).translationXBy(-fabHeight * FAB_MULTI_FACTOR).start();
+            addFab.animate().rotationBy(-360f).translationXBy(-fabHeight * FAB_MULTI_FACTOR * .75f).translationYBy(-fabHeight * FAB_MULTI_FACTOR * .75f).start();
+        }
+        areFabsExpanded = !areFabsExpanded;
+    }
+
+    /*
+    This is only called on smaller screens
+     */
+    private void initDrawer() {
+        drawer = (DrawerLayout) findViewById(R.id.main_drawer_layout);
+        drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        drawerToggle = new ActionBarDrawerToggle(this,
+                drawer,
+                toolbar,
+                R.string.drawer_open,
+                R.string.drawer_close){
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+        };
+        drawer.addDrawerListener(drawerToggle);
+        mainNavLeft = (NavigationView) findViewById(R.id.main_nav_left);
+        if (!isDualPane) {
+            findViewById(R.id.first_child).setBackgroundColor(Color.TRANSPARENT);
+        }
+        //findViewById(R.id.nav_menu_graph).setOnClickListener(this);
+        //findViewById(R.id.nav_menu_backup).setOnClickListener(this);
+        //findViewById(R.id.nav_menu_settings).setOnClickListener(this);
+        //findViewById(R.id.nav_menu_about).setOnClickListener(this);
     }
 
     private void checkIfAutoBackupEnabled() {
@@ -222,206 +425,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         editor.apply();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_alt);
-        //addRandomData();
-        isDualPane = getResources().getBoolean(R.bool.dual_pane);
-
-        coord = (CoordinatorLayout) findViewById(R.id.coord);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
-
-        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-        handler = new Handler(Looper.getMainLooper()){
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == 6) {
-                    queryForRecords();
-                    Snackbar.make(coord, "Yay! Your records have been successfully restored!", Snackbar.LENGTH_LONG).show();
-                }
-                if (msg.what == 9) {
-                    Snackbar.make(coord, "Couldn't restore database - the backup location is no good", Snackbar.LENGTH_LONG).show();
-                }
-                if (msg.what == 12) {
-                    SharedPreferences sharedPref =  PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(getResources().getString(R.string.db_backup_date_time), msg.obj.toString());
-                    editor.apply();
-                }
-            }
-        };
-        setSupportActionBar(toolbar);
-        initFabs();
-        if (savedInstanceState != null) {
-            isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
-            if (isAddDialogOpen) {
-                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
-            }
-        }
-        if (!isDualPane) {
-            initDrawer();
-            Glide.with(this).asBitmap()
-                    .load(R.drawable.card_keep_finish_v5)
-                    .into((ImageView) findViewById(R.id.app_icon_imageview));
-        }
-        setInitialPreferences();
-        boolean recreate = getIntent().getBooleanExtra("recreate", false);
-        if (recreate) {
-            startActivityForResult(new Intent(MainActivityAlt.this, TimerActivity.class), CODE_TIMER);
-        }
-
-        bottomBehavior = BottomSheetBehavior.from(pager);
-        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        bottomBehavior.setPeekHeight(0);
-    }
-
-    private void setInitialPreferences() {
-        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
-        distUnit = distPref.equals("-1") ? getResources().getString(R.string.short_miles).toLowerCase() : getResources().getString(R.string.short_kilos).toLowerCase();
-        isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
-    }
-
-    private void initFabs() {
-        plusFab = (FloatingActionButton) findViewById(R.id.fab_menu);
-        plusFab.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                plusFab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                fabHeight = plusFab.getHeight();
-            }
-        });
-        plusFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                animateFabs();
-            }
-        });
-        timerFab = (FloatingActionButton) findViewById(R.id.fab_time_record);
-        timerFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateFabs();
-                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).onTimerFabClicked(isAddDialogOpen);
-                isAddDialogOpen = false;
-            }
-        });
-        filterFab = (FloatingActionButton) findViewById(R.id.fab_filter);
-        filterFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateFabs();
-                //Snackbar.make(coord, "Filter - slated for future release", Snackbar.LENGTH_LONG).show();
-                bottomBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                //((FilterSortBottomSheet)getFragmentManager().findFragmentById(R.id.bottom_sheet_frag))
-            }
-        });
-        addFab = (FloatingActionButton) findViewById(R.id.fab_add_manual);
-        addFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateFabs();
-                if (!isAddDialogOpen) {
-                    ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
-                    isAddDialogOpen = true;
-                }
-            }
-        });
-    }
-
-    private void animateFabs() {
-        if (areFabsExpanded) {
-            plusFab.animate().rotationBy(45f).scaleYBy(.25f).scaleXBy(.25f).start();
-            timerFab.animate().rotationBy(360f).translationYBy(fabHeight * FAB_MULTI_FACTOR).start();
-            filterFab.animate().rotationBy(360f).translationXBy(fabHeight * FAB_MULTI_FACTOR).start();
-            addFab.animate().rotationBy(360f).translationXBy(fabHeight * FAB_MULTI_FACTOR * .75f).translationYBy(fabHeight * FAB_MULTI_FACTOR * .75f).start();
-        } else {
-            plusFab.animate().rotationBy(-45f).scaleYBy(-0.25f).scaleXBy(-0.25f).start();
-            timerFab.animate().rotationBy(-360f).translationYBy(-fabHeight * FAB_MULTI_FACTOR).start();
-            filterFab.animate().rotationBy(-360f).translationXBy(-fabHeight * FAB_MULTI_FACTOR).start();
-            addFab.animate().rotationBy(-360f).translationXBy(-fabHeight * FAB_MULTI_FACTOR * .75f).translationYBy(-fabHeight * FAB_MULTI_FACTOR * .75f).start();
-        }
-        areFabsExpanded = !areFabsExpanded;
-    }
-
-    //only if screen isn't big
-    private void initDrawer() {
-        drawer = (DrawerLayout) findViewById(R.id.main_drawer_layout);
-        drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        drawerToggle = new ActionBarDrawerToggle(this,
-                drawer,
-                toolbar,
-                R.string.drawer_open,
-                R.string.drawer_close){
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-        };
-        drawer.addDrawerListener(drawerToggle);
-        mainNavLeft = (NavigationView) findViewById(R.id.main_nav_left);
-        if (!isDualPane) {
-            findViewById(R.id.first_child).setBackgroundColor(Color.TRANSPARENT);
-        }
-        //findViewById(R.id.nav_menu_graph).setOnClickListener(this);
-        //findViewById(R.id.nav_menu_backup).setOnClickListener(this);
-        //findViewById(R.id.nav_menu_settings).setOnClickListener(this);
-        //findViewById(R.id.nav_menu_about).setOnClickListener(this);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("isAddDialogOpen", isAddDialogOpen);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
-
-    public void showGeneralDialog(int type) {
-        GeneralDialog sd = new GeneralDialog();
-        Bundle b = new Bundle();
-        b.putInt(DIALOG_TYPE, type);
-        sd.setArguments(b);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(sd, "general");
-        ft.commitAllowingStateLoss();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (!isDualPane) {
-            drawerToggle.onConfigurationChanged(newConfig);
-        }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (!isDualPane) {
-            drawerToggle.syncState();
-        }
-    }
-
     /*
     this is where we create the file and then get the Uri and write to it
      */
@@ -440,6 +443,28 @@ public class MainActivityAlt extends AppCompatActivity  implements
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(DB_MIME_TYPE);
         startActivityForResult(intent, SEARCH_FILE_CODE);
+    }
+
+    public boolean checkForPermission(String permission, int requestCode) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public void setInitDialogOpen(boolean isOpen) {
+        isAddDialogOpen = isOpen;
+    }
+
+    private void onSetSortArgs(String... args) {
+        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        ((ListDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.ListFrag)).sortList(args);
     }
 
     @Override
@@ -464,19 +489,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    public boolean checkForPermission(String permission, int requestCode) {
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
     @Override
     public long saveEnteredData(final HashMap<String, String> map, ArrayList<String> lapData) {
         return DataModel.getInstance().addRecords(map, lapData);
@@ -489,10 +501,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         i.putExtra("date", date);
         i.putExtra("cType", cType);
         startActivity(i);
-    }
-
-    public void setInitDialogOpen(boolean isOpen) {
-        isAddDialogOpen = isOpen;
     }
 
     @Override
@@ -606,11 +614,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         onClick(view);
     }
 
-    private void onSetSortArgs(String... args) {
-        bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        ((ListDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.ListFrag)).sortList(args);
-    }
-
     private class PagerAdapter extends FragmentPagerAdapter {
 
         PagerAdapter(FragmentManager fm) {
@@ -642,16 +645,12 @@ public class MainActivityAlt extends AppCompatActivity  implements
         private int[] ids = new int[]{R.id.checkBox_biking, R.id.checkBox_elliptical, R.id.checkBox_exercise_bike,
                 R.id.checkBox_hiking, R.id.checkBox_jogging, R.id.checkBox_jump_rope, R.id.checkBox_rowing, R.id.checkBox_rowing_machine,
                 R.id.checkBox_running, R.id.checkBox_stair_master, R.id.checkBox_swimming, R.id.checkBox_treadmill, R.id.checkBox_walking,
-                R.id.filter_button};
+                R.id.checkBox_all, R.id.filter_button, R.id.clear_button};
 
         private WeakReference<MainActivityAlt> ref;
 
         public Page() {
 
-        }
-
-        public void setReference(MainActivityAlt alt) {
-            ref = new WeakReference<>(alt);
         }
 
         @Override
@@ -683,21 +682,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
             }
         }
 
-        private void setUpSpinners(View view) {
-            final ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
-            final ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
-            final ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
-            adapter1.setDropDownViewResource(R.layout.spinner_dropdown_item);
-            adapter2.setDropDownViewResource(R.layout.spinner_dropdown_item);
-            adapter3.setDropDownViewResource(R.layout.spinner_dropdown_item);
-            spinner1 = (Spinner) view.findViewById(R.id.spinner1);
-            spinner1.setAdapter(adapter1);
-            spinner2 = (Spinner) view.findViewById(R.id.spinner2);
-            spinner2.setAdapter(adapter2);
-            spinner3 = (Spinner) view.findViewById(R.id.spinner3);
-            spinner3.setAdapter(adapter3);
-        }
-
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -720,12 +704,60 @@ public class MainActivityAlt extends AppCompatActivity  implements
                         filterList.add((CheckBox) v);
                     }
                     break;
+                case R.id.checkBox_all:
+                    addOrRemoveAllCheckboxes(((CheckBox)v).isChecked());
+                    break;
                 case R.id.filter_button:
+                    Log.d(TAG, "filter button");
                     ref.get().queryForRecords(filterList);
+                    break;
+                case R.id.clear_button:
+                    Log.d(TAG, "clear button");
+                    clearAllChecks();
                     break;
                 case R.id.sort_button:
                     setSortArgs();
                     break;
+            }
+        }
+
+        public void setReference(MainActivityAlt alt) {
+            ref = new WeakReference<>(alt);
+        }
+
+        private void setUpSpinners(View view) {
+            final ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
+            final ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
+            final ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
+            adapter1.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            adapter2.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            adapter3.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            spinner1 = (Spinner) view.findViewById(R.id.spinner1);
+            spinner1.setAdapter(adapter1);
+            spinner2 = (Spinner) view.findViewById(R.id.spinner2);
+            spinner2.setAdapter(adapter2);
+            spinner3 = (Spinner) view.findViewById(R.id.spinner3);
+            spinner3.setAdapter(adapter3);
+        }
+
+        private void addOrRemoveAllCheckboxes(boolean isChecked) {
+            if (isChecked) {
+                filterList.clear();
+                for (int x = 0; x < 13; x++) {
+                    final CheckBox cBox = (CheckBox)root.findViewById(ids[x]);
+                    cBox.setChecked(true);
+                    filterList.add(cBox);
+                }
+            } else {
+                filterList.clear();
+                clearAllChecks();
+            }
+        }
+
+        private void clearAllChecks() {
+            for (int x = 0; x < 14; x++) {
+                final CheckBox cBox = (CheckBox)root.findViewById(ids[x]);
+                cBox.setChecked(false);
             }
         }
 

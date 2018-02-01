@@ -234,6 +234,7 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <string name="sort_by">Sort by...</string>
     <string name="sort">Sort</string>
     <string name="filter">Filter</string>
+    <string name="clear">Clear All</string>
 
     <string-array name="sort_options">
         <item>Select...</item>
