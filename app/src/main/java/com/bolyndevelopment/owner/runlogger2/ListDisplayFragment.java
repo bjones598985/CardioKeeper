@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -124,6 +125,7 @@ public class ListDisplayFragment extends Fragment {
     }
 
     public void sortList(String... args) {
+        List<Comparator<ListItem>> comparatorList = new ArrayList<>();
         oldList.clear();
         oldList.addAll(recordsList);
         for (String str : args) {
@@ -131,36 +133,47 @@ public class ListDisplayFragment extends Fragment {
                 case "Select...":
                     continue;
                 case "Exercise: A-Z":
-                    ListSorter.sortAlphabetic(recordsList, ASCENDING);
+                    comparatorList.add(ListSorter.getAlphabeticComparator(ASCENDING));
+                    //ListSorter.sortAlphabetic(recordsList, ASCENDING);
                     break;
                 case "Exercise: Z-A":
-                    ListSorter.sortAlphabetic(recordsList, DESCENDING);
+                    comparatorList.add(ListSorter.getAlphabeticComparator(DESCENDING));
+                    //ListSorter.sortAlphabetic(recordsList, DESCENDING);
                     break;
                 case "Date: Ascending":
-                    ListSorter.sortByDate(recordsList, ASCENDING);
+                    comparatorList.add(ListSorter.getDateComparator(ASCENDING));
+                    //ListSorter.sortByDate(recordsList, ASCENDING);
                     break;
                 case "Date: Descending":
-                    ListSorter.sortByDate(recordsList, DESCENDING);
+                    comparatorList.add(ListSorter.getDateComparator(DESCENDING));
+                    //ListSorter.sortByDate(recordsList, DESCENDING);
                     break;
                 case "Distance: Ascending":
-                    ListSorter.sortByDistance(recordsList, ASCENDING);
+                    comparatorList.add(ListSorter.getDistanceComparator(ASCENDING));
+                    //ListSorter.sortByDistance(recordsList, ASCENDING);
                     break;
                 case "Distance: Descending":
-                    ListSorter.sortByDistance(recordsList, DESCENDING);
+                    comparatorList.add(ListSorter.getDistanceComparator(DESCENDING));
+                    //ListSorter.sortByDistance(recordsList, DESCENDING);
                     break;
                 case "Time: Ascending":
-                    ListSorter.sortByTime(recordsList, ASCENDING);
+                    comparatorList.add(ListSorter.getTimeComparator(ASCENDING));
+                    //ListSorter.sortByTime(recordsList, ASCENDING);
                     break;
                 case "Time: Descending":
-                    ListSorter.sortByTime(recordsList, DESCENDING);
+                    comparatorList.add(ListSorter.getTimeComparator(DESCENDING));
+                    //ListSorter.sortByTime(recordsList, DESCENDING);
                     break;
                 case "Calories: Ascending":
-                    ListSorter.sortByCalories(recordsList, ASCENDING);
+                    comparatorList.add(ListSorter.getCalorieComparator(ASCENDING));
+                    //ListSorter.sortByCalories(recordsList, ASCENDING);
                     break;
                 case "Calories: Descending":
-                    ListSorter.sortByCalories(recordsList, DESCENDING);
+                    comparatorList.add(ListSorter.getCalorieComparator(DESCENDING));
+                    //ListSorter.sortByCalories(recordsList, DESCENDING);
                     break;
             }
+            Collections.sort(recordsList, new ChainedComparator(comparatorList));
             //notifyOfDataChange();
             DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ListDiffCallback(oldList, recordsList));
             result.dispatchUpdatesTo(myAdapter);
@@ -596,6 +609,104 @@ public class ListDisplayFragment extends Fragment {
                 }
             });
         }
+
+        static Comparator<ListItem> getAlphabeticComparator(int direction) {
+            if (direction == ASCENDING) {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return o1.cType.compareTo(o2.cType);
+                    }
+                };
+            } else {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return o2.cType.compareTo(o1.cType);
+                    }
+                };
+            }
+        }
+
+        //needs some work to make dates sort properly
+        static Comparator<ListItem> getDateComparator(int direction) {
+            if (direction == ASCENDING) {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return o1.date.compareTo(o2.date);
+                    }
+                };
+            } else {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return o2.date.compareTo(o1.date);
+                    }
+                };
+            }
+        }
+
+        static Comparator<ListItem> getDistanceComparator(int direction) {
+            if (direction == ASCENDING) {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return Math.round(o1.distance - o2.distance);
+                    }
+                };
+            } else {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return Math.round(o2.distance - o1.distance);
+                    }
+                };
+            }
+        }
+
+        static Comparator<ListItem> getTimeComparator(int direction) {
+            if (direction == ASCENDING) {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        long t1, t2;
+                        t1 = Long.valueOf(Utils.getTimeMillis(o1.time));
+                        t2 = Long.valueOf(Utils.getTimeMillis(o2.time));
+                        return (int) (t1 - t2);
+                    }
+                };
+            } else {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        long t1, t2;
+                        t1 = Long.valueOf(Utils.getTimeMillis(o1.time));
+                        t2 = Long.valueOf(Utils.getTimeMillis(o2.time));
+                        return (int) (t2 - t1);
+                    }
+                };
+            }
+        }
+
+        static Comparator<ListItem> getCalorieComparator(int direction) {
+            if (direction == ASCENDING) {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return o1.calories - o2.calories;
+                    }
+                };
+            } else {
+                return new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem o1, ListItem o2) {
+                        return o2.calories - o1.calories;
+                    }
+                };
+            }
+        }
+
         //verified works
         static void sortByDate(List<ListItem> recordsList, final int direction) {
             Collections.sort(recordsList, new Comparator<ListItem>() {
@@ -651,6 +762,26 @@ public class ListDisplayFragment extends Fragment {
                     }
                 }
             });
+        }
+    }
+
+    //idea from http://www.codejava.net/java-core/collections/sorting-a-list-by-multiple-attributes-example
+    public class ChainedComparator implements Comparator<ListItem>{
+        private List<Comparator<ListItem>> listComparators;
+
+        public ChainedComparator(List<Comparator<ListItem>> comparators) {
+            this.listComparators = comparators;
+        }
+
+        @Override
+        public int compare(ListItem o1, ListItem o2) {
+            for (Comparator<ListItem> comparator : listComparators) {
+                int result = comparator.compare(o1, o2);
+                if (result != 0) {
+                    return result;
+                }
+            }
+            return 0;
         }
     }
 }

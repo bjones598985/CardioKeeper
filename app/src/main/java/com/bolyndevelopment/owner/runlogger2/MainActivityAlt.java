@@ -311,14 +311,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     }
 
     /*
-    @ Override
-    public void onNewProducts(List<Product> newProducts) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ProductListDiffCallback(mProducts, newProducts));
-        diffResult.dispatchUpdatesTo(mProductAdapter);
-
-    }
-
-    /*
     This is only called on smaller screens
      */
     private void initDrawer() {

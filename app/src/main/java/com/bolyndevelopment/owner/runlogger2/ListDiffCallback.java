@@ -36,6 +36,9 @@ public class ListDiffCallback extends DiffUtil.Callback {
         return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
     }
 
+    /*
+    Not used as of now
+     */
     @Nullable
     @Override
     public Object getChangePayload(int oldItemPosition, int newItemPosition) {
