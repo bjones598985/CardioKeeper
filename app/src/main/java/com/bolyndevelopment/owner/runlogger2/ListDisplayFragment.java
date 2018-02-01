@@ -124,6 +124,8 @@ public class ListDisplayFragment extends Fragment {
     }
 
     public void sortList(String... args) {
+        oldList.clear();
+        oldList.addAll(recordsList);
         for (String str : args) {
             switch (str) {
                 case "Select...":
@@ -159,7 +161,9 @@ public class ListDisplayFragment extends Fragment {
                     ListSorter.sortByCalories(recordsList, DESCENDING);
                     break;
             }
-            notifyOfDataChange();
+            //notifyOfDataChange();
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ListDiffCallback(oldList, recordsList));
+            result.dispatchUpdatesTo(myAdapter);
         }
     }
 
