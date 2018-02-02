@@ -15,13 +15,11 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -38,14 +36,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -61,15 +56,10 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 
 public class MainActivityAlt extends AppCompatActivity  implements
         BackupRestoreDialog.ChoiceListener, GeneralDialog.GeneralDialogListener,
@@ -78,18 +68,11 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
     public static final String TAG = "MainActivityAlt";
 
+    static final float FAB_MULTI_FACTOR = 1.75f;
+
     static final int DIALOG_ENABLE_BACKUP = 1;
     static final int DIALOG_ABOUT = 2;
     static final int DIALOG_PERMISSION = 3;
-    static final float FAB_MULTI_FACTOR = 1.75f;
-
-    static final String DATE = "date";
-    static final String TIME = "timerTime";
-    static final String DISTANCE = "distance";
-    static final String CALORIES = "calories";
-    static final String CARDIO_TYPE = "cardio_type";
-
-    static final String DIALOG_TYPE = "dialogType";
 
     static final int MIN_DELAY_MILLIS = 200;
     static final int CODE_TIMER = 100;
@@ -99,6 +82,13 @@ public class MainActivityAlt extends AppCompatActivity  implements
     static final int CREATE_FILE_CODE = 57;
     static final int SEARCH_FILE_CODE = 43;
     static final int SETTINGS_CODE = 36;
+
+    static final String DATE = "date";
+    static final String TIME = "timerTime";
+    static final String DISTANCE = "distance";
+    static final String CALORIES = "calories";
+    static final String CARDIO_TYPE = "cardio_type";
+    static final String DIALOG_TYPE = "dialogType";
 
     static final String DB_MIME_TYPE = "application/x-sqlite3";
 
@@ -113,7 +103,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     private NavigationView mainNavLeft;
     private FloatingActionButton plusFab, timerFab, filterFab, addFab;
     private BottomSheetBehavior bottomBehavior;
-    private ViewPager pager;
 
     String distUnit;
 
@@ -124,13 +113,13 @@ public class MainActivityAlt extends AppCompatActivity  implements
         if (requestCode == CREATE_FILE_CODE && resultCode == Activity.RESULT_OK) {
             final Uri backupUri = data.getData();
             Utils.backupDb(backupUri, handler, coord);
-            saveUriPathToSharedPreferences(backupUri.toString());
+            saveUriPathToSharedPreferences(backupUri != null ? backupUri.toString() : null);
             checkIfAutoBackupEnabled();
         }
         if (requestCode == SEARCH_FILE_CODE && resultCode == Activity.RESULT_OK) {
             final Uri restoreUri = data.getData();
             Utils.restoreDb(restoreUri, handler);
-            saveUriPathToSharedPreferences(restoreUri.toString());
+            saveUriPathToSharedPreferences(restoreUri != null ? restoreUri.toString() : null);
         }
         if (requestCode == SETTINGS_CODE && resultCode == Activity.RESULT_OK) {
             boolean isDataChanged = data.getBooleanExtra("isDataChanged", false);
@@ -150,7 +139,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
         coord = (CoordinatorLayout) findViewById(R.id.coord);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        pager = (ViewPager) findViewById(R.id.pager);
+        final ViewPager pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
@@ -659,6 +648,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             position = getArguments().getInt("pos");
         }
 
+        @SuppressLint("InflateParams")
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -677,6 +667,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
                     break;
                 case 1:
                     view.findViewById(R.id.sort_button).setOnClickListener(this);
+                    view.findViewById(R.id.reset_button).setOnClickListener(this);
                     setUpSpinners(view);
                     break;
             }
@@ -708,15 +699,16 @@ public class MainActivityAlt extends AppCompatActivity  implements
                     addOrRemoveAllCheckboxes(((CheckBox)v).isChecked());
                     break;
                 case R.id.filter_button:
-                    Log.d(TAG, "filter button");
                     ref.get().queryForRecords(filterList);
                     break;
                 case R.id.clear_button:
-                    Log.d(TAG, "clear button");
                     clearAllChecks();
                     break;
                 case R.id.sort_button:
                     setSortArgs();
+                    break;
+                case R.id.reset_button:
+                    resetSpinners();
                     break;
             }
         }
@@ -765,7 +757,13 @@ public class MainActivityAlt extends AppCompatActivity  implements
             String s1 = ((TextView) spinner1.getSelectedView()).getText().toString();
             String s2 = ((TextView) spinner2.getSelectedView()).getText().toString();
             String s3 = ((TextView) spinner3.getSelectedView()).getText().toString();
-            ref.get().onSetSortArgs(s1/*, s2, s3*/);
+            ref.get().onSetSortArgs(s1, s2, s3);
+        }
+
+        private void resetSpinners() {
+            spinner1.setSelection(0, true);
+            spinner2.setSelection(0, true);
+            spinner3.setSelection(0, true);
         }
     }
 }

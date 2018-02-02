@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -21,7 +20,6 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +34,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,16 +43,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class ListDisplayFragment extends Fragment {
-
-    List<ListItem> recordsList = new ArrayList<>();
-    List<ListItem> oldList = new ArrayList<>();
-    ArrayList<String> lapDataFromTimer;
-    MyAdapter myAdapter;
-    RecyclerView mainRecyclerView;
-    boolean isAddDialogOpen = false;
 
     static final int ASCENDING = -1;
     static final int DESCENDING = 1;
@@ -64,8 +53,12 @@ public class ListDisplayFragment extends Fragment {
     static final int CODE_TIMER = 100;
     static final int MIN_DELAY_MILLIS = 200;
 
-    Handler handler = new Handler();
-
+    private List<ListItem> recordsList = new ArrayList<>();
+    private List<ListItem> oldList = new ArrayList<>();
+    private ArrayList<String> lapDataFromTimer;
+    private MyAdapter myAdapter;
+    private RecyclerView mainRecyclerView;
+    private Handler handler = new Handler();
     private ListFragListener mListener;
 
     @Override
@@ -133,50 +126,40 @@ public class ListDisplayFragment extends Fragment {
                 case "Select...":
                     continue;
                 case "Exercise: A-Z":
-                    comparatorList.add(ListSorter.getAlphabeticComparator(ASCENDING));
-                    //ListSorter.sortAlphabetic(recordsList, ASCENDING);
+                    comparatorList.add(ComparatorHolder.getAlphabeticComparator(ASCENDING));
                     break;
                 case "Exercise: Z-A":
-                    comparatorList.add(ListSorter.getAlphabeticComparator(DESCENDING));
-                    //ListSorter.sortAlphabetic(recordsList, DESCENDING);
+                    comparatorList.add(ComparatorHolder.getAlphabeticComparator(DESCENDING));
                     break;
                 case "Date: Ascending":
-                    comparatorList.add(ListSorter.getDateComparator(ASCENDING));
-                    //ListSorter.sortByDate(recordsList, ASCENDING);
+                    comparatorList.add(ComparatorHolder.getDateComparator(ASCENDING));
                     break;
                 case "Date: Descending":
-                    comparatorList.add(ListSorter.getDateComparator(DESCENDING));
-                    //ListSorter.sortByDate(recordsList, DESCENDING);
+                    comparatorList.add(ComparatorHolder.getDateComparator(DESCENDING));
                     break;
                 case "Distance: Ascending":
-                    comparatorList.add(ListSorter.getDistanceComparator(ASCENDING));
-                    //ListSorter.sortByDistance(recordsList, ASCENDING);
+                    comparatorList.add(ComparatorHolder.getDistanceComparator(ASCENDING));
                     break;
                 case "Distance: Descending":
-                    comparatorList.add(ListSorter.getDistanceComparator(DESCENDING));
-                    //ListSorter.sortByDistance(recordsList, DESCENDING);
+                    comparatorList.add(ComparatorHolder.getDistanceComparator(DESCENDING));
                     break;
                 case "Time: Ascending":
-                    comparatorList.add(ListSorter.getTimeComparator(ASCENDING));
-                    //ListSorter.sortByTime(recordsList, ASCENDING);
+                    comparatorList.add(ComparatorHolder.getTimeComparator(ASCENDING));
                     break;
                 case "Time: Descending":
-                    comparatorList.add(ListSorter.getTimeComparator(DESCENDING));
-                    //ListSorter.sortByTime(recordsList, DESCENDING);
+                    comparatorList.add(ComparatorHolder.getTimeComparator(DESCENDING));
                     break;
                 case "Calories: Ascending":
-                    comparatorList.add(ListSorter.getCalorieComparator(ASCENDING));
-                    //ListSorter.sortByCalories(recordsList, ASCENDING);
+                    comparatorList.add(ComparatorHolder.getCalorieComparator(ASCENDING));
                     break;
                 case "Calories: Descending":
-                    comparatorList.add(ListSorter.getCalorieComparator(DESCENDING));
-                    //ListSorter.sortByCalories(recordsList, DESCENDING);
+                    comparatorList.add(ComparatorHolder.getCalorieComparator(DESCENDING));
                     break;
             }
             Collections.sort(recordsList, new ChainedComparator(comparatorList));
-            //notifyOfDataChange();
             DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ListDiffCallback(oldList, recordsList));
             result.dispatchUpdatesTo(myAdapter);
+            mainRecyclerView.scrollToPosition(0);
         }
     }
 
@@ -205,7 +188,6 @@ public class ListDisplayFragment extends Fragment {
                 cursor.moveToNext();
             }
             cursor.close();
-            //myAdapter.notifyDataSetChanged();
             DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ListDiffCallback(oldList, recordsList));
             result.dispatchUpdatesTo(myAdapter);
         }
@@ -279,23 +261,6 @@ public class ListDisplayFragment extends Fragment {
             mListener.setInitDialogOpen(false);
         }
     }
-
-    /*
-    public static class ListItem {
-        int calories;
-        float distance;
-        String date = null, time = null, cType;
-
-        @Override
-        public String toString() {
-            return "cType: " + cType + ", calories: " + calories + ", distance: " +
-                    distance + ", date: " + date + ", time: " + time;
-        }
-    }
-
-    private class AddDialog extends ListItem {
-        int spinnerPosition = 0;
-    }*/
 
     private class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final int LIST_ITEM = 1;
@@ -594,7 +559,7 @@ public class ListDisplayFragment extends Fragment {
         }
     }
 
-    static class ListSorter {
+    static class ComparatorHolder {
 
         //verified works
         static void sortAlphabetic(List<ListItem> recordsList, final int direction) {

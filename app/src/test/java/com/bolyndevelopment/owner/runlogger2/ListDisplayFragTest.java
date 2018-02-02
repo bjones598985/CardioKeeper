@@ -2,7 +2,6 @@ package com.bolyndevelopment.owner.runlogger2;
 
 import org.junit.Test;
 
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,50 +72,50 @@ public class ListDisplayFragTest {
         for (ListItem item : list) {
             System.out.println("Base: \n" + item.toString());
         }
-        ListDisplayFragment.ListSorter.sortAlphabetic(list, ListDisplayFragment.ASCENDING);
+        ListDisplayFragment.ComparatorHolder.sortAlphabetic(list, ListDisplayFragment.ASCENDING);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortAlphabetic(list, ListDisplayFragment.DESCENDING);
+        ListDisplayFragment.ComparatorHolder.sortAlphabetic(list, ListDisplayFragment.DESCENDING);
         compList.clear();
         compList.add(item3);
         compList.add(item2);
         compList.add(item1);
         assertArrayEquals(compList.toArray(), list.toArray());
         //compList.clear();
-        ListDisplayFragment.ListSorter.sortByCalories(list, ListDisplayFragment.ASCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByCalories(list, ListDisplayFragment.ASCENDING);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByCalories(list, ListDisplayFragment.DESCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByCalories(list, ListDisplayFragment.DESCENDING);
         compList.clear();
         compList.add(item1);
         compList.add(item2);
         compList.add(item3);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByDate(list, ListDisplayFragment.ASCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByDate(list, ListDisplayFragment.ASCENDING);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByDate(list, ListDisplayFragment.DESCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByDate(list, ListDisplayFragment.DESCENDING);
         compList.clear();
         compList.add(item3);
         compList.add(item2);
         compList.add(item1);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByTime(list, ListDisplayFragment.ASCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByTime(list, ListDisplayFragment.ASCENDING);
         compList.clear();
         compList.add(item2);
         compList.add(item1);
         compList.add(item3);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByTime(list, ListDisplayFragment.DESCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByTime(list, ListDisplayFragment.DESCENDING);
         compList.clear();
         compList.add(item3);
         compList.add(item1);
         compList.add(item2);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByDistance(list, ListDisplayFragment.ASCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByDistance(list, ListDisplayFragment.ASCENDING);
         compList.clear();
         compList.add(item3);
         compList.add(item2);
         compList.add(item1);
         assertArrayEquals(compList.toArray(), list.toArray());
-        ListDisplayFragment.ListSorter.sortByDistance(list, ListDisplayFragment.DESCENDING);
+        ListDisplayFragment.ComparatorHolder.sortByDistance(list, ListDisplayFragment.DESCENDING);
         compList.clear();
         compList.add(item1);
         compList.add(item2);
@@ -128,7 +127,7 @@ public class ListDisplayFragTest {
     @Test
     public void dateSort() {
         List<ListItem> list = getFakeList();
-        Comparator<ListItem> comp = ListDisplayFragment.ListSorter.getDateComparator(ListDisplayFragment.DESCENDING);
+        Comparator<ListItem> comp = ListDisplayFragment.ComparatorHolder.getDateComparator(ListDisplayFragment.DESCENDING);
         Collections.sort(list, comp);
         System.out.println("After:");
         for (ListItem i : list) {
