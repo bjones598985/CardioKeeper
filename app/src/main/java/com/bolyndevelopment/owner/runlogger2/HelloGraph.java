@@ -548,34 +548,14 @@ public class HelloGraph extends AppCompatActivity {
         }
         final int colCountFinal = colCount;
         final int oldColumnCountFinal = oldColumnCount;
+        if (colCountFinal > 0 && oldColumnCountFinal > colCountFinal) {
+            for (int i = oldColumnCountFinal - 1; i >= colCountFinal; i--) {
+                binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
+            }
+        }
         handler.post(new Runnable() {
             @Override
             public void run() {
-                binding.helloGraph.setDataAnimationListener(new ChartAnimationListener() {
-                    @Override
-                    public void onAnimationStarted() {
-
-                    }
-
-                    @Override
-                    public void onAnimationFinished() {
-                        if (colCountFinal > 0 && oldColumnCountFinal > colCountFinal) {
-                            for (int i = oldColumnCountFinal - 1; i >= colCountFinal; i--) {
-                                binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
-                            }
-                        }
-                        for (Column col : columns) {
-                            for (int i = 0; i < col.getValues().size(); i++) {
-                                if (col.getValues().get(i).getValue() == 0) {
-                                    col.getValues().get(i).setColor(Color.TRANSPARENT);
-                                }
-                            }
-                        }
-                        binding.helloGraph.setDataAnimationListener(null);
-                        binding.helloGraph.startDataAnimation(1500);
-
-                    }
-                });
                 binding.helloGraph.startDataAnimation(1500);
             }
         });

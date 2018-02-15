@@ -1,0 +1,1 @@
+changed line 136 columnchartrenderer.java: method used to return an int changed to void and now have to call before the run rest
