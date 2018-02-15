@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -316,8 +317,9 @@ public class ListDisplayFragment extends Fragment {
             bHolder.icon.setImageResource(Utils.getCardioIcon(item.cType));
             int color = Utils.ColorUtils.getCardioColor(item.cType);
 
-            Drawable circle = getResources().getDrawable(R.drawable.circle);
-            Drawable semiCircleBanner = getResources().getDrawable(R.drawable.semi_circle_banner);
+            Drawable circle = getResources().getDrawable(R.drawable.bg_ripple_circle);
+            //Drawable semiCircleBanner = getResources().getDrawable(R.drawable.semi_circle_banner);
+            RippleDrawable semiCircleBanner = (RippleDrawable) getResources().getDrawable(R.drawable.bg_ripple_banner);
 
             semiCircleBanner.mutate();
             semiCircleBanner.setColorFilter(color, PorterDuff.Mode.SRC_IN);
@@ -335,9 +337,10 @@ public class ListDisplayFragment extends Fragment {
     }
 
         class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView date, time, distance, calories, name;
-        ImageView icon;
-        FrameLayout fl;
+            TextView date, time, distance, calories, name;
+            ImageView icon;
+            FrameLayout fl;
+            View overhead;
 
         BaseViewHolder(View itemView) {
             super(itemView);
