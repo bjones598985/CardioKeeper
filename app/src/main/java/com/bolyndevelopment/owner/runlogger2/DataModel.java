@@ -72,27 +72,27 @@ class DataModel {
         int cals = 0;
         float distance = 0;
         ContentValues values = new ContentValues();
-        values.put(COL_DATE, map.get(MainActivity.DATE));
-        values.put(COL_SEQUENCE, generateSequenceNumber(map.get(MainActivity.DATE)));
-        values.put(COL_TIME, Long.parseLong(map.get(MainActivity.TIME)));
-        if (!map.get(MainActivity.DISTANCE).isEmpty()) {
-            distance = Float.parseFloat(map.get(MainActivity.DISTANCE));
+        values.put(COL_DATE, map.get(MainActivityAlt.DATE));
+        values.put(COL_SEQUENCE, generateSequenceNumber(map.get(MainActivityAlt.DATE)));
+        values.put(COL_TIME, Long.parseLong(map.get(MainActivityAlt.TIME)));
+        if (!map.get(MainActivityAlt.DISTANCE).isEmpty()) {
+            distance = Float.parseFloat(map.get(MainActivityAlt.DISTANCE));
             values.put(COL_DISTANCE, distance);
         } else {
             values.put(COL_DISTANCE,  distance);
         }
-        if (!map.get(MainActivity.CALORIES).isEmpty()) {
-            cals = Integer.parseInt(map.get(MainActivity.CALORIES));
+        if (!map.get(MainActivityAlt.CALORIES).isEmpty()) {
+            cals = Integer.parseInt(map.get(MainActivityAlt.CALORIES));
             values.put(COL_CALORIES, cals);
         } else {
             values.put(COL_CALORIES, cals);
         }
-        values.put(COL_CARDIO_TYPE, map.get(MainActivity.CARDIO_TYPE));
+        values.put(COL_CARDIO_TYPE, map.get(MainActivityAlt.CARDIO_TYPE));
         long dataId = helper.getWritableDatabase().insert(DATA_TABLE, null, values);
-        String sqlInsert = "insert into " + DATA_TABLE + " values(" + map.get(MainActivity.DATE)
-                + ", " + Long.parseLong(map.get(MainActivity.TIME)) + ", "
+        String sqlInsert = "insert into " + DATA_TABLE + " values(" + map.get(MainActivityAlt.DATE)
+                + ", " + Long.parseLong(map.get(MainActivityAlt.TIME)) + ", "
                 + distance + ", "
-                + cals + ", " + map.get(MainActivity.CARDIO_TYPE) + ");";
+                + cals + ", " + map.get(MainActivityAlt.CARDIO_TYPE) + ");";
         if (dataId > -1) {
             inserts.add(sqlInsert + ":success");
         } else {

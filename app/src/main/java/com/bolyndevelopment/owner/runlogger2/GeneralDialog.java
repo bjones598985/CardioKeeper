@@ -45,7 +45,7 @@ public class GeneralDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments().getInt(MainActivity.DIALOG_TYPE) == MainActivity.DIALOG_ABOUT) {
+        if (getArguments().getInt(MainActivityAlt.DIALOG_TYPE) == MainActivityAlt.DIALOG_ABOUT) {
             root = LayoutInflater.from(getActivity()).inflate(R.layout.about_dialog_layout, null);
             ImageView icon = (ImageView) root.findViewById(R.id.toasty_icon);
             Glide.with(this)
@@ -63,10 +63,10 @@ public class GeneralDialog extends DialogFragment {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //get int dialogType to determine which dialog to show
-        int type = getArguments().getInt(MainActivity.DIALOG_TYPE);
+        int type = getArguments().getInt(MainActivityAlt.DIALOG_TYPE);
 
         switch (type) {
-            case MainActivity.DIALOG_ABOUT:
+            case MainActivityAlt.DIALOG_ABOUT:
                 builder.setTitle(null).setView(root)
                         .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -75,7 +75,7 @@ public class GeneralDialog extends DialogFragment {
                     });
                 break;
 
-            case MainActivity.DIALOG_ENABLE_BACKUP:
+            case MainActivityAlt.DIALOG_ENABLE_BACKUP:
                 builder.setView(R.layout.sync_dialog_layout)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
@@ -92,7 +92,7 @@ public class GeneralDialog extends DialogFragment {
                             }
                         });
                 break;
-            case MainActivity.DIALOG_PERMISSION:
+            case MainActivityAlt.DIALOG_PERMISSION:
                 builder.setView(R.layout.general_dialog_textview)
                         .setPositiveButton(getString(R.string.allow_permission_msg), allowPermClickListener)
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -104,7 +104,7 @@ public class GeneralDialog extends DialogFragment {
 
         }
         AlertDialog ad = builder.create();
-        if (type == MainActivity.DIALOG_ABOUT) {
+        if (type == MainActivityAlt.DIALOG_ABOUT) {
             //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#cccccc")));
         }
         return ad;
