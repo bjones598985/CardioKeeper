@@ -421,7 +421,7 @@ public class HelloGraph extends AppCompatActivity {
                 break;
             default:
         }
-        return Utils.convertDateToString(cal.getTime(), Utils.DB_DATE_FORMAT);
+        return Utils.convertDateToString(cal.getTime(), DataModel.DATE_FORMAT);
     }
 
     private void generateColumnData(Cursor results) {

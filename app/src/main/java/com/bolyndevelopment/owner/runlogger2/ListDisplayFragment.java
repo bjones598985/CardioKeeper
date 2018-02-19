@@ -210,7 +210,7 @@ public class ListDisplayFragment extends Fragment {
                 ad.spinnerPosition = list.indexOf(type);
             }
         }
-        ad.date = Utils.convertDateToString(new Date(), "MM/dd/yyyy");
+        ad.date = Utils.convertDateToString(new Date(), DataModel.DATE_FORMAT);
         recordsList.add(0, ad);
         mainRecyclerView.getAdapter().notifyItemInserted(0);
         mainRecyclerView.scrollToPosition(0);
