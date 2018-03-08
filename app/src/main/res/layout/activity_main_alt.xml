@@ -103,10 +103,10 @@
             tools:context=".MainActivity"
             android:theme="@style/NavTheme">
 
-            <fragment android:id="@+id/navFrag"
-                android:layout_height="match_parent"
-                android:name="com.bolyndevelopment.owner.runlogger2.NavFragment"
-                android:layout_width="match_parent"/>
+                <fragment android:id="@+id/navFrag"
+                    android:layout_height="match_parent"
+                    android:name="com.bolyndevelopment.owner.runlogger2.NavFragment"
+                    android:layout_width="match_parent"/>
 
         </android.support.design.widget.NavigationView>
 

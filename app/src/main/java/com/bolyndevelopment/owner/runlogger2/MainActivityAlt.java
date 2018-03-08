@@ -134,7 +134,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_alt);
-        //addRandomData();
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
 
         coord = (CoordinatorLayout) findViewById(R.id.coord);
@@ -344,6 +343,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         }
     }
 
+    //for testing purposes only
     private void addRandomData() {
         final List<String> cardioList = Arrays.asList(getResources().getStringArray(R.array.cardio_types));
         for (int y=1; y<13; y++) {

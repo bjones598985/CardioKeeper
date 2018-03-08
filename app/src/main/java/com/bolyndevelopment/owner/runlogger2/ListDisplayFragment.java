@@ -226,9 +226,9 @@ public class ListDisplayFragment extends Fragment {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                //startActivityForResult(i, CODE_TIMER);
-                ActivityOptionsCompat transitionActivityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), null);
-                startActivity(new Intent(getContext(), TimerActivity.class), transitionActivityOptions.toBundle());
+                startActivity(new Intent(getContext(), TimerActivity.class));
+                //ActivityOptionsCompat transitionActivityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), null);
+                //startActivity(new Intent(getContext(), TimerActivity.class), transitionActivityOptions.toBundle());
             }
         }, MIN_DELAY_MILLIS);
     }
