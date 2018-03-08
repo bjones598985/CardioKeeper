@@ -18,7 +18,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Explode;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -123,6 +126,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binder = DataBindingUtil.setContentView(this, R.layout.activity_timer);
+        setWindowAnimations();
 
         Intent intent = new Intent(this, TimerService.class);
         startService(intent);
@@ -144,6 +148,14 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         initButtons();
         initRv();
     }
+
+    private void setWindowAnimations() {
+        Slide slideTransition = new Slide();
+        slideTransition.setSlideEdge(Gravity.BOTTOM);
+        slideTransition.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+        getWindow().setEnterTransition(slideTransition);
+    }
+
 
     private void fetchCachedDataIfExists() {
         File file  = new File(getCacheDir(), LAP_FILE);

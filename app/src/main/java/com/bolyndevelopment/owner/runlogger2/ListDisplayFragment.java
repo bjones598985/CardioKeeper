@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -225,7 +226,9 @@ public class ListDisplayFragment extends Fragment {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivityForResult(i, CODE_TIMER);
+                //startActivityForResult(i, CODE_TIMER);
+                ActivityOptionsCompat transitionActivityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), null);
+                startActivity(new Intent(getContext(), TimerActivity.class), transitionActivityOptions.toBundle());
             }
         }, MIN_DELAY_MILLIS);
     }
