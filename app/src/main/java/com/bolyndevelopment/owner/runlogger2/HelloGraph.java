@@ -318,6 +318,7 @@ public class HelloGraph extends AppCompatActivity {
                     String query = getQuery();
                     Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
+                    Log.d(TAG, "record count");
                     if (initialDataLoaded) {
                         updateColumnValues(c);
                     } else {
@@ -500,7 +501,7 @@ public class HelloGraph extends AppCompatActivity {
                 String date = results.getString(0);
                 setAxisValues(colCount, results.getString(0));
                 sublistSize = columns.get(colCount).getValues().size();
-                while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {//add sequence number here
                     float raw = results.getFloat(1);
                     if (subColCount >= sublistSize) {
                         columns.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(getNextColor()));
