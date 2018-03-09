@@ -417,9 +417,10 @@ public class HelloGraph extends AppCompatActivity {
                 cal.add(Calendar.MONTH, -6);
                 break;
             case 4:
-                cal.set(Calendar.MONTH, 0);
-                cal.set(Calendar.DAY_OF_MONTH, 1);
+                cal.add(Calendar.YEAR, -1);
                 break;
+            case 5:
+                cal.add(Calendar.YEAR, -10);
             default:
         }
         return Utils.convertDateToString(cal.getTime(), DataModel.DATE_FORMAT);
@@ -435,12 +436,10 @@ public class HelloGraph extends AppCompatActivity {
                 }
             });
         }
-        //rawData.clear();
         List<SubcolumnValue> subcolumnValues;
         List<Column> columns = new ArrayList<>();
         axisValues.clear();
         int colCount = 0;
-        //int count = 0;
         while (!results.isAfterLast()) {
             String date = results.getString(0);
             subcolumnValues = new ArrayList<>();
@@ -449,7 +448,6 @@ public class HelloGraph extends AppCompatActivity {
                 float raw = results.getFloat(1);
                 subcolumnValues.add(new SubcolumnValue(raw).setColor(getNextColor()));
                 results.moveToNext();
-                //count++;
             }
             Column col = new Column(subcolumnValues);
             col.setHasLabels(true);
@@ -462,12 +460,11 @@ public class HelloGraph extends AppCompatActivity {
     }
 
     private void updateColumnValues(Cursor results) {
-        final ComboLineColumnChartData oldData = binding.helloGraph.getComboLineColumnChartData();
-        final List<Column> columns = oldData.getColumnChartData().getColumns();
+        final ComboLineColumnChartData chartData = binding.helloGraph.getComboLineColumnChartData();
+        final List<Column> columnsList = chartData.getColumnChartData().getColumns();
 
         int newColCount = includeLapData ? getNewColumnCountWithLaps(results) : getNewColumnCount(results);
-        int oldColumnCount = columns.size();
-
+        int oldColumnCount = columnsList.size();
 
         results.moveToFirst();
         /*
@@ -479,11 +476,12 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toasty.info(getBaseContext(), "Uh oh, your search turned up no results", Toast.LENGTH_LONG, true).show();
+                    /*
                     for (Column col : columns) {
                         for (SubcolumnValue sc : col.getValues()) {
                             sc.setTarget(0);
                         }
-                    }
+                    }*/
                 }
             });
         }
@@ -497,34 +495,30 @@ public class HelloGraph extends AppCompatActivity {
          */
         if (newColCount > 0) {
             if (oldColumnCount == 0) {
-                columns.add(new Column());
+                columnsList.add(new Column());
                 oldColumnCount = 1;
             }
             axisValues.clear();
 
             do {
-                Log.d(TAG, "Top of DO");
                 int subColCount = 0;
                 String date = results.getString(0);
-                //int seq = results.getInt(3);
                 setAxisValues(colCount, date);
-                sublistSize = columns.get(colCount).getValues().size();
+                sublistSize = columnsList.get(colCount).getValues().size();
                 DatabaseUtils.dumpCurrentRow(results);
-                //while (!results.isAfterLast() && date.equals(results.getString(0)) && (seq == results.getInt(3))) {//add sequence number here
-                while (!results.isAfterLast() && date.equals(results.getString(0))) {//add sequence number here
-                    Log.d(TAG, "inside while");
+                while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw = results.getFloat(1);
                     if (subColCount >= sublistSize) {
-                        columns.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(getNextColor()));
+                        columnsList.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(getNextColor()));
                     } else {
-                        columns.get(colCount).getValues().get(subColCount).setTarget(raw).setColor(getNextColor());
+                        columnsList.get(colCount).getValues().get(subColCount).setTarget(raw).setColor(getNextColor());
                     }
                     results.moveToNext();
                     subColCount++;
                 }
-                if (columns.get(colCount).getValues().size() > subColCount) {
-                    for (int z = subColCount; z < columns.get(colCount).getValues().size(); z++) {
-                        columns.get(colCount).getValues().get(z).setTarget(0);//.setColor(Color.TRANSPARENT);
+                if (columnsList.get(colCount).getValues().size() > subColCount) {
+                    for (int z = subColCount; z < columnsList.get(colCount).getValues().size(); z++) {
+                        columnsList.get(colCount).getValues().get(z).setTarget(0);
                     }
                 }
                 colCount++;
@@ -536,15 +530,16 @@ public class HelloGraph extends AppCompatActivity {
         if we find the new column count is less than the old, lets
         reduce the column values to zero to shrink them for a good
         animation
-         */
+
         if ((newColCount > 0) && (newColCount < oldColumnCount)) {
             for (int k = newColCount; k < oldColumnCount; k++) {
-                int subSize = columns.get(k).getValues().size();
+                int subSize = columnsList.get(k).getValues().size();
                 for (int l = 0; l < subSize; l++) {
-                    columns.get(k).getValues().get(l).setTarget(0);
+                    columnsList.get(k).getValues().get(l).setTarget(0);
                 }
             }
         }
+        */
 
         /*
         if new is greater than the old, we need to add new subcolumn
@@ -552,58 +547,35 @@ public class HelloGraph extends AppCompatActivity {
          */
         if (newColCount > oldColumnCount) {
             while (!results.isAfterLast()) {
-                int count = 0;
                 String date = results.getString(0);
-                //int seq = results.getInt(3);
                 setAxisValues(colCount, date);
                 List<SubcolumnValue> sublist = new ArrayList<>();
                 DatabaseUtils.dumpCurrentRow(results);
-                //while (!results.isAfterLast() && date.equals(results.getString(0)) && (seq == results.getInt(3))) {
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
                     float raw = results.getFloat(1);
                     sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(getNextColor()));
                     results.moveToNext();
-                    //count++;
                 }
-                columns.add(new Column(sublist).setHasLabelsOnlyForSelected(true));
+                columnsList.add(new Column(sublist).setHasLabelsOnlyForSelected(true));
                 colCount++;
             }
         }
         //obvious
-        for (Column col : columns) {
+        for (Column col : columnsList) {
             col.setHasLabelsOnlyForSelected(true);
         }
-        final int colCountFinal = colCount;
-        final int oldColumnCountFinal = oldColumnCount;
-        boolean reduction = false;
+
         //let's get rid of the data we no longer need
-        if (colCountFinal > 0 && oldColumnCountFinal > colCountFinal) {
-            reduction = true;
-            for (int i = oldColumnCountFinal - 1; i >= colCountFinal; i--) {
+
+        if (colCount > 0 && oldColumnCount > colCount) {
+            for (int i = oldColumnCount - 1; i >= colCount; i--) {
                 binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
             }
         }
-        final boolean redux = reduction;
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (redux) {
-                    binding.helloGraph.setDataAnimationListener(new ChartAnimationListener() {
-                        @Override
-                        public void onAnimationStarted() {
-
-                        }
-
-                        @Override
-                        public void onAnimationFinished() {
-                            binding.helloGraph.setDataAnimationListener(null);
-                            binding.helloGraph.startDataAnimation(500);
-                        }
-                    });
-                    binding.helloGraph.startDataAnimation(1500);
-                } else {
-                    binding.helloGraph.startDataAnimation(1500);
-                }
+                binding.helloGraph.startDataAnimation(1500);
             }
         });
     }

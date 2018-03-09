@@ -9,5 +9,9 @@ import static org.junit.Assert.*;
  */
 public class HelloGraphTest {
 
+    @Test
+    public void getSecondDate_isCorrect() {
+
+    }
 
 }
