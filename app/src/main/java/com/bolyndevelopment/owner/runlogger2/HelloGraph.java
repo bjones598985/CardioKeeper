@@ -2,28 +2,20 @@ package com.bolyndevelopment.owner.runlogger2;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
-import android.graphics.Path;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -37,10 +29,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import es.dmoral.toasty.Toasty;
-import lecho.lib.hellocharts.animation.ChartAnimationListener;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.ComboLineColumnChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
@@ -64,9 +54,9 @@ public class HelloGraph extends AppCompatActivity {
 
     int screenWidth;
 
-    boolean isFabHidden = false; //flag for use in toggleFabMenu()
+    boolean isMenuButtonHidden = false; //flag for use in toggleMenuButton()
 
-    boolean initialDataLoaded = false; //once set to true, column data is update instead of generated
+    boolean initialDataLoaded = false; //once set to true, column data is updated instead of generated
 
     String distUnit; //miles or kilometers
 
@@ -137,10 +127,10 @@ public class HelloGraph extends AppCompatActivity {
                 presentChart();
             }
         }
-        binding.fabMenuButton.setOnClickListener(new View.OnClickListener() {
+        binding.menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleFabMenu();
+                toggleMenuButton();
             }
         });
 
@@ -148,13 +138,13 @@ public class HelloGraph extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 presentChart();
-                toggleFabMenu();
+                toggleMenuButton();
             }
         });
         binding.include.cancelMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleFabMenu();
+                toggleMenuButton();
             }
         });
 
@@ -321,7 +311,11 @@ public class HelloGraph extends AppCompatActivity {
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
                     DatabaseUtils.dumpCursor(c);
                     if (initialDataLoaded) {
-                        updateColumnValues(c);
+                        if(includeLapData) {
+                            updateColumnValuesWithLapData(c);
+                        } else {
+                            updateColumnValues(c);
+                        }
                     } else {
                         generateColumnData(c);
                         initialDataLoaded = true;
@@ -463,7 +457,7 @@ public class HelloGraph extends AppCompatActivity {
         final ComboLineColumnChartData chartData = binding.helloGraph.getComboLineColumnChartData();
         final List<Column> columnsList = chartData.getColumnChartData().getColumns();
 
-        int newColCount = includeLapData ? getNewColumnCountWithLaps(results) : getNewColumnCount(results);
+        int newColCount = getNewColumnCount(results);
         int oldColumnCount = columnsList.size();
 
         results.moveToFirst();
@@ -476,12 +470,6 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toasty.info(getBaseContext(), "Uh oh, your search turned up no results", Toast.LENGTH_LONG, true).show();
-                    /*
-                    for (Column col : columns) {
-                        for (SubcolumnValue sc : col.getValues()) {
-                            sc.setTarget(0);
-                        }
-                    }*/
                 }
             });
         }
@@ -489,7 +477,7 @@ public class HelloGraph extends AppCompatActivity {
         int sublistSize = 0;
 
         /*
-        if the new columns is greater than zero, we're going to pass through
+        if the new columns are greater than zero, we're going to pass through
         at least one time and based on date and sequence, we may interate
         more times
          */
@@ -526,25 +514,6 @@ public class HelloGraph extends AppCompatActivity {
             } while (!results.isAfterLast() && (colCount < oldColumnCount));
         }
 
-        /*
-        if we find the new column count is less than the old, lets
-        reduce the column values to zero to shrink them for a good
-        animation
-
-        if ((newColCount > 0) && (newColCount < oldColumnCount)) {
-            for (int k = newColCount; k < oldColumnCount; k++) {
-                int subSize = columnsList.get(k).getValues().size();
-                for (int l = 0; l < subSize; l++) {
-                    columnsList.get(k).getValues().get(l).setTarget(0);
-                }
-            }
-        }
-        */
-
-        /*
-        if new is greater than the old, we need to add new subcolumn
-        values and columns to the data
-         */
         if (newColCount > oldColumnCount) {
             while (!results.isAfterLast()) {
                 String date = results.getString(0);
@@ -552,6 +521,105 @@ public class HelloGraph extends AppCompatActivity {
                 List<SubcolumnValue> sublist = new ArrayList<>();
                 DatabaseUtils.dumpCurrentRow(results);
                 while (!results.isAfterLast() && date.equals(results.getString(0))) {
+                    float raw = results.getFloat(1);
+                    sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(getNextColor()));
+                    results.moveToNext();
+                }
+                columnsList.add(new Column(sublist).setHasLabelsOnlyForSelected(true));
+                colCount++;
+            }
+        }
+        //obvious
+        for (Column col : columnsList) {
+            col.setHasLabelsOnlyForSelected(true);
+        }
+
+        //let's get rid of the data we no longer need
+
+        if (colCount > 0 && oldColumnCount > colCount) {
+            for (int i = oldColumnCount - 1; i >= colCount; i--) {
+                binding.helloGraph.getComboLineColumnChartData().getColumnChartData().getColumns().remove(i);
+            }
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                binding.helloGraph.startDataAnimation(1500);
+            }
+        });
+    }
+
+    private void updateColumnValuesWithLapData(Cursor results) {
+        final ComboLineColumnChartData chartData = binding.helloGraph.getComboLineColumnChartData();
+        final List<Column> columnsList = chartData.getColumnChartData().getColumns();
+
+        int newColCount = getNewColumnCountWithLaps(results);
+        int oldColumnCount = columnsList.size();
+
+        results.moveToFirst();
+        /*
+        if the cursor returns no results, we'll reduce the
+        currently displaying column/subcolumn values to zero
+         */
+        if (newColCount == 0) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toasty.info(getBaseContext(), "Uh oh, your search turned up no results", Toast.LENGTH_LONG, true).show();
+                }
+            });
+        }
+
+        int colCount = 0;
+        int sublistSize = 0;
+
+        /*
+        if the new columns are greater than zero, we're going to pass through
+        at least one time and based on date and sequence, we may interate
+        more times
+         */
+        if (newColCount > 0) {
+            if (oldColumnCount == 0) {
+                columnsList.add(new Column());
+                oldColumnCount = 1;
+            }
+            axisValues.clear();
+
+            do {
+                int subColCount = 0;
+                String date = results.getString(0);
+                int seq = results.getInt(3);
+                setAxisValues(colCount, date);
+                sublistSize = columnsList.get(colCount).getValues().size();
+                DatabaseUtils.dumpCurrentRow(results);
+                while (!results.isAfterLast() && date.equals(results.getString(0)) && seq == results.getInt(3)) {
+                    float raw = results.getFloat(1);
+                    if (subColCount >= sublistSize) {
+                        columnsList.get(colCount).getValues().add(new SubcolumnValue().setValue(0).setTarget(raw).setColor(getNextColor()));
+                    } else {
+                        columnsList.get(colCount).getValues().get(subColCount).setTarget(raw).setColor(getNextColor());
+                    }
+                    results.moveToNext();
+                    subColCount++;
+                }
+                if (columnsList.get(colCount).getValues().size() > subColCount) {
+                    for (int z = subColCount; z < columnsList.get(colCount).getValues().size(); z++) {
+                        columnsList.get(colCount).getValues().get(z).setTarget(0);
+                    }
+                }
+                colCount++;
+
+            } while (!results.isAfterLast() && (colCount < oldColumnCount));
+        }
+
+        if (newColCount > oldColumnCount) {
+            while (!results.isAfterLast()) {
+                String date = results.getString(0);
+                int seq = results.getInt(3);
+                setAxisValues(colCount, date);
+                List<SubcolumnValue> sublist = new ArrayList<>();
+                DatabaseUtils.dumpCurrentRow(results);
+                while (!results.isAfterLast() && date.equals(results.getString(0)) && seq == results.getInt(3)) {
                     float raw = results.getFloat(1);
                     sublist.add(new SubcolumnValue(0).setTarget(raw).setColor(getNextColor()));
                     results.moveToNext();
@@ -629,123 +697,42 @@ public class HelloGraph extends AppCompatActivity {
         });
     }
 
-    private void toggleFabMenu() {
-        final FloatingActionButton fab = binding.fabMenuButton;
-        final ViewGroup layout = binding.include.spinnerLayout;
-
-        if (isFabHidden) {
-            fab.setTranslationX(0);
-            fab.setTranslationY(0);
-            handler.postDelayed(new Runnable() {
+    private void toggleMenuButton() {
+        if (isMenuButtonHidden) {
+            binding.include.spinnerLayout.animate().alpha(0).setDuration(250L).setListener(new AnimatorListenerAdapter() {
                 @Override
-                public void run() {
-                    fab.show();
+                public void onAnimationEnd(Animator animation) {
+                    binding.include.spinnerLayout.animate().setListener(null);
+                    binding.include.spinnerLayout.setVisibility(View.INVISIBLE);
+                    binding.menuButton.animate().alpha(1).setDuration(100L).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            binding.menuButton.animate().setListener(null);
+                            binding.menuButton.setVisibility(View.VISIBLE);
+                        }
+                    }).start();
                 }
-            }, 300);
-            layout.animate().alpha(0).setDuration(500).start();
-            layout.setVisibility(View.INVISIBLE);
-            isFabHidden = false;
+            }).start();
+            isMenuButtonHidden = false;
         } else {
-            layout.setBackgroundColor(Utils.ColorUtils.darkenColor(mainColor));
-            int[] spinLayCoords = new int[2];
-            layout.getLocationOnScreen(spinLayCoords);
-            int[] newCoordinates = getNewCoordinates();
-            final Path path = getPath(spinLayCoords[0] + newCoordinates[0], spinLayCoords[1] + newCoordinates[1]);
-
-            final Animator transAnim = getTranslateAnim(path);
-            final Animator colorAnim = getColorAnim();
-            final Animator circularRevealAnim = getCircleRevealAnim(newCoordinates[0] + fab.getWidth() / 2, newCoordinates[1] + fab.getHeight() / 2);
-
-            AnimatorSet setOne = new AnimatorSet();
-            setOne.playTogether(transAnim, colorAnim);
-            AnimatorSet setTwo = new AnimatorSet();
-            setTwo.playSequentially(setOne, circularRevealAnim);
-            setTwo.start();
-            isFabHidden = true;
+            binding.menuButton.animate().alpha(0).setDuration(100L).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    binding.menuButton.animate().setListener(null);
+                    binding.menuButton.setVisibility(View.INVISIBLE);
+                    binding.include.spinnerLayout.setBackgroundColor(Utils.ColorUtils.darkenColor(mainColor));
+                    binding.include.spinnerLayout.animate().alpha(1).setDuration(250L).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            binding.include.spinnerLayout.animate().setListener(null);
+                            binding.include.spinnerLayout.setVisibility(View.VISIBLE);
+                            binding.include.spinnerLayout.setElevation(32f);
+                        }
+                    }).start();
+                }
+            }).start();
+            isMenuButtonHidden = true;
         }
-    }
-
-    private int[] getNewCoordinates() {
-        int fabDiam = binding.fabMenuButton.getWidth();
-        int spinRadX = binding.include.spinnerLayout.getWidth();
-        int spinRadY = binding.include.spinnerLayout.getHeight();
-        spinRadX -= fabDiam;
-        spinRadY -= fabDiam;
-        Random random = new Random();
-        int x = random.nextInt(spinRadX);
-        int y = random.nextInt(spinRadY);
-        return new int[]{x, y};
-    }
-
-    private Animator getTranslateAnim(Path p) {
-        final ObjectAnimator transAnim = ObjectAnimator.ofFloat(binding.fabMenuButton, View.X, View.Y, p);
-        transAnim.setDuration(500);
-        transAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                transAnim.removeAllListeners();
-            }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                binding.fabMenuButton.setCompatElevation(0f);
-            }
-        });
-        return transAnim;
-    }
-
-    private Animator getColorAnim() {
-        final float[] from = new float[3], to = new float[3];
-        Color.colorToHSV(binding.fabMenuButton.getBackgroundTintList().getDefaultColor(), from);
-        Color.colorToHSV(mainColor, to);
-        ValueAnimator colorAnim = ValueAnimator.ofFloat(0, 1);
-        colorAnim.setDuration(500);
-        final float[] hsv  = new float[3];
-        colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
-            @Override public void onAnimationUpdate(ValueAnimator animation) {
-                // Transition along each axis of HSV (hue, saturation, value)
-                //code copied from https://stackoverflow.com/questions/18216285/android-animate-color-change-from-color-to-color
-                hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
-                hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
-                hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
-                binding.fabMenuButton.setBackgroundTintList(ColorStateList.valueOf(Color.HSVToColor(hsv)));
-            }
-        });
-        return colorAnim;
-    }
-
-    private Animator getCircleRevealAnim(int xCoord, int yCoord) {
-        float finalRadius = (float) Math.hypot(xCoord, yCoord);
-        final Animator circularRevealAnim = ViewAnimationUtils.createCircularReveal(binding.include.spinnerLayout, xCoord, yCoord, binding.fabMenuButton.getWidth() / 2, finalRadius*10);
-        circularRevealAnim.setDuration(500);
-        circularRevealAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                binding.include.spinnerLayout.setAlpha(1f);
-                binding.include.spinnerLayout.setVisibility(View.VISIBLE);
-                binding.include.spinnerLayout.setElevation(32f);
-            }
-        });
-        circularRevealAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                binding.fabMenuButton.hide();
-                binding.fabMenuButton.setCompatElevation(32f);
-                //binding.include.spinnerLayout.setElevation(32f);
-            }
-        });
-        return circularRevealAnim;
-    }
-
-    private Path getPath(float endX, float endY) {
-        int seed = screenWidth - binding.fabMenuButton.getWidth();
-        Path path = new Path();
-        final View view = binding.fabMenuButton;
-        path.moveTo(view.getX(),view.getY());
-        path.cubicTo(view.getX(),view.getY(),
-                view.getX() - (new Random().nextInt(seed) + binding.fabMenuButton.getWidth() / 2),view.getY(),
-                endX, endY);
-        return path;
     }
 
     private class ComboTouchListener implements ComboLineColumnChartOnValueSelectListener {
@@ -769,9 +756,5 @@ public class HelloGraph extends AppCompatActivity {
         public void onValueDeselected() {
             //do nothing, we don't care
         }
-    }
-
-    private class QueryBuilder {
-
     }
 }

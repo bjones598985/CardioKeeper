@@ -57,6 +57,10 @@
         <item name="colorAccent">#ffffff</item>
     </style>
 
+    <style name="HelloGraphFab" parent="AppTheme">
+        <item name="colorAccent">@android:color/transparent</item>
+    </style>
+
     <style name="HelloGraphCancelButton" parent="AppTheme">
         <item name="colorAccent">#ffffff</item>
     </style>
