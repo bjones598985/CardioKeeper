@@ -135,7 +135,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_alt);
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
-
+        //addRandomData();
         coord = (CoordinatorLayout) findViewById(R.id.coord);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         final ViewPager pager = (ViewPager) findViewById(R.id.pager);
@@ -363,7 +363,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 if (index == 0) {
                     index++;
                 }
-                map.put(CARDIO_TYPE, cardioList.get(index));
+                map.put(CARDIO_TYPE, cardioList.get(4));
                 DataModel.getInstance().addRecords(map, null);
             }
         }
@@ -422,7 +422,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         // Create a file with the requested MIME type.
-        intent.setType(mimeType);
+        intent.setType(DB_MIME_TYPE);
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
         startActivityForResult(intent, CREATE_FILE_CODE);
     }
