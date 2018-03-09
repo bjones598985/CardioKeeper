@@ -136,9 +136,9 @@ public class MainActivityAlt extends AppCompatActivity  implements
         setContentView(R.layout.activity_main_alt);
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
         //addRandomData();
-        coord = (CoordinatorLayout) findViewById(R.id.coord);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        final ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        coord = findViewById(R.id.coord);
+        toolbar = findViewById(R.id.toolbar);
+        final ViewPager pager = findViewById(R.id.pager);
         pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
@@ -162,10 +162,12 @@ public class MainActivityAlt extends AppCompatActivity  implements
         };
         setSupportActionBar(toolbar);
         initFabs();
+
         if (savedInstanceState != null) {
             isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
             if (isAddDialogOpen) {
-                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
+                //((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
+                //((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).setIsAddDialogOpen(true);
             }
         }
         if (!isDualPane) {
@@ -275,10 +277,10 @@ public class MainActivityAlt extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 animateFabs();
-                if (!isAddDialogOpen) {
+                //if (!isAddDialogOpen) {
                     ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
-                    isAddDialogOpen = true;
-                }
+                    //isAddDialogOpen = true;
+                //}
             }
         });
     }

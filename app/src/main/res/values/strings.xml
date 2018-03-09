@@ -223,7 +223,7 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <!-- BackupRestoreDialog strings -->
     <string name="dialog_backup">Back up</string>
     <string name="dialog_restore">Restore</string>
-    <string name="dialog_new_locale">Backup to New Location</string>
+    <string name="dialog_new_locale">Backup to...</string>
     <string name="dialog_restore_from">Restore from...</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>

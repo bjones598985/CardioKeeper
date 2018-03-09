@@ -55,9 +55,12 @@ public class ListDisplayFragment extends Fragment {
     static final int CODE_TIMER = 100;
     static final int MIN_DELAY_MILLIS = 200;
 
+    boolean isAddDialogOpen = false;
+    String totalTime;
+
     private List<ListItem> recordsList = new ArrayList<>();
     private List<ListItem> oldList = new ArrayList<>();
-    private ArrayList<String> lapDataFromTimer;
+    private ArrayList<String> lapDataFromTimer = new ArrayList<>();
     private MyAdapter myAdapter;
     private RecyclerView mainRecyclerView;
     private Handler handler = new Handler();
@@ -66,9 +69,8 @@ public class ListDisplayFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("MainActivityAlt", "onActivityResult - LDF");
         if (requestCode == CODE_TIMER && resultCode == Activity.RESULT_OK) {
-            final String totalTime = data.getStringExtra("totalTime");
+            totalTime = data.getStringExtra("totalTime");
             lapDataFromTimer = data.getStringArrayListExtra("list");
             initAddDialog(totalTime);
         }
@@ -92,12 +94,6 @@ public class ListDisplayFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //addRandomData();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_list_display, container, false);
     }
@@ -105,7 +101,9 @@ public class ListDisplayFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mainRecyclerView = (RecyclerView) view.findViewById(R.id.main_recyclerview);
+        setRetainInstance(true);
+        Log.d("LDF", "laptimer data: " + lapDataFromTimer.size());
+        mainRecyclerView = view.findViewById(R.id.main_recyclerview);
         mainRecyclerView.setHasFixedSize(true);
         myAdapter = new MyAdapter();
         mainRecyclerView.setAdapter(myAdapter);
@@ -117,6 +115,11 @@ public class ListDisplayFragment extends Fragment {
         Drawable left = getResources().getDrawable(R.drawable.left_divider);
         binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
         */
+    }
+
+    public void setIsAddDialogOpen(boolean isOpen) {
+        Log.d("LDF", "var isOpen: " + isOpen);
+        isAddDialogOpen = isOpen;
     }
 
     public void sortList(String... args) {
@@ -173,7 +176,7 @@ public class ListDisplayFragment extends Fragment {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getContext(), "Uh oh, no results for that selection...", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getContext(), "Uh oh, no results for that selection...", Toast.LENGTH_LONG).show();
                 }
             });
         } else {
@@ -192,6 +195,13 @@ public class ListDisplayFragment extends Fragment {
             cursor.close();
             DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ListDiffCallback(oldList, recordsList));
             result.dispatchUpdatesTo(myAdapter);
+        }
+        if (isAddDialogOpen) {
+            if (totalTime.isEmpty()) {
+                initAddDialog(null);
+            } else {
+                initAddDialog(totalTime);
+            }
         }
     }
 
@@ -215,6 +225,8 @@ public class ListDisplayFragment extends Fragment {
         recordsList.add(0, ad);
         mainRecyclerView.getAdapter().notifyItemInserted(0);
         mainRecyclerView.scrollToPosition(0);
+        setIsAddDialogOpen(true);
+        //mListener.setInitDialogOpen(true);
     }
 
     public void onTimerFabClicked(boolean isAddDialogOpen) {
@@ -262,7 +274,8 @@ public class ListDisplayFragment extends Fragment {
             recordsList.remove(1);
             myAdapter.notifyItemChanged(0);
             mainRecyclerView.scrollToPosition(0);
-            mListener.setInitDialogOpen(false);
+            setIsAddDialogOpen(false);
+            //mListener.setInitDialogOpen(false);
         }
     }
 
@@ -429,7 +442,8 @@ public class ListDisplayFragment extends Fragment {
                 case R.id.cancel_button:
                     recordsList.remove(0);
                     mainRecyclerView.getAdapter().notifyItemRemoved(0);
-                    mListener.setInitDialogOpen(false);
+                    setIsAddDialogOpen(false);
+                    //mListener.setInitDialogOpen(false);
                     break;
                 case R.id.confirm_button:
                     int validation = validateFields();
