@@ -581,20 +581,6 @@ public class ListDisplayFragment extends Fragment {
 
     static class ComparatorHolder {
 
-        //verified works
-        static void sortAlphabetic(List<ListItem> recordsList, final int direction) {
-            Collections.sort(recordsList, new Comparator<ListItem>() {
-                @Override
-                public int compare(ListItem o1, ListItem o2) {
-                    if (direction == ASCENDING) {
-                        return o1.cType.compareTo(o2.cType);
-                    } else {
-                        return o2.cType.compareTo(o1.cType);
-                    }
-                }
-            });
-        }
-
         static Comparator<ListItem> getAlphabeticComparator(int direction) {
             if (direction == ASCENDING) {
                 return new Comparator<ListItem>() {
@@ -690,63 +676,6 @@ public class ListDisplayFragment extends Fragment {
                     }
                 };
             }
-        }
-
-        //verified works
-        static void sortByDate(List<ListItem> recordsList, final int direction) {
-            Collections.sort(recordsList, new Comparator<ListItem>() {
-                @Override
-                public int compare(ListItem o1, ListItem o2) {
-                    if (direction == ASCENDING) {
-                        return o1.date.compareTo(o2.date);
-                    } else {
-                        return o2.date.compareTo(o1.date);
-                    }
-                }
-            });
-        }
-        //verified works
-        static void sortByDistance(List<ListItem> recordsList, final int direction) {
-            Collections.sort(recordsList, new Comparator<ListItem>(){
-                @Override
-                public int compare(ListItem o1, ListItem o2) {
-                    if (direction == ASCENDING) {
-                        return Math.round(o1.distance - o2.distance);
-                    } else {
-                        return Math.round(o2.distance - o1.distance);
-                    }
-                }
-            });
-        }
-        //verified works
-        static void sortByTime(List<ListItem> recordsList, final int direction) {
-            Collections.sort(recordsList, new Comparator<ListItem>() {
-                @Override
-                public int compare(ListItem o1, ListItem o2) {
-                    String t1, t2;
-                    t1 = Utils.getTimeMillis(o1.time);
-                    t2 = Utils.getTimeMillis(o2.time);
-                    if (direction == ASCENDING) {
-                        return t1.compareTo(t2);
-                    } else {
-                        return t2.compareTo(t1);
-                    }
-                }
-            });
-        }
-
-        //verified works
-        static void sortByCalories(List<ListItem> recordsList, final int direction) {
-            Collections.sort(recordsList, new Comparator<ListItem>() {
-                @Override
-                public int compare(ListItem o1, ListItem o2) {
-                    if (direction == ASCENDING) {
-                        return o1.calories - o2.calories;
-                    } else {
-                        return o2.calories - o1.calories;
-                    }
-                }
-            });
         }
     }
 

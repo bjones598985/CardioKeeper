@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -621,7 +622,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
             Bundle bundle = new Bundle();
             bundle.putInt("pos", position);
             page.setArguments(bundle);
-            page.setReference(MainActivityAlt.this);
             return page;
         }
 
@@ -646,6 +646,17 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
         public Page() {
 
+        }
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            if (context instanceof MainActivityAlt) {
+                ref = new WeakReference<>((MainActivityAlt) context);
+            } else {
+                throw new RuntimeException(context.toString()
+                        + " must implement ListFragListener");
+            }
         }
 
         @Override
@@ -719,17 +730,13 @@ public class MainActivityAlt extends AppCompatActivity  implements
             }
         }
 
-        public void setReference(MainActivityAlt alt) {
-            ref = new WeakReference<>(alt);
-        }
-
         private void setUpSpinners(View view) {
-            final ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
-            final ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
-            final ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, R.layout.spinner_item);
-            adapter1.setDropDownViewResource(R.layout.spinner_dropdown_item);
-            adapter2.setDropDownViewResource(R.layout.spinner_dropdown_item);
-            adapter3.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            final ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, android.R.layout.simple_spinner_item);
+            final ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, android.R.layout.simple_spinner_item);
+            final ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getContext(), R.array.sort_options, android.R.layout.simple_spinner_item);
+            adapter1.setDropDownViewResource(android.R.layout.simple_list_item_1);
+            adapter2.setDropDownViewResource(android.R.layout.simple_list_item_1);
+            adapter3.setDropDownViewResource(android.R.layout.simple_list_item_1);
             spinner1 = (Spinner) view.findViewById(R.id.spinner1);
             spinner1.setAdapter(adapter1);
             spinner2 = (Spinner) view.findViewById(R.id.spinner2);
