@@ -454,10 +454,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         }
     }
 
-    public void setInitDialogOpen(boolean isOpen) {
-        isAddDialogOpen = isOpen;
-    }
-
     private void onSetSortArgs(String... args) {
         bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         ((ListDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.ListFrag)).sortList(args);

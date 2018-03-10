@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +32,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -79,7 +77,6 @@ public class ListDisplayFragment extends Fragment {
     public interface ListFragListener {
         void graphIt(String param1, String param2);
         long saveEnteredData(HashMap<String, String> map, ArrayList<String> lapData);
-        void setInitDialogOpen(boolean isOpen);
     }
 
     public ListDisplayFragment() {
@@ -87,10 +84,6 @@ public class ListDisplayFragment extends Fragment {
 
     public void notifyOfDataChange() {
         myAdapter.notifyDataSetChanged();
-    }
-
-    public static ListDisplayFragment newInstance(String param1, String param2) {
-        return new ListDisplayFragment();
     }
 
     @Override
@@ -234,13 +227,10 @@ public class ListDisplayFragment extends Fragment {
             recordsList.remove(0);
             mainRecyclerView.getAdapter().notifyItemRemoved(0);
         }
-        final Intent i = new Intent(getActivity(), TimerActivity.class);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 startActivityForResult(new Intent(getContext(), TimerActivity.class), CODE_TIMER);
-                //ActivityOptionsCompat transitionActivityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), null);
-                //startActivity(new Intent(getContext(), TimerActivity.class), transitionActivityOptions.toBundle());
             }
         }, MIN_DELAY_MILLIS);
     }
@@ -353,20 +343,19 @@ public class ListDisplayFragment extends Fragment {
     }
 
         class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            TextView date, time, distance, calories, name;
+            TextView date, distance, calories, name;
             ImageView icon;
             FrameLayout fl;
-            View overhead;
 
         BaseViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            date = (TextView) itemView.findViewById(R.id.list_date_input);
-            distance = (TextView) itemView.findViewById(R.id.list_miles_input);
-            calories = (TextView) itemView.findViewById(R.id.list_calories_input);
-            name = (TextView) itemView.findViewById(R.id.list_name_input);
-            icon = (ImageView) itemView.findViewById(R.id.column_icon);
-            fl = (FrameLayout) itemView.findViewById(R.id.frame_bg);
+            date = itemView.findViewById(R.id.list_date_input);
+            distance = itemView.findViewById(R.id.list_miles_input);
+            calories = itemView.findViewById(R.id.list_calories_input);
+            name = itemView.findViewById(R.id.list_name_input);
+            icon = itemView.findViewById(R.id.column_icon);
+            fl = itemView.findViewById(R.id.frame_bg);
         }
 
         @Override
@@ -376,182 +365,159 @@ public class ListDisplayFragment extends Fragment {
     }
 
         class AddViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Serializable {
-        ViewGroup mainLayout;
-        Spinner cardioSpinner;
-        TextView dateInput;
-        EditText timeInput, distInput, calsInput;
-        TextInputLayout timeLayout;
+            ViewGroup mainLayout;
+            Spinner cardioSpinner;
+            TextView dateInput;
+            EditText timeInput, distInput, calsInput;
+            TextInputLayout timeLayout;
 
-        AddViewHolder(final View itemView) {
-            super(itemView);
-            mainLayout = (ViewGroup) itemView.findViewById(R.id.btn_dialog_frag_rel_layout);
-            cardioSpinner = (Spinner) itemView.findViewById(R.id.cardio_type_spinner);
-            dateInput = (TextView) itemView.findViewById(R.id.date_input);
-            timeInput = (EditText) itemView.findViewById(R.id.time_input);
-            distInput = (EditText) itemView.findViewById(R.id.miles_input);
-            calsInput = (EditText) itemView.findViewById(R.id.calories_input);
-            timeLayout = (TextInputLayout) itemView.findViewById(R.id.time_layout);
-            itemView.findViewById(R.id.date_picker_button).setOnClickListener(this);
-            itemView.findViewById(R.id.cancel_button).setOnClickListener(this);
-            itemView.findViewById(R.id.confirm_button).setOnClickListener(this);
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                    R.array.cardio_types, android.R.layout.simple_spinner_item);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            cardioSpinner.setAdapter(adapter);
-            cardioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @SuppressWarnings("deprecation")
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    distInput.setEnabled(position != 6);
-                    if (position == 11) {
-                        ((TextView) itemView.findViewById(R.id.miles)).setText(getResources().getString(R.string.lap_label));
-                    } else {
-                        ((TextView) itemView.findViewById(R.id.miles)).setText(getResources().getString(R.string.distance_label));
+            AddViewHolder(final View itemView) {
+                super(itemView);
+                mainLayout = itemView.findViewById(R.id.btn_dialog_frag_rel_layout);
+                cardioSpinner = itemView.findViewById(R.id.cardio_type_spinner);
+                dateInput = itemView.findViewById(R.id.date_input);
+                timeInput = itemView.findViewById(R.id.time_input);
+                distInput = itemView.findViewById(R.id.miles_input);
+                calsInput = itemView.findViewById(R.id.calories_input);
+                timeLayout = itemView.findViewById(R.id.time_layout);
+                itemView.findViewById(R.id.date_picker_button).setOnClickListener(this);
+                itemView.findViewById(R.id.cancel_button).setOnClickListener(this);
+                itemView.findViewById(R.id.confirm_button).setOnClickListener(this);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                        R.array.cardio_types, android.R.layout.simple_spinner_item);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                cardioSpinner.setAdapter(adapter);
+                cardioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        distInput.setEnabled(position != 6);
+                        if (position == 11) {
+                            ((TextView) itemView.findViewById(R.id.miles)).setText(getResources().getString(R.string.lap_label));
+                        } else {
+                            ((TextView) itemView.findViewById(R.id.miles)).setText(getResources().getString(R.string.distance_label));
+                        }
+                        GradientDrawable sd = (GradientDrawable)getResources().getDrawable(R.drawable.rounded_corner_background);
+                        if (position != 0) {
+                            sd.mutate();
+                            int color = Utils.ColorUtils.getCardioColor(((TextView) view).getText().toString());
+                            int chgColor = Utils.ColorUtils.changeAlpha(color, ALPHA_25);
+                            sd.setColor(chgColor);
+                            mainLayout.setBackground(sd);
+                        } else {
+                            sd.mutate();
+                            sd.setColor(Color.parseColor("#e6e6e6"));
+                            mainLayout.setBackground(sd);
+                        }
                     }
-                    GradientDrawable sd = (GradientDrawable)getResources().getDrawable(R.drawable.rounded_corner_background);
-                    if (position != 0) {
-                        sd.mutate();
-                        int color = Utils.ColorUtils.getCardioColor(((TextView) view).getText().toString());
-                        int chgColor = Utils.ColorUtils.changeAlpha(color, ALPHA_25);
-                        sd.setColor(chgColor);
-                        mainLayout.setBackground(sd);
-                    } else {
-                        sd.mutate();
-                        sd.setColor(Color.parseColor("#e6e6e6"));
-                        mainLayout.setBackground(sd);
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
                     }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
-        }
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.date_picker_button:
-                    DialogFragment newFragment = new DatePickerFragment();
-                    Bundle b = new Bundle();
-                    b.putSerializable("date", this);
-                    newFragment.setArguments(b);
-                    newFragment.show(getActivity().getFragmentManager(), "datePicker");
-                    break;
-                case R.id.cancel_button:
-                    recordsList.remove(0);
-                    mainRecyclerView.getAdapter().notifyItemRemoved(0);
-                    setIsAddDialogOpen(false);
-                    //mListener.setInitDialogOpen(false);
-                    break;
-                case R.id.confirm_button:
-                    int validation = validateFields();
-                    if (validation > -1) {
-                        highlightField(validation);
-                    } else if (validateTimeFormattedProper()){
-                        final HashMap<String, String> map = addInfoToMap();
-                        long id = mListener.saveEnteredData(map, lapDataFromTimer);
-                        onSaveEnteredData(id, map);
-                    }
-                    break;
+                });
             }
-        }
 
-        private boolean validateTimeFormattedProper() {
-            final String time = timeInput.getText().toString();
-            String[] array = TextUtils.split(time, ":");
-            int[] timeArray = new int[array.length];
-            for (int x = 0; x<array.length;x++) {
-                if (array[x].equals("")) {
-                    timeArray[x] = 0;
-                } else {
-                    timeArray[x] = Integer.valueOf(array[x]);
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.date_picker_button:
+                        DialogFragment newFragment = new DatePickerFragment();
+                        Bundle b = new Bundle();
+                        b.putSerializable("date", this);
+                        newFragment.setArguments(b);
+                        newFragment.show(getActivity().getFragmentManager(), "datePicker");
+                        break;
+                    case R.id.cancel_button:
+                        recordsList.remove(0);
+                        mainRecyclerView.getAdapter().notifyItemRemoved(0);
+                        setIsAddDialogOpen(false);
+                        //mListener.setInitDialogOpen(false);
+                        break;
+                    case R.id.confirm_button:
+                        int validation = validateFields();
+                        if (validation > -1) {
+                            highlightField(validation);
+                        } else if (validateTimeFormattedProper()){
+                            final HashMap<String, String> map = addInfoToMap();
+                            long id = mListener.saveEnteredData(map, lapDataFromTimer);
+                            onSaveEnteredData(id, map);
+                        }
+                        break;
                 }
             }
-            switch (timeArray.length) {
-                case 2:
-                    if (timeArray[1] >= 60) {
-                        timeLayout.setError("Seconds >= 60");
+
+            private boolean validateTimeFormattedProper() {
+                final String time = timeInput.getText().toString();
+                String[] array = TextUtils.split(time, ":");
+                int[] timeArray = new int[array.length];
+                for (int x = 0; x<array.length;x++) {
+                    if (array[x].equals("")) {
+                        timeArray[x] = 0;
+                    } else {
+                        timeArray[x] = Integer.valueOf(array[x]);
+                    }
+                }
+                switch (timeArray.length) {
+                    case 2:
+                        if (timeArray[1] >= 60) {
+                            timeLayout.setError("Seconds >= 60");
+                            return false;
+                        } else {
+                            timeLayout.setErrorEnabled(false);
+                            return true;
+                        }
+                    case 3:
+                        if (timeArray[2] >= 60) {
+                            timeLayout.setError("Seconds >= 60");
+                            return false;
+                        } else if (timeArray[1] >= 60){
+                            timeLayout.setError("Minutes >= 60");
+                            return false;
+                        } else {
+                            timeLayout.setErrorEnabled(false);
+                            return true;
+                        }
+                    default:
+                        timeLayout.setError("Something ain't right...");
                         return false;
-                    } else {
-                        timeLayout.setErrorEnabled(false);
-                        return true;
-                    }
-                case 3:
-                    if (timeArray[2] >= 60) {
-                        timeLayout.setError("Seconds >= 60");
-                        return false;
-                    } else if (timeArray[1] >= 60){
-                        timeLayout.setError("Minutes >= 60");
-                        return false;
-                    } else {
-                        timeLayout.setErrorEnabled(false);
-                        return true;
-                    }
-                default:
-                    timeLayout.setError("Something ain't right...");
-                    return false;
-            }
-        }
-
-        private int validateFields() {
-            if (cardioSpinner.getSelectedItemPosition() == 0) return CARDIO_SPINNER;
-            if (timeInput.getText().toString().isEmpty()) return TIME_EDITTEXT;
-            if (distInput.isEnabled() && distInput.getText().toString().isEmpty()) return DIST_EDITTEXT;
-            return -1;
-        }
-
-        @SuppressWarnings("deprecation")
-        private void highlightField(int field) {
-            final Drawable background = getResources().getDrawable(R.drawable.error_rectangle);
-            switch (field) {
-                case CARDIO_SPINNER:
-                    cardioSpinner.setBackground(background);
-                    break;
-                case TIME_EDITTEXT:
-                    timeInput.setBackground(background);
-                    break;
-                case DIST_EDITTEXT:
-                    distInput.setBackground(background);
-                    break;
-            }
-        }
-
-        private HashMap<String, String> addInfoToMap() {
-            HashMap<String, String> cardioData = new HashMap<>();
-            cardioData.put(MainActivityAlt.DATE, dateInput.getText().toString());
-            cardioData.put(MainActivityAlt.TIME, Utils.getTimeMillis(timeInput.getText().toString()));
-            cardioData.put(MainActivityAlt.DISTANCE, distInput.getText().toString());
-            cardioData.put(MainActivityAlt.CALORIES, calsInput.getText().toString());
-            String cardio = (String) cardioSpinner.getSelectedItem();
-            cardioData.put(MainActivityAlt.CARDIO_TYPE, cardio);
-            return cardioData;
-        }
-
-        private String getTimeMillis() {
-            final String time = timeInput.getText().toString();
-            String[] array = TextUtils.split(time, ":");
-            int[] timeArray = new int[array.length];
-            for (int x = 0; x<array.length; x++) {
-                if (array[x].equals("")) {
-                    timeArray[x] = 0;
-                } else {
-                    timeArray[x] = Integer.valueOf(array[x]);
                 }
             }
-            long millis = 0;
-            switch (timeArray.length) {
-                case 2:
-                    millis =  Utils.convertToMillis(0, timeArray[0], timeArray[1]);
-                    break;
-                case 3:
-                    millis =  Utils.convertToMillis(timeArray[0], timeArray[1], timeArray[2]);
-                    break;
+
+            private int validateFields() {
+                if (cardioSpinner.getSelectedItemPosition() == 0) return CARDIO_SPINNER;
+                if (timeInput.getText().toString().isEmpty()) return TIME_EDITTEXT;
+                if (distInput.isEnabled() && distInput.getText().toString().isEmpty()) return DIST_EDITTEXT;
+                return -1;
             }
-            return String.valueOf(millis);
+
+            @SuppressWarnings("deprecation")
+            private void highlightField(int field) {
+                final Drawable background = getResources().getDrawable(R.drawable.error_rectangle);
+                switch (field) {
+                    case CARDIO_SPINNER:
+                        cardioSpinner.setBackground(background);
+                        break;
+                    case TIME_EDITTEXT:
+                        timeInput.setBackground(background);
+                        break;
+                    case DIST_EDITTEXT:
+                        distInput.setBackground(background);
+                        break;
+                }
+            }
+
+            private HashMap<String, String> addInfoToMap() {
+                HashMap<String, String> cardioData = new HashMap<>();
+                cardioData.put(MainActivityAlt.DATE, dateInput.getText().toString());
+                cardioData.put(MainActivityAlt.TIME, Utils.getTimeMillis(timeInput.getText().toString()));
+                cardioData.put(MainActivityAlt.DISTANCE, distInput.getText().toString());
+                cardioData.put(MainActivityAlt.CALORIES, calsInput.getText().toString());
+                String cardio = (String) cardioSpinner.getSelectedItem();
+                cardioData.put(MainActivityAlt.CARDIO_TYPE, cardio);
+                return cardioData;
+            }
         }
-    }
     }
 
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
@@ -683,7 +649,7 @@ public class ListDisplayFragment extends Fragment {
     public class ChainedComparator implements Comparator<ListItem>{
         private List<Comparator<ListItem>> listComparators;
 
-        public ChainedComparator(List<Comparator<ListItem>> comparators) {
+        ChainedComparator(List<Comparator<ListItem>> comparators) {
             this.listComparators = comparators;
         }
 
