@@ -97,7 +97,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
     private ActionBarDrawerToggle drawerToggle;
     private Handler handler = new Handler();
-    boolean isAddDialogOpen = false, isFirstBackup, isAutoBackupEnabled, isDualPane, areFabsExpanded = false;
+    boolean isAddDialogOpen = false, isFirstBackup, isDualPane, areFabsExpanded = false;
     private CoordinatorLayout coord;
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -164,13 +164,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         setSupportActionBar(toolbar);
         initFabs();
 
-        if (savedInstanceState != null) {
-            isAddDialogOpen = savedInstanceState.getBoolean("isAddDialogOpen");
-            if (isAddDialogOpen) {
-                //((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
-                //((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).setIsAddDialogOpen(true);
-            }
-        }
         if (!isDualPane) {
             initDrawer();
             Glide.with(this).asBitmap()
@@ -236,11 +229,10 @@ public class MainActivityAlt extends AppCompatActivity  implements
         final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
         distUnit = distPref.equals("-1") ? getResources().getString(R.string.short_miles).toLowerCase() : getResources().getString(R.string.short_kilos).toLowerCase();
-        //isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
     }
 
     private void initFabs() {
-        plusFab = (FloatingActionButton) findViewById(R.id.fab_menu);
+        plusFab = findViewById(R.id.fab_menu);
         plusFab.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -254,7 +246,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 animateFabs();
             }
         });
-        timerFab = (FloatingActionButton) findViewById(R.id.fab_time_record);
+        timerFab = findViewById(R.id.fab_time_record);
         timerFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -263,7 +255,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 isAddDialogOpen = false;
             }
         });
-        filterFab = (FloatingActionButton) findViewById(R.id.fab_filter);
+        filterFab = findViewById(R.id.fab_filter);
         filterFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -273,15 +265,12 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 //((FilterSortBottomSheet)getFragmentManager().findFragmentById(R.id.bottom_sheet_frag))
             }
         });
-        addFab = (FloatingActionButton) findViewById(R.id.fab_add_manual);
+        addFab = findViewById(R.id.fab_add_manual);
         addFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 animateFabs();
-                //if (!isAddDialogOpen) {
-                    ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
-                    //isAddDialogOpen = true;
-                //}
+                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).initAddDialog(null);
             }
         });
     }
@@ -305,7 +294,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     This is only called on smaller screens
      */
     private void initDrawer() {
-        drawer = (DrawerLayout) findViewById(R.id.main_drawer_layout);
+        drawer = findViewById(R.id.main_drawer_layout);
         drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerToggle = new ActionBarDrawerToggle(this,
                 drawer,
@@ -324,14 +313,10 @@ public class MainActivityAlt extends AppCompatActivity  implements
             }
         };
         drawer.addDrawerListener(drawerToggle);
-        mainNavLeft = (NavigationView) findViewById(R.id.main_nav_left);
+        mainNavLeft = findViewById(R.id.main_nav_left);
         if (!isDualPane) {
             findViewById(R.id.first_child).setBackgroundColor(Color.TRANSPARENT);
         }
-        //findViewById(R.id.nav_menu_graph).setOnClickListener(this);
-        //findViewById(R.id.nav_menu_backup).setOnClickListener(this);
-        //findViewById(R.id.nav_menu_settings).setOnClickListener(this);
-        //findViewById(R.id.nav_menu_about).setOnClickListener(this);
     }
 
     private void checkIfAutoBackupEnabled() {
@@ -370,7 +355,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 if (index == 0) {
                     index++;
                 }
-                map.put(CARDIO_TYPE, cardioList.get(4));
+                map.put(CARDIO_TYPE, cardioList.get(index));
                 DataModel.getInstance().addRecords(map, null);
             }
         }
@@ -429,7 +414,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         // Create a file with the requested MIME type.
-        intent.setType(DB_MIME_TYPE);
+        intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
         startActivityForResult(intent, CREATE_FILE_CODE);
     }
@@ -733,11 +718,11 @@ public class MainActivityAlt extends AppCompatActivity  implements
             adapter1.setDropDownViewResource(android.R.layout.simple_list_item_1);
             adapter2.setDropDownViewResource(android.R.layout.simple_list_item_1);
             adapter3.setDropDownViewResource(android.R.layout.simple_list_item_1);
-            spinner1 = (Spinner) view.findViewById(R.id.spinner1);
+            spinner1 = view.findViewById(R.id.spinner1);
             spinner1.setAdapter(adapter1);
-            spinner2 = (Spinner) view.findViewById(R.id.spinner2);
+            spinner2 = view.findViewById(R.id.spinner2);
             spinner2.setAdapter(adapter2);
-            spinner3 = (Spinner) view.findViewById(R.id.spinner3);
+            spinner3 = view.findViewById(R.id.spinner3);
             spinner3.setAdapter(adapter3);
         }
 
@@ -745,7 +730,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             if (isChecked) {
                 filterList.clear();
                 for (int x = 0; x < 13; x++) {
-                    final CheckBox cBox = (CheckBox)root.findViewById(ids[x]);
+                    final CheckBox cBox = root.findViewById(ids[x]);
                     cBox.setChecked(true);
                     filterList.add(cBox);
                 }
@@ -757,7 +742,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
         private void clearAllChecks() {
             for (int x = 0; x < 14; x++) {
-                final CheckBox cBox = (CheckBox)root.findViewById(ids[x]);
+                final CheckBox cBox = root.findViewById(ids[x]);
                 cBox.setChecked(false);
             }
         }

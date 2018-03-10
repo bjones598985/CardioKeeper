@@ -219,7 +219,6 @@ public class ListDisplayFragment extends Fragment {
         mainRecyclerView.getAdapter().notifyItemInserted(0);
         mainRecyclerView.scrollToPosition(0);
         setIsAddDialogOpen(true);
-        //mListener.setInitDialogOpen(true);
     }
 
     public void onTimerFabClicked(boolean isAddDialogOpen) {
