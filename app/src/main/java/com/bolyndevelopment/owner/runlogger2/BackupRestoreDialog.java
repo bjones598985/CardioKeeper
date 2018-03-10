@@ -25,6 +25,9 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
     static final int RESTORE_FROM_PREVIOUS = 30;
     static final int RESTORE_FROM_NEW = 40;
 
+    int[] buttons = {R.id.backup_button, R.id.backup_same_location, R.id.backup_new_location,
+            R.id.restore_button, R.id.restore_other_location, R.id.restore_last_location};
+
     interface ChoiceListener{
         void onChoiceSelected(final int choice);
     }
@@ -39,12 +42,8 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         rootView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.dialog_backup_restore, null);
-        final ViewGroup firstChild = (ViewGroup) rootView.getChildAt(0);
-        for (int x = 0; x < firstChild.getChildCount(); x++ ) {
-            firstChild.getChildAt(x).setOnClickListener(this);
-        }
-        for (int x = 1; x < rootView.getChildCount(); x++ ) {
-            rootView.getChildAt(x).setOnClickListener(this);
+        for (int button : buttons) {
+            rootView.findViewById(button).setOnClickListener(this);
         }
 
         AlertDialog ad = builder.setView(rootView).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

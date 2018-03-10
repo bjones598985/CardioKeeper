@@ -71,24 +71,29 @@
 
     <!-- Back up and Restore dialog -->
     <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="colorControlHighlight">@android:color/white</item>
+
+
     </style>
 
     <style name="DialogButtons" parent="DialogStyle">
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
     <style name="DialogButtons.Mini">
         <item name="colorAccent">@color/colorAccentDark</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="DialogButtons.Restore">
         <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+
     </style>
 
     <style name="DialogButtons.Restore.Mini">
         <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="FullscreenTheme" parent="AppTheme">

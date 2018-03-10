@@ -47,10 +47,14 @@ public class GeneralDialog extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments().getInt(MainActivityAlt.DIALOG_TYPE) == MainActivityAlt.DIALOG_ABOUT) {
             root = LayoutInflater.from(getActivity()).inflate(R.layout.about_dialog_layout, null);
-            ImageView icon = (ImageView) root.findViewById(R.id.toasty_icon);
+            ImageView toastyIcon = root.findViewById(R.id.toasty_icon);
             Glide.with(this)
                     .load("https://raw.githubusercontent.com/GrenderG/Toasty/master/art/web_hi_res_512.png")
-                    .into(icon);
+                    .into(toastyIcon);
+            ImageView glideIcon = root.findViewById(R.id.glide_icon);
+            Glide.with(this)
+                    .load("https://github.com/bumptech/glide/blob/master/static/glide_logo.png?raw=true")
+                    .into(glideIcon);
         }
     }
 

@@ -18,6 +18,7 @@
             android:text="@string/copyright"
             android:padding="12dp"
             android:textSize="12sp"
+            android:textColor="@android:color/black"
             android:typeface="monospace"/>
 
         <TextView
@@ -34,9 +35,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:typeface="monospace"
-            android:textSize="12sp"
-            android:text="@string/hello_charts_license"/>
+            android:textSize="18sp"
+            android:text="@string/hello_charts"
+            android:textColor="@android:color/black"
+            android:linksClickable="true"
+            android:autoLink="web"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,6 +65,42 @@
                 android:autoLink="web"/>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/glide_icon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/glide_icon_description" />
+
+            <TextView
+                android:id="@+id/glide_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:textSize="18sp"
+                android:text="@string/glide"
+                android:textColor="@android:color/black"
+                android:linksClickable="true"
+                android:autoLink="web"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/eventbus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:text="@string/event_bus"
+            android:textColor="@android:color/black"
+            android:linksClickable="true"
+            android:autoLink="web"/>
 
         <TextView
             android:id="@+id/textView7"

@@ -170,7 +170,8 @@ you may not use this file except in compliance with the License. You may obtain 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.\n</string>
-    <string name="other_software_clause">Special Thanks To\u2026</string>
+    <string name="other_software_clause">Third-Party Contributors</string>
+    <string name="hello_charts">Hello Charts\n<a href="https://github.com/lecho/hellocharts-android/blob/master/LICENSE.txt">github.com/lecho/hellocharts-android</a></string>
     <string name="hello_charts_license">HelloCharts\nCopyright 2014 Leszek Wach\n\nLicensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at\n
@@ -181,11 +182,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.\n\nHelloCharts library uses code from InteractiveChart sample available
  on Android Developers page:\n\n\thttp://developer.android.com/training/gestures/scale.html\n</string>
-    <string name="toasty">Toasty\nThe usual Toast, but with steroids.\n<a href="https://github.com/GrenderG/Toasty">github.com/GrenderG/Toasty</a></string>
+    <string name="toasty">Toasty\n<a href="https://github.com/GrenderG/Toasty">github.com/GrenderG/Toasty</a></string>
+    <string name="glide">Glide\n<a href="http://bumptech.github.io/glide/">bumptech.github.io/glide/</a></string>
     <string name="flaticon">The following icon creators at <a href="http://www.flaticon.com">Flaticon.com</a></string>
     <string name="author_freepik">Icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a></string><!-- running, hiking, rowboat, jump rope, jogging, treadmill, bike, swimming -->
     <string name="author_scott_de_jonge">Icon made by Scott de Jonge from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
     <string name="toasty_icon_description">Toasty Icon</string>
+    <string name="glide_icon_description">Glide Icon</string>
+    <string name="event_bus">EventBus by green<font fgcolor="#5fad35">robot</font>\n<a href="http://greenrobot.org/eventbus/">greenrobot.org</a></string>
 
     <string name="run_icon_description">Run Icon</string>
     <string name="hike_icon_description">Hike Icon</string>
@@ -198,7 +202,7 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
 
     <!-- TimerActivity dialog strings -->
     <string name="dialog_save_exit_msg">Are you done recording your cardio session?</string>
-    <string name="dialog_back_press_exit_running_msg">The timer is still running...\nAny data recorded will be lost\nDo you still want to exit?</string>
+    <string name="dialog_back_press_exit_running_msg">The timer is still running\u2026\nAny data recorded will be lost\nDo you still want to exit?</string>
     <string name="title_activity_opening">OpeningActivity</string>
     <string name="title_activity_hello_graph_v2">HelloGraphV2</string>
 
@@ -223,22 +227,22 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <!-- BackupRestoreDialog strings -->
     <string name="dialog_backup">Back up</string>
     <string name="dialog_restore">Restore</string>
-    <string name="dialog_new_locale">Backup to...</string>
-    <string name="dialog_restore_from">Restore from...</string>
+    <string name="dialog_new_locale">Backup to\u2026</string>
+    <string name="dialog_restore_from">Restore from\u2026</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- Bottom Sheet -->
 
-    <string name="filter_by">Filter by...</string>
-    <string name="sort_by">Sort by...</string>
+    <string name="filter_by">Filter by\u2026</string>
+    <string name="sort_by">Sort by\u2026</string>
     <string name="sort">Sort</string>
     <string name="filter">Filter</string>
     <string name="clear">Clear</string>
     <string name="reset">Reset</string>
 
     <string-array name="sort_options">
-        <item>Select...</item>
+        <item>Select\u2026</item>
         <item>Exercise: A-Z</item>
         <item>Exercise: Z-A</item>
         <item>Date: Ascending</item>
