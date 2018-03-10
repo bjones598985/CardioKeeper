@@ -235,7 +235,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         String distPref = sPrefs.getString(getResources().getString(R.string.pref_distance), "-1");
         distUnit = distPref.equals("-1") ? getResources().getString(R.string.short_miles).toLowerCase() : getResources().getString(R.string.short_kilos).toLowerCase();
-        isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
+        //isAutoBackupEnabled = sPrefs.getBoolean(getResources().getString(R.string.pref_sync), false);
     }
 
     private void initFabs() {
@@ -334,8 +334,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     }
 
     private void checkIfAutoBackupEnabled() {
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean syncEnabled = sharedPref.getBoolean(getString(R.string.pref_sync), false);
+        boolean syncEnabled = isAutoBackupEnabled();
         if (!syncEnabled) {
             Random rand = new Random();
             int r = rand.nextInt(10);
@@ -343,6 +342,11 @@ public class MainActivityAlt extends AppCompatActivity  implements
                 showGeneralDialog(DIALOG_ENABLE_BACKUP);
             }
         }
+    }
+
+    private boolean isAutoBackupEnabled() {
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        return sharedPref.getBoolean(getString(R.string.pref_sync), false);
     }
 
     //for testing purposes only
@@ -533,7 +537,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onDatabaseEvent(DataModel.DatabaseEvent event) {
         if (event.getEvent() == DataModel.DatabaseEvent.DATA_ADDED) {
-            if (isAutoBackupEnabled) {
+            if (isAutoBackupEnabled()) {
                 final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
                 final String backupKey = sharedPref.getString(getResources().getString(R.string.db_backup_key), null);
                 final Uri backupUri = Uri.parse(backupKey);

@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="32dp"
+    android:padding="16dp"
     android:animateLayoutChanges="true">
 
     <LinearLayout
@@ -16,16 +16,16 @@
             android:id="@+id/backup_button"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="80dp"
             android:layout_weight="1"
-            android:theme="@style/DialogButtons"
-            android:text="@string/dialog_backup" />
+            android:text="@string/dialog_backup"
+            android:theme="@style/DialogButtons" />
 
         <Button
             android:id="@+id/restore_button"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="80dp"
             android:layout_weight="1"
             android:text="@string/dialog_restore"
             android:theme="@style/DialogButtons.Restore" />
@@ -34,26 +34,26 @@
 
     <LinearLayout
         android:id="@+id/backup_mini_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_marginTop="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
         android:visibility="gone">
 
         <Button
             android:id="@+id/backup_same_location"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
             android:theme="@style/DialogButtons.Mini"/>
 
         <Button
             android:id="@+id/backup_new_location"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
             android:theme="@style/DialogButtons.Mini"
             android:text="@string/dialog_new_locale"/>
 
@@ -61,26 +61,26 @@
 
     <LinearLayout
         android:id="@+id/restore_mini_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_marginTop="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
         android:visibility="gone">
 
         <Button
             android:id="@+id/restore_last_location"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
             android:theme="@style/DialogButtons.Restore.Mini"/>
 
         <Button
             android:id="@+id/restore_other_location"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
             android:theme="@style/DialogButtons.Restore.Mini"
             android:text="@string/dialog_restore_from"/>
 

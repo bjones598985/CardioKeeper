@@ -33,7 +33,6 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        setCancelable(false);
         listener = (ChoiceListener) getActivity();
 
         backupKey = getArguments().getString("backupKey");
