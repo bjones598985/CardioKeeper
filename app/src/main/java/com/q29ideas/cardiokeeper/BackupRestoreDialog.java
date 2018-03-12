@@ -43,14 +43,12 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
             rootView.findViewById(button).setOnClickListener(this);
         }
 
-        AlertDialog ad = builder.setView(rootView).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        return builder.setView(rootView).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 getDialog().dismiss();
             }
         }).create();
-        //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        return ad;
     }
 
     @Override
@@ -59,7 +57,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
             case R.id.backup_button:
                 if (backupKey != null) {
                     rootView.findViewById(R.id.backup_mini_layout).setVisibility(View.VISIBLE);
-                    final Button newLocale = (Button) rootView.findViewById(R.id.backup_new_location);
+                    final Button newLocale = rootView.findViewById(R.id.backup_new_location);
                     newLocale.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -67,7 +65,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                             getDialog().dismiss();
                         }
                     });
-                    final Button sameLocale = (Button) rootView.findViewById(R.id.backup_same_location);
+                    final Button sameLocale = rootView.findViewById(R.id.backup_same_location);
                     sameLocale.setText(backupKey.contains("google") ? "Backup to Google Drive" : "Backup to File System");
                     sameLocale.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -84,7 +82,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
             case R.id.restore_button:
                 if (backupKey != null) {
                     rootView.findViewById(R.id.restore_mini_layout).setVisibility(View.VISIBLE);
-                    final Button otherLocale = (Button) rootView.findViewById(R.id.restore_other_location);
+                    final Button otherLocale = rootView.findViewById(R.id.restore_other_location);
                     otherLocale.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -92,7 +90,7 @@ public class BackupRestoreDialog extends DialogFragment implements View.OnClickL
                             getDialog().dismiss();
                         }
                     });
-                    final Button lastLocale = (Button) rootView.findViewById(R.id.restore_last_location);
+                    final Button lastLocale = rootView.findViewById(R.id.restore_last_location);
                     lastLocale.setText(backupKey.contains("google") ? "Restore from Google Drive" : "Restore from File System");
                     lastLocale.setOnClickListener(new View.OnClickListener() {
                         @Override

@@ -24,7 +24,6 @@ public class TimerService extends Service {
     private NotificationManager mNM;
     private PendingIntent contentIntent;
     private Timer timer;
-    private String title;
 
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -68,10 +67,7 @@ public class TimerService extends Service {
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        //contentIntent = PendingIntent.getActivity(this,
-                //0,new Intent(this, TimerActivity.class), 0);
         timer = new Timer();
-        title = getString(R.string.ticker);
     }
 
     @Override
@@ -97,11 +93,6 @@ public class TimerService extends Service {
         i.putExtra("recreate", true);
         stackBuilder.addParentStack(MainActivityAlt.class);
         stackBuilder.addNextIntent(i);
-        //stackBuilder.addParentStack(TimerActivity.class);
-        //stackBuilder.addNextIntent(new Intent(this, TimerActivity.class));
-
-
-        //contentIntent = PendingIntent.getActivity(this,0,new Intent(this, TimerActivity.class), 0);
         contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder notification = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)// the status icon

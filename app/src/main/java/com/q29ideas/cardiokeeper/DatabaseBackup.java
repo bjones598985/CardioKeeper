@@ -2,8 +2,6 @@ package com.q29ideas.cardiokeeper;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -44,8 +42,6 @@ class DatabaseBackup {
             outputStream.close();
             return 1;
         } catch (IOException ioe) {
-            Log.e(TAG, ioe.toString());
-            Log.e(TAG, "The file did not write");
             return -1;
         }
     }
@@ -66,9 +62,6 @@ class DatabaseBackup {
             for (char c : ch) {
                 sb.append(c);
             }
-            Toast.makeText(MyApplication.appContext, "Char array: " + sb.toString(), Toast.LENGTH_LONG).show();
-
-
         } catch (IOException ioe) {
             //do nothing
         }

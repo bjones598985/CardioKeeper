@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,13 +25,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import es.dmoral.toasty.Toasty;
+
 //Created 1/19/2016.
 
 class Utils {
 
     private static final String TAG = "Utils";
-
-    static final String DB_DATE_FORMAT = "yyyy-MM-dd";
 
     static int getCardioIcon(String exercise) {
         switch (exercise) {
@@ -173,7 +174,7 @@ class Utils {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final File currentDB = new File(Environment.getDataDirectory(), "data/com.bolyndevelopment.owner.runlogger2/databases/log.db");
+                final File currentDB = new File(Environment.getDataDirectory(), "data/com.q29ideas.cardiokeeper/databases/log.db");
                 try {
                     final ParcelFileDescriptor pfd = MyApplication.appContext.getContentResolver().openFileDescriptor(uri, "w");
                     if (pfd != null) {
@@ -217,9 +218,12 @@ class Utils {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final File applicationDb = new File(Environment.getDataDirectory(), "data/com.bolyndevelopment.owner.runlogger2/databases/log.db");
+                final File applicationDb = new File(Environment.getDataDirectory(), "data/com.q29ideas.cardiokeeper/databases/log.db");
                 try {
-                    final FileChannel source = ((FileInputStream) MyApplication.appContext.getContentResolver().openInputStream(restoreUri)).getChannel();
+                    FileChannel source = null;
+                    if ((MyApplication.appContext.getContentResolver().openInputStream(restoreUri)) != null) {
+                        source = ((FileInputStream) MyApplication.appContext.getContentResolver().openInputStream(restoreUri)).getChannel();
+                    }
                     if (source != null) {
                         final FileChannel destination = new FileOutputStream(applicationDb).getChannel();
                         destination.transferFrom(source, 0, source.size());
@@ -229,8 +233,8 @@ class Utils {
                     } else {
                         handler.dispatchMessage(handler.obtainMessage(9));
                     }
-                } catch (IOException e) {
-                    Log.d(TAG, "Error writing DB " + e.toString());
+                } catch (IOException ee) {
+                    Toasty.error(MyApplication.appContext, "Error writing database " + ee.toString(), Toast.LENGTH_SHORT, true).show();
                 }
             }
         }).start();

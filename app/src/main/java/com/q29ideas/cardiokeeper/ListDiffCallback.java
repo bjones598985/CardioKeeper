@@ -5,13 +5,11 @@ import android.support.v7.util.DiffUtil;
 
 import java.util.List;
 
-//Created by Bobby Jones on 1/31/2018.
-
 public class ListDiffCallback extends DiffUtil.Callback {
-    List<ListItem> oldList;
-    List<ListItem> newList;
+    private List<ListItem> oldList;
+    private List<ListItem> newList;
 
-    public ListDiffCallback (List<ListItem> oldList, List<ListItem> newList) {
+    ListDiffCallback (List<ListItem> oldList, List<ListItem> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }

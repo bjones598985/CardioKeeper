@@ -1,5 +1,7 @@
 package com.q29ideas.cardiokeeper;
 
+import android.os.Environment;
+
 import com.q29ideas.cardiokeeper.Utils;
 
 import org.junit.Test;
@@ -55,5 +57,4 @@ public class UtilsTest {
     public void getCardioIcon() {
         assertEquals(R.drawable.bike_cardio, Utils.getCardioIcon("Biking"));
     }
-
 }

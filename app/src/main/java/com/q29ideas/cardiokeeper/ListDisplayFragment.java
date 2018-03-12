@@ -20,7 +20,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,23 +94,14 @@ public class ListDisplayFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setRetainInstance(true);
-        Log.d("LDF", "laptimer data: " + lapDataFromTimer.size());
         mainRecyclerView = view.findViewById(R.id.main_recyclerview);
         mainRecyclerView.setHasFixedSize(true);
         myAdapter = new MyAdapter();
         mainRecyclerView.setAdapter(myAdapter);
         ((MainActivityAlt)getActivity()).queryForRecords();
-        //queryForRecords();
-        /*
-        used to add decoration onto recyclerview
-        Drawable right = getResources().getDrawable(R.drawable.right_divider);
-        Drawable left = getResources().getDrawable(R.drawable.left_divider);
-        binder.mainRecyclerview.addItemDecoration(new DividerDecoration(left, right));
-        */
     }
 
     public void setIsAddDialogOpen(boolean isOpen) {
-        Log.d("LDF", "var isOpen: " + isOpen);
         isAddDialogOpen = isOpen;
     }
 
@@ -165,14 +155,7 @@ public class ListDisplayFragment extends Fragment {
         oldList.clear();
         oldList.addAll(recordsList);
         recordsList.clear();
-        if (cursor.getCount() == 0) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    //Toast.makeText(getContext(), "Uh oh, no results for that selection...", Toast.LENGTH_LONG).show();
-                }
-            });
-        } else {
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             ListItem item;
             while (!cursor.isAfterLast()) {
@@ -221,7 +204,7 @@ public class ListDisplayFragment extends Fragment {
         setIsAddDialogOpen(true);
     }
 
-    public void onTimerFabClicked(boolean isAddDialogOpen) {
+    public void onTimerFabClicked() {
         if (isAddDialogOpen) {
             recordsList.remove(0);
             mainRecyclerView.getAdapter().notifyItemRemoved(0);
@@ -264,7 +247,6 @@ public class ListDisplayFragment extends Fragment {
             myAdapter.notifyItemChanged(0);
             mainRecyclerView.scrollToPosition(0);
             setIsAddDialogOpen(false);
-            //mListener.setInitDialogOpen(false);
         }
     }
 
@@ -290,7 +272,6 @@ public class ListDisplayFragment extends Fragment {
         @SuppressWarnings("deprecation")
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            Log.d("LDF", "Size; " + recordsList.size());
         if (recordsList.get(position) instanceof AddDialog) {
             MyAdapter.AddViewHolder avh = (MyAdapter.AddViewHolder) holder;
             final AddDialog ad = (AddDialog) recordsList.get(position);
@@ -324,7 +305,6 @@ public class ListDisplayFragment extends Fragment {
             int color = Utils.ColorUtils.getCardioColor(item.cType);
 
             Drawable circle = getResources().getDrawable(R.drawable.bg_ripple_circle);
-            //Drawable semiCircleBanner = getResources().getDrawable(R.drawable.semi_circle_banner);
             RippleDrawable semiCircleBanner = (RippleDrawable) getResources().getDrawable(R.drawable.bg_ripple_banner);
 
             semiCircleBanner.mutate();
@@ -339,7 +319,7 @@ public class ListDisplayFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-        return recordsList.size();
+            return recordsList.size();
     }
 
         class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -432,7 +412,6 @@ public class ListDisplayFragment extends Fragment {
                         recordsList.remove(0);
                         mainRecyclerView.getAdapter().notifyItemRemoved(0);
                         setIsAddDialogOpen(false);
-                        //mListener.setInitDialogOpen(false);
                         break;
                     case R.id.confirm_button:
                         int validation = validateFields();
@@ -539,7 +518,6 @@ public class ListDisplayFragment extends Fragment {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             month++;
             String formattedDate = String.format(Locale.US, "%04d-%02d-%02d", year, month, day);
-            //String datePicked = month + "/" + day + "/" + year;
             // Do something with the date chosen by the user
             avh.dateInput.setText(formattedDate);
         }
@@ -565,7 +543,6 @@ public class ListDisplayFragment extends Fragment {
             }
         }
 
-        //needs some work to make dates sort properly
         static Comparator<ListItem> getDateComparator(int direction) {
             if (direction == ASCENDING) {
                 return new Comparator<ListItem>() {

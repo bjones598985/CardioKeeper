@@ -1,9 +1,5 @@
 package com.q29ideas.cardiokeeper;
 
-/**
- * Created by Bobby Jones on 1/31/2018.
- */
-
 public class ListItem {
     int calories;
     float distance;
@@ -11,7 +7,6 @@ public class ListItem {
     private int itemId;
 
     private static int id = 0;
-
 
     ListItem() {
         itemId = ++id;

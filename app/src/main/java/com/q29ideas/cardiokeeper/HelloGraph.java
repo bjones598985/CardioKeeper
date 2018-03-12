@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,7 +21,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.q29ideas.owner.cardiokeeper.databinding.ActivityGraphsV2Binding;
+import com.q29ideas.cardiokeeper.databinding.ActivityGraphsV2Binding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +42,6 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SubcolumnValue;
 
 public class HelloGraph extends AppCompatActivity {
-    //Created by Bobby Jones on 8/11/2017
     public static final String TAG = "HelloGraph";
 
     private static final String SPINNER_CARDIO = "spinner_cardio";
@@ -65,8 +63,6 @@ public class HelloGraph extends AppCompatActivity {
     List<Integer> columnColorList = new ArrayList<>(); // list of colors for coloring the columns
 
     Handler handler = new Handler();
-
-    List<Float> rawData;
 
     List<AxisValue> axisValues;
 
@@ -187,7 +183,6 @@ public class HelloGraph extends AppCompatActivity {
 
     private void initVars() {
         axisValues = new ArrayList<>();
-        rawData = new ArrayList<>();
         columnData = new ColumnChartData();
         lineData = new LineChartData();
     }
@@ -307,7 +302,6 @@ public class HelloGraph extends AppCompatActivity {
                 @Override
                 public void run() {
                     String query = getQuery();
-                    Log.d(TAG, "query: " + query);
                     Cursor c = DataModel.getInstance().rawQuery(query, null);
                     DatabaseUtils.dumpCursor(c);
                     if (initialDataLoaded) {
@@ -461,10 +455,6 @@ public class HelloGraph extends AppCompatActivity {
         int oldColumnCount = columnsList.size();
 
         results.moveToFirst();
-        /*
-        if the cursor returns no results, we'll reduce the
-        currently displaying column/subcolumn values to zero
-         */
         if (newColCount == 0) {
             handler.post(new Runnable() {
                 @Override
@@ -474,11 +464,11 @@ public class HelloGraph extends AppCompatActivity {
             });
         }
         int colCount = 0;
-        int sublistSize = 0;
+        int sublistSize;
 
         /*
         if the new columns are greater than zero, we're going to pass through
-        at least one time and based on date and sequence, we may interate
+        at least one time and based on date and sequence, we may iterate
         more times
          */
         if (newColCount > 0) {
@@ -557,10 +547,6 @@ public class HelloGraph extends AppCompatActivity {
         int oldColumnCount = columnsList.size();
 
         results.moveToFirst();
-        /*
-        if the cursor returns no results, we'll reduce the
-        currently displaying column/subcolumn values to zero
-         */
         if (newColCount == 0) {
             handler.post(new Runnable() {
                 @Override
@@ -571,11 +557,11 @@ public class HelloGraph extends AppCompatActivity {
         }
 
         int colCount = 0;
-        int sublistSize = 0;
+        int sublistSize;
 
         /*
         if the new columns are greater than zero, we're going to pass through
-        at least one time and based on date and sequence, we may interate
+        at least one time and based on date and sequence, we may iterate
         more times
          */
         if (newColCount > 0) {

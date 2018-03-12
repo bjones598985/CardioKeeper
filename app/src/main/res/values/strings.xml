@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Cardio\nKeeper</string>
-    <string name="action_graph">About</string>
 
     <!-- Navigation drawer strings -->
     <string name="graph">Graph</string>
@@ -9,8 +8,6 @@
     <string name="backup">Backup \u0026 Restore</string>
 
     <!-- MainActivity strings -->
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
 
     <string name="select_">Select\u2026</string>
     <string name="biking">Biking</string>
@@ -30,7 +27,6 @@
     <string name="duration">Duration</string>
     <string name="distance">Distance</string>
     <string name="cal_burned">Calories</string>
-    <string name="laps">Laps</string>
     <string name="dph">Speed</string>
     <string name="cals_per_time">Cals per Hr</string>
     <string name="cals_per_dist">Cals per Dist.</string>
@@ -94,18 +90,11 @@
 
     <!-- HelloGraph Strings -->
 
-    <string name="days">Days</string>
-    <string name="weeks">Weeks</string>
-    <string name="months">Months</string>
-    <string name="years">Years</string>
-    <string name="no_graph_data">Nothing to show\nfor those selections</string>
-
     <string name="include_laps_text">Include Lap Data</string>
     <string name="run_query_button_text">Go</string>
     <string name="cancel_menu_button">Cancel</string>
 
     <!-- Button Dialog Frag Layout Strings -->
-    <string name="cardio_label">Cardio: </string>
     <string name="date_label">Date: </string>
     <string name="time_label">Time: </string>
     <string name="time_input_hint">hh:mm:ss</string>
@@ -118,7 +107,6 @@
     <!-- Shared Preferences Keys -->
 
     <string name="db_backup_key">db_backup_key</string>
-    <string name="db_backup_location">db_backup_location</string>
 
     <!-- Strings related to Settings -->
 
@@ -160,10 +148,8 @@
 
     <!-- GeneralDialog strings -->
     <string name="sync_dialog_notice">You can change this at any time by going to Settings in the side menu\u2026</string>
-    <string name="about_dialog_title">Q29 Creations</string>
     <string name="sync_dialog_title">Enable Auto Sync?</string>
 
-    <string name="about_intro">Q29 Creations</string>
     <string name="copyright">Cardio Keeper\nCopyright 2017 Robert M Jones II\n\nLicensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0http://www.apache.org/licenses/LICENSE-2.0\n
 \nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
@@ -172,24 +158,13 @@ See the License for the specific language governing permissions and
 limitations under the License.\n</string>
     <string name="other_software_clause">Third-Party Contributors</string>
     <string name="hello_charts">Hello Charts\n<a href="https://github.com/lecho/hellocharts-android/blob/master/LICENSE.txt">github.com/lecho/hellocharts-android</a></string>
-    <string name="hello_charts_license">HelloCharts\nCopyright 2014 Leszek Wach\n\nLicensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at\n
-\n\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0http://www.apache.org/licenses/LICENSE-2.0\n
-\nUnless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.\n\nHelloCharts library uses code from InteractiveChart sample available
- on Android Developers page:\n\n\thttp://developer.android.com/training/gestures/scale.html\n</string>
     <string name="toasty">Toasty\n<a href="https://github.com/GrenderG/Toasty">github.com/GrenderG/Toasty</a></string>
     <string name="glide">Glide\n<a href="http://bumptech.github.io/glide/">bumptech.github.io/glide/</a></string>
-    <string name="flaticon">The following icon creators at <a href="http://www.flaticon.com">Flaticon.com</a></string>
     <string name="author_freepik">Icons made by Freepik from <a href="http://www.flaticon.com">www.flaticon.com</a></string><!-- running, hiking, rowboat, jump rope, jogging, treadmill, bike, swimming -->
     <string name="author_scott_de_jonge">Icon made by Scott de Jonge from <a href="http://www.flaticon.com">www.flaticon.com</a></string>
     <string name="toasty_icon_description">Toasty Icon</string>
     <string name="glide_icon_description">Glide Icon</string>
-    <string name="event_bus">EventBus by green<font fgcolor="#5fad35">robot</font>\n<a href="http://greenrobot.org/eventbus/">greenrobot.org</a></string>
+    <string name="event_bus">EventBus by green\n<a href="http://greenrobot.org/eventbus/">greenrobot.org</a></string>
 
     <string name="run_icon_description">Run Icon</string>
     <string name="hike_icon_description">Hike Icon</string>
@@ -203,34 +178,16 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
     <!-- TimerActivity dialog strings -->
     <string name="dialog_save_exit_msg">Are you done recording your cardio session?</string>
     <string name="dialog_back_press_exit_running_msg">The timer is still running\u2026\nAny data recorded will be lost\nDo you still want to exit?</string>
-    <string name="title_activity_opening">OpeningActivity</string>
-    <string name="title_activity_hello_graph_v2">HelloGraphV2</string>
 
     <!-- TimerService -->
-    <string name="ticker">Time Elapsed</string>
 
     <!-- Color codes -->
-    <string name="bike_color">#ff0000</string>
-    <string name="elliptical_color">#ff6680</string>
-    <string name="exercise_bike_color">#cc2100</string>
-    <string name="hiking_color">#008888</string>
-    <string name="jogging_color">#ff00ff</string>
-    <string name="jump_rope_color">#dd00a0</string>
-    <string name="rowing_color">#ffa500</string>
-    <string name="rowing_machine_color">#2aa900</string>
-    <string name="running_color">#999999</string>
-    <string name="stair_master_color">#666666</string>
-    <string name="swimming_color">#00cc00</string>
-    <string name="treadmill_color">#0088ff</string>
-    <string name="walking_color">#0000ff</string>
 
     <!-- BackupRestoreDialog strings -->
     <string name="dialog_backup">Back up</string>
     <string name="dialog_restore">Restore</string>
     <string name="dialog_new_locale">Backup to\u2026</string>
     <string name="dialog_restore_from">Restore from\u2026</string>
-
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- Bottom Sheet -->
 
@@ -254,9 +211,5 @@ limitations under the License.\n\nHelloCharts library uses code from Interactive
         <item>Calories: Ascending</item>
         <item>Calories: Descending</item>
     </string-array>
-
-    <string name="title_activity_graphing">GraphingActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

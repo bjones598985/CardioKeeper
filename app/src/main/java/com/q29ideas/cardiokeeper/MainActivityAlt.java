@@ -37,7 +37,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,7 +96,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
 
     private ActionBarDrawerToggle drawerToggle;
     private Handler handler = new Handler();
-    boolean isAddDialogOpen = false, isFirstBackup, isDualPane, areFabsExpanded = false;
+    boolean isFirstBackup, isDualPane, areFabsExpanded = false;
     private CoordinatorLayout coord;
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -110,7 +109,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult");
         if (requestCode == CREATE_FILE_CODE && resultCode == Activity.RESULT_OK) {
             final Uri backupUri = data.getData();
             Utils.backupDb(backupUri, handler, coord);
@@ -136,7 +134,9 @@ public class MainActivityAlt extends AppCompatActivity  implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_alt);
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
-        //addRandomData();
+
+        //addRandomData(); testing only
+
         coord = findViewById(R.id.coord);
         toolbar = findViewById(R.id.toolbar);
         final ViewPager pager = findViewById(R.id.pager);
@@ -179,12 +179,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
         bottomBehavior = BottomSheetBehavior.from(pager);
         bottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomBehavior.setPeekHeight(0);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("isAddDialogOpen", isAddDialogOpen);
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -251,8 +245,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 animateFabs();
-                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).onTimerFabClicked(isAddDialogOpen);
-                isAddDialogOpen = false;
+                ((ListDisplayFragment)getSupportFragmentManager().findFragmentById(R.id.ListFrag)).onTimerFabClicked();
             }
         });
         filterFab = findViewById(R.id.fab_filter);
@@ -260,9 +253,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 animateFabs();
-                //Snackbar.make(coord, "Filter - slated for future release", Snackbar.LENGTH_LONG).show();
                 bottomBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                //((FilterSortBottomSheet)getFragmentManager().findFragmentById(R.id.bottom_sheet_frag))
             }
         });
         addFab = findViewById(R.id.fab_add_manual);
@@ -395,7 +386,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
                     });
                 }
             }).start();
-
         }
     }
 
@@ -469,7 +459,6 @@ public class MainActivityAlt extends AppCompatActivity  implements
     @Override
     public long saveEnteredData(final HashMap<String, String> map, ArrayList<String> lapData) {
         return DataModel.getInstance().addRecords(map, lapData);
-        //new DatabaseBackup(this).dumpBackupFile();
     }
 
     @Override

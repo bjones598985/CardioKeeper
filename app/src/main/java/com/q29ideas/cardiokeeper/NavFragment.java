@@ -2,7 +2,6 @@ package com.q29ideas.cardiokeeper;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -14,25 +13,13 @@ import com.bumptech.glide.Glide;
 
 public class NavFragment extends Fragment implements View.OnClickListener{
     private NavFragListener mListener;
-    private Handler handler = new Handler();
 
     public interface NavFragListener {
         void onBackUpRestoreClicked();
         void onMenuOptionClicked(View view);
     }
 
-    public NavFragment() {
-        // Required empty public constructor
-    }
-
-    public static NavFragment newInstance(String param1, String param2) {
-        return new NavFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    public NavFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

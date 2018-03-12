@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Slide;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,8 +26,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.q29ideas.owner.cardiokeeper.databinding.ActivityTimerBinding;
+import com.q29ideas.cardiokeeper.databinding.ActivityTimerBinding;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -36,6 +36,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import es.dmoral.toasty.Toasty;
 
 public class TimerActivity extends AppCompatActivity implements View.OnClickListener {
     static final int DIALOG_SAVE_AND_EXIT = 1;
@@ -105,7 +107,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d("TIMEACT", "onStop");
         if (writeToCache) {
             final File file = new File(getCacheDir(), LAP_FILE);
             final String list = new Gson().toJson(lapList);
@@ -115,7 +116,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                 fos.write(list.getBytes());
                 fos.close();
             } catch (IOException ioe) {
-                Log.e("Timer Activity", "Error: " + ioe.toString());
+                //Log.e("Timer Activity", "Error: " + ioe.toString());
             }
         }
     }
@@ -137,6 +138,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         if (savedInstanceState != null) {
             lapList = savedInstanceState.getStringArrayList("list");
         }
+
         fetchCachedDataIfExists();
 
         digitalItalic = Typeface.createFromAsset(getAssets(), "fonts/digital_italic.ttf");
@@ -168,7 +170,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                     sb.append((char) i);
                 }
             } catch (IOException ioe) {
-                Log.d("Timer Activity", "Error: " + ioe.toString());
+                Toasty.error(this, "" + ioe.toString(), Toast.LENGTH_SHORT, true).show();
             }
             lapList = new Gson().fromJson(sb.toString(), ArrayList.class);
             file.delete();
@@ -289,8 +291,8 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             TextView lapOrder, lapTime;
             LapHolder(View itemView) {
                 super(itemView);
-                lapOrder = (TextView) itemView.findViewById(R.id.lap_info_text);
-                lapTime = (TextView) itemView.findViewById(R.id.lap_info);
+                lapOrder = itemView.findViewById(R.id.lap_info_text);
+                lapTime = itemView.findViewById(R.id.lap_info);
                 lapTime.setTypeface(digitalItalic);
             }
         }
@@ -342,8 +344,6 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
                             }
                         });
             }
-            //AlertDialog ad = builder.create();
-            //ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             return builder.create();
         }
     }

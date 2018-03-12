@@ -29,18 +29,6 @@
 
     </style>
 
-    <style name="MainActivityTextViews" parent="AppTheme">
-        <item name="android:layout_weight">2</item>
-        <item name="android:gravity">center</item>
-        <item name="android:padding">4dp</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-
-    </style>
-
-    <style name="MainActivityTextViews.Other">
-        <item name="android:layout_weight">1</item>
-    </style>
-
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
 
     </style>
@@ -55,10 +43,6 @@
 
     <style name="HelloGraphGoButton" parent="AppTheme">
         <item name="colorAccent">#ffffff</item>
-    </style>
-
-    <style name="HelloGraphFab" parent="AppTheme">
-        <item name="colorAccent">@android:color/transparent</item>
     </style>
 
     <style name="HelloGraphCancelButton" parent="AppTheme">
@@ -94,18 +78,6 @@
     <style name="DialogButtons.Restore.Mini">
         <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="FullscreenTheme" parent="AppTheme">
-        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
-        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
-    </style>
-
-    <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
     </style>
 
     <style name="CheckBoxStyle" parent="AppTheme">
