@@ -1,4 +1,4 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;

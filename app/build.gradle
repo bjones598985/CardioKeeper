@@ -5,7 +5,7 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        applicationId "com.bolyndevelopment.owner.runlogger2"
+        applicationId "com.q29ideas.cardiokeeper"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1

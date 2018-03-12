@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="false"
-    tools:context="com.bolyndevelopment.owner.runlogger2.ListDisplayFragment">
+    tools:context=".ListDisplayFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/main_recyclerview"

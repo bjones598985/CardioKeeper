@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            tools:context="com.bolyndevelopment.owner.runlogger2.MainActivity">
+            tools:context="com.q29ideas.owner.cardiokeeper.MainActivity">
 
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
@@ -35,7 +35,7 @@
 
             <fragment android:id="@+id/ListFrag"
                 android:layout_height="match_parent"
-                android:name="com.bolyndevelopment.owner.runlogger2.ListDisplayFragment"
+                android:name="com.q29ideas.cardiokeeper.ListDisplayFragment"
                 android:layout_width="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
@@ -62,7 +62,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_marginBottom="16dp"
                 android:layout_marginEnd="16dp"
-                app:srcCompat="@drawable/ic_filter" />
+                app:srcCompat="@drawable/ic_filter_list_black" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_time_record"
@@ -105,7 +105,7 @@
 
                 <fragment android:id="@+id/navFrag"
                     android:layout_height="match_parent"
-                    android:name="com.bolyndevelopment.owner.runlogger2.NavFragment"
+                    android:name="com.q29ideas.cardiokeeper.NavFragment"
                     android:layout_width="match_parent"/>
 
         </android.support.design.widget.NavigationView>

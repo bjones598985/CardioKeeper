@@ -1,4 +1,4 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -22,7 +22,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bolyndevelopment.owner.runlogger2.databinding.ActivityGraphsV2Binding;
+import com.q29ideas.owner.cardiokeeper.databinding.ActivityGraphsV2Binding;
 
 import java.util.ArrayList;
 import java.util.Arrays;

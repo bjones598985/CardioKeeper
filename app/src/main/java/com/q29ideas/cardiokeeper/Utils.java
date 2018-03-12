@@ -1,4 +1,4 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
 import android.graphics.Color;
 import android.net.Uri;
@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 

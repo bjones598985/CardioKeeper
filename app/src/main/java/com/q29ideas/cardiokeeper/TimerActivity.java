@@ -1,4 +1,4 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Explode;
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,7 +28,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.bolyndevelopment.owner.runlogger2.databinding.ActivityTimerBinding;
+import com.q29ideas.owner.cardiokeeper.databinding.ActivityTimerBinding;
 import com.google.gson.Gson;
 
 import java.io.File;

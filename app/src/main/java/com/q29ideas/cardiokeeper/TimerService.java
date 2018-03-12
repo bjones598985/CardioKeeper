@@ -1,4 +1,4 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,10 +9,6 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.widget.TextView;
-
-import com.bumptech.glide.util.Util;
-
-import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 import java.util.Timer;

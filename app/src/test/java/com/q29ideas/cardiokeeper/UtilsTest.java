@@ -1,6 +1,6 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
-import android.text.TextUtils;
+import com.q29ideas.cardiokeeper.Utils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

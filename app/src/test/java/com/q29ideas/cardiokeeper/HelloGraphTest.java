@@ -1,8 +1,6 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Bobby Jones on 11/4/2017.

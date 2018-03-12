@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.bolyndevelopment.owner.runlogger2.TimerActivity"
+        tools:context=".TimerActivity"
         android:orientation="vertical"
         android:background="#d9d9d9">
 

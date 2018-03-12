@@ -1,15 +1,8 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
 
-import android.Manifest;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -18,11 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-
-import static com.bolyndevelopment.owner.runlogger2.MainActivityAlt.DIALOG_ABOUT;
-import static com.bolyndevelopment.owner.runlogger2.MainActivityAlt.MIN_DELAY_MILLIS;
-import static com.bolyndevelopment.owner.runlogger2.MainActivityAlt.SETTINGS_CODE;
-import static com.bolyndevelopment.owner.runlogger2.MainActivityAlt.WRITE_REQUEST_CODE;
 
 public class NavFragment extends Fragment implements View.OnClickListener{
     private NavFragListener mListener;

@@ -1,4 +1,7 @@
-package com.bolyndevelopment.owner.runlogger2;
+package com.q29ideas.cardiokeeper;
+
+import com.q29ideas.cardiokeeper.ListItem;
+import com.q29ideas.cardiokeeper.Utils;
 
 import org.junit.Test;
 
