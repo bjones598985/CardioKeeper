@@ -290,6 +290,7 @@ public class ListDisplayFragment extends Fragment {
         @SuppressWarnings("deprecation")
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            Log.d("LDF", "Size; " + recordsList.size());
         if (recordsList.get(position) instanceof AddDialog) {
             MyAdapter.AddViewHolder avh = (MyAdapter.AddViewHolder) holder;
             final AddDialog ad = (AddDialog) recordsList.get(position);
