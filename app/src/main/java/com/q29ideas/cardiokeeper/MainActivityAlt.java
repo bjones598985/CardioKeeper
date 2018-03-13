@@ -135,7 +135,7 @@ public class MainActivityAlt extends AppCompatActivity  implements
         setContentView(R.layout.activity_main_alt);
         isDualPane = getResources().getBoolean(R.bool.dual_pane);
 
-        //addRandomData(); testing only
+        //addRandomData();// testing only
 
         coord = findViewById(R.id.coord);
         toolbar = findViewById(R.id.toolbar);

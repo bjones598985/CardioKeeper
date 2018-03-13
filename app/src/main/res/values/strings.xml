@@ -212,4 +212,7 @@ limitations under the License.\n</string>
         <item>Calories: Descending</item>
     </string-array>
 
+    <string name="drawer_open">Drawer Open</string>
+    <string name="drawer_close">Drawer Close</string>
+
 </resources>
